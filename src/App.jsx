@@ -92,7 +92,7 @@ const SplashScreen = () => {
       <div style={{
         animation: 'logoReveal 1.5s ease-out forwards',
         marginBottom: 30,
-        textAlign: 'center'
+        textAlign: 'center',
         background: 'none'
       }}>
         <img 
