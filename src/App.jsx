@@ -242,7 +242,7 @@ function WelcomeScreen({onEnter}) {
       transition: leaving ? "opacity 0.6s ease" : "none",
     }}>
 
-</div>
+      </div>
       {/* Animated background rings */}
       <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none"}}>
         {[300,450,600,750].map((s,i)=>(
