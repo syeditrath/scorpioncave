@@ -694,33 +694,36 @@ function ProjectDocs({data,setData,showToast}) {
   const changeTab = t => { setSubTab(t); setSelProj(null); setFProj(""); };
 
   const saveDoc = (doc, mode) => {
-  // 1. Force the destination tab to "invoices"
-  const targetTab = "invoices"; 
+  // 1. Identify which section the document belongs to.
+  // If the doc already has a subTab (from an edit) use that, 
+  // otherwise use the current active subTab.
+  const targetTab = doc.subTab || subTab; 
 
-  // 2. Close the modal first for a clean transition
   setModal(null);
 
   setTimeout(() => {
     setData(prev => {
       const list = [...(prev.projectDocs || [])];
       if (mode === "add") {
-        // When adding, we explicitly set the subTab of the new record to "invoices"
+        // Explicitly tag the new document with the correct section ID
         list.push({ ...doc, id: uid(), subTab: targetTab });
       } else {
-        // When editing, we update the existing record and ensure its subTab is correct
         const i = list.findIndex(d => d.id === doc.id);
-        if (i >= 0) list[i] = { ...doc, subTab: targetTab };
+        if (i >= 0) {
+          list[i] = { ...doc, subTab: targetTab };
+        }
       }
       return { ...prev, projectDocs: list };
     });
 
-    // 3. Switch the UI view back to the Invoices tab [cite: 155]
+    // 2. Return the user to the correct tab (Invoices, Certificates, or Work Orders)
     setSubTab(targetTab); 
     
-    // Clear any project filters that might hide the new data
+    // 3. Clear filters so the new/updated record isn't hidden
     setSelProj(null); 
+    setFProj(""); 
 
-    showToast(mode === "add" ? "Invoice added" : "Invoice updated");
+    showToast(mode === "add" ? "Document added" : "Updated");
   }, 0);
 };
 
