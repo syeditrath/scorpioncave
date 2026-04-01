@@ -241,20 +241,6 @@ function WelcomeScreen({onEnter}) {
       opacity: leaving ? 0 : 1,
       transition: leaving ? "opacity 0.6s ease" : "none",
     }}>
-      {/* LEFT SIDE */}
-  <h2>Dashboard</h2>
-
-  {/* RIGHT SIDE */}
-  <div style={{display:"flex", gap:10}}>
-    
-    {/* EXISTING BUTTONS */}
-    <button onClick={()=>setPage("dashboard")}>Dashboard</button>
-    <button onClick={()=>setPage("scorpion")}>Docs</button>
-
-    {/* ✅ ADD THIS HERE */}
-    <button onClick={()=>setDark(d=>!d)}>🌙</button>
-
-  </div>
 
 </div>
       {/* Animated background rings */}
@@ -341,12 +327,33 @@ function WelcomeScreen({onEnter}) {
           PORTAL
         </div>
         <div style={{
+  display:"flex",
+  justifyContent:"space-between",
+  alignItems:"center",
+  padding:"10px 20px"
+}}>
+
+  <h2>Dashboard</h2>
+
+  <div style={{display:"flex", gap:10}}>
+    <button onClick={()=>setPage("dashboard")}>Dashboard</button>
+    <button onClick={()=>setPage("scorpion")}>Docs</button>
+
+    {/* ✅ DARK MODE HERE */}
+    <button onClick={()=>setDark(d=>!d)}>
+      {dark ? "☀️" : "🌙"}
+    </button>
+  </div>
+
+</div>
+        <div style={{
           width:80, height:2,
           background:"linear-gradient(90deg,transparent,#fbbf24,transparent)",
           margin:"18px auto 0",
           animation:"subReveal 1s ease 1.2s both",
         }}/>
       </div>
+      
 
       {/* Enter button */}
       <button onClick={handleEnter} style={{
