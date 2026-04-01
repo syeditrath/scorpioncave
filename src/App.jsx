@@ -694,30 +694,33 @@ function ProjectDocs({data,setData,showToast}) {
   const changeTab = t => { setSubTab(t); setSelProj(null); setFProj(""); };
 
   const saveDoc = (doc, mode) => {
-  const st = subTab; // This ensures we stay in the "invoices" or current tab 
+  // 1. Force the destination tab to "invoices"
+  const targetTab = "invoices"; 
 
-  // 1. Close the modal first for a clean unmount [cite: 666]
+  // 2. Close the modal first for a clean transition
   setModal(null);
-  
-  // 2. Clear selected project/filter if needed to prevent a "filtered" blank screen
-  // setSelProj(null); 
 
   setTimeout(() => {
     setData(prev => {
-      const list = [...prev.projectDocs];
+      const list = [...(prev.projectDocs || [])];
       if (mode === "add") {
-        list.push({ ...doc, id: uid(), subTab: st });
+        // When adding, we explicitly set the subTab of the new record to "invoices"
+        list.push({ ...doc, id: uid(), subTab: targetTab });
       } else {
+        // When editing, we update the existing record and ensure its subTab is correct
         const i = list.findIndex(d => d.id === doc.id);
-        if (i >= 0) list[i] = { ...doc, subTab: st };
+        if (i >= 0) list[i] = { ...doc, subTab: targetTab };
       }
       return { ...prev, projectDocs: list };
     });
+
+    // 3. Switch the UI view back to the Invoices tab [cite: 155]
+    setSubTab(targetTab); 
     
-    // 3. Explicitly ensure the subTab remains active 
-    setSubTab(st); 
-    
-    showToast(mode === "add" ? "Document added" : "Updated");
+    // Clear any project filters that might hide the new data
+    setSelProj(null); 
+
+    showToast(mode === "add" ? "Invoice added" : "Invoice updated");
   }, 0);
 };
 
