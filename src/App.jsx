@@ -6,7 +6,91 @@ useEffect(() => {
   const timer = setTimeout(() => setShowSplash(false), 3500);
   return () => clearTimeout(timer);
 }, []);
+const SplashScreen = () => {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0, right: 0, bottom: 0,
+      background: 'radial-gradient(circle, #1a2a3a 0%, #0d1f35 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999,
+      overflow: 'hidden'
+    }}>
+      {/* Animated Logo Container */}
+      <div style={{
+        animation: 'logoReveal 1.5s ease-out forwards',
+        marginBottom: 30,
+        textAlign: 'center'
+      }}>
+        <img 
+          src="logo.png" 
+          alt="Scorpion Logo" 
+          style={{ width: 180, height: 'auto', filter: 'drop-shadow(0 0 20px rgba(255,193,7,0.3))' }} 
+        />
+      </div>
 
+      {/* Welcome Text */}
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontSize: '3rem',
+          color: '#ffc107', // Gold color to reflect the "Scorpion" sting/logo
+          letterSpacing: '4px',
+          fontWeight: 800,
+          textTransform: 'uppercase',
+          margin: 0,
+          animation: 'textSlideUp 1s ease-out 0.8s both'
+        }}>
+          WELCOME TO SCORPION WORLD
+        </h1>
+        <p style={{
+          color: '#b8cce0',
+          fontSize: '1rem',
+          letterSpacing: '2px',
+          marginTop: 10,
+          animation: 'fadeUp 1s ease-out 1.2s both'
+        }}>
+          ADVANCED MANAGEMENT SYSTEMS
+        </p>
+      </div>
+
+      {/* Decorative Loading Bar */}
+      <div style={{
+        width: 200,
+        height: 3,
+        background: 'rgba(255,255,255,0.1)',
+        marginTop: 40,
+        borderRadius: 10,
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          width: '100%',
+          height: '100%',
+          background: '#ffc107',
+          animation: 'loadingBar 3s ease-in-out forwards'
+        }} />
+      </div>
+
+      <style>{`
+        @keyframes logoReveal {
+          0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+          100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        @keyframes textSlideUp {
+          0% { opacity: 0; transform: translateY(30px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes loadingBar {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(0%); }
+        }
+      `}</style>
+    </div>
+  );
+};
 import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 
