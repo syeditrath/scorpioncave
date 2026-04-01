@@ -93,11 +93,17 @@ const SplashScreen = () => {
         animation: 'logoReveal 1.5s ease-out forwards',
         marginBottom: 30,
         textAlign: 'center'
+        background: 'none'
       }}>
         <img 
           src="logo.png" 
-          alt="Scorpion Logo" 
-          style={{ width: 180, height: 'auto', filter: 'drop-shadow(0 0 20px rgba(255,193,7,0.3))' }} 
+          alt="Scorpion Arabia" 
+          style={{ width: 180, 
+    height: 180, 
+    borderRadius: '50%', 
+    objectFit: 'cover', 
+    background: 'transparent', // Ensures no background color is inherited
+    filter: 'drop-shadow(0 0 20px rgba(255,193,7,0.3))' }} 
         />
       </div>
 
