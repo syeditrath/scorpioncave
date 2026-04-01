@@ -233,7 +233,7 @@ function WelcomeScreen({onEnter}) {
     setTimeout(onEnter, 600);
   };
 
-  return (
+return (
   <div style={{
     position:"fixed",
     inset:0,
