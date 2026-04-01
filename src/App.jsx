@@ -694,19 +694,32 @@ function ProjectDocs({data,setData,showToast}) {
   const changeTab = t => { setSubTab(t); setSelProj(null); setFProj(""); };
 
   const saveDoc = (doc, mode) => {
-    const st = subTab; // capture before any state changes
-    // Close modal FIRST so it unmounts cleanly before data update triggers re-render
-    setModal(null);
-    setTimeout(() => {
-      setData(prev=>{
-        const list=[...prev.projectDocs];
-        if(mode==="add") list.push({...doc,id:uid(),subTab:st});
-        else { const i=list.findIndex(d=>d.id===doc.id); if(i>=0) list[i]={...doc,subTab:st}; }
-        return{...prev,projectDocs:list};
-      });
-      showToast(mode==="add"?"Document added":"Updated");
-    }, 0);
-  };
+  const st = subTab; // This ensures we stay in the "invoices" or current tab 
+
+  // 1. Close the modal first for a clean unmount [cite: 666]
+  setModal(null);
+  
+  // 2. Clear selected project/filter if needed to prevent a "filtered" blank screen
+  // setSelProj(null); 
+
+  setTimeout(() => {
+    setData(prev => {
+      const list = [...prev.projectDocs];
+      if (mode === "add") {
+        list.push({ ...doc, id: uid(), subTab: st });
+      } else {
+        const i = list.findIndex(d => d.id === doc.id);
+        if (i >= 0) list[i] = { ...doc, subTab: st };
+      }
+      return { ...prev, projectDocs: list };
+    });
+    
+    // 3. Explicitly ensure the subTab remains active 
+    setSubTab(st); 
+    
+    showToast(mode === "add" ? "Document added" : "Updated");
+  }, 0);
+};
 
   const delDoc = id => {
     setData(prev=>({...prev,projectDocs:prev.projectDocs.filter(d=>d.id!==id)}));
