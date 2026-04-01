@@ -234,28 +234,43 @@ function WelcomeScreen({onEnter}) {
   };
 
   return (
-    <div style={{
-      position:"fixed", inset:0, zIndex:9999,
-      background:"linear-gradient(135deg,#080b10 0%,#0e1520 50%,#080b10 100%)",
-      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-      opacity: leaving ? 0 : 1,
-      transition: leaving ? "opacity 0.6s ease" : "none",
-    }}>
+  <div style={{
+    position:"fixed",
+    inset:0,
+    zIndex:9999,
+    background:"linear-gradient(135deg,#080b10 0%,#0e1520 50%,#080b10 100%)",
+    display:"flex",
+    flexDirection:"column",
+    alignItems:"center",
+    justifyContent:"center",
+    opacity: leaving ? 0 : 1,
+    transition: leaving ? "opacity 0.6s ease" : "none",
+  }}>
 
-      </div>
-      {/* Animated background rings */}
-      <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none"}}>
-        {[300,450,600,750].map((s,i)=>(
-          <div key={i} style={{
-            position:"absolute",top:"50%",left:"50%",
-            width:s,height:s,
-            transform:`translate(-50%,-50%)`,
-            border:`1px solid rgba(251,191,36,${0.06-i*0.01})`,
-            borderRadius:"50%",
-            animation:`spinSlow ${12+i*4}s linear infinite ${i%2===0?"":"reverse"}`,
-          }}/>
-        ))}
-      </div>
+    {/* Animated background rings */}
+    <div style={{
+      position:"absolute",
+      inset:0,
+      overflow:"hidden",
+      pointerEvents:"none"
+    }}>
+      {[300,450,600,750].map((s,i)=>(
+        <div key={i} style={{
+          position:"absolute",
+          top:"50%",
+          left:"50%",
+          width:s,
+          height:s,
+          transform:"translate(-50%,-50%)",
+          border:`1px solid rgba(251,191,36,${0.06-i*0.01})`,
+          borderRadius:"50%",
+          animation:`spinSlow ${12+i*4}s linear infinite ${i%2===0?"":"reverse"}`,
+        }}/>
+      ))}
+    </div>
+
+  </div>
+);
 
       {/* Logo container */}
       <div style={{position:"relative",marginBottom:40}}>
