@@ -1,3 +1,12 @@
+// Near the top of your App function
+const [showSplash, setShowSplash] = useState(true);
+
+// Add this useEffect to hide it after 3 seconds
+useEffect(() => {
+  const timer = setTimeout(() => setShowSplash(false), 3500);
+  return () => clearTimeout(timer);
+}, []);
+
 import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 
