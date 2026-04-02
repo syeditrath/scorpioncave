@@ -319,13 +319,25 @@ function WelcomeScreen({onEnter}) {
 
         {/* Logo */}
         <div className="pulse-logo" style={{
-          width:152, height:152, borderRadius:"50%",
-          overflow:"hidden", position:"relative", zIndex:1,
-          boxShadow:"0 0 40px rgba(251,191,36,0.3), 0 0 80px rgba(251,191,36,0.1)",
-          border:"3px solid rgba(251,191,36,0.6)",
-        }}>
-          <img src="logo.png" alt="Scorpion Arabia"
-            style={{width:"100%",height:"100%",objectFit:"cover",display: "block"}}/>
+    width: 56,
+    height: 56,
+    borderRadius: "50%",
+    background: "#ffffff",
+    overflow: "hidden",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 0 0 2px rgba(251,191,36,0.5)",
+  }}
+>
+  <img
+    src="logo.png?v=2"
+    alt="Scorpion Arabia"
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      display: "block",}}/>
         </div>
       </div>
 
