@@ -325,7 +325,7 @@ function WelcomeScreen({onEnter}) {
           border:"3px solid rgba(251,191,36,0.6)",
         }}>
           <img src="logo.png" alt="Scorpion Arabia"
-            style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"normal"}}/>
+            style={{width:"100%",height:"100%",objectFit:"cover",display: "block"}}/>
         </div>
       </div>
 
