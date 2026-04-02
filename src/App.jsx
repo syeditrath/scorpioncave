@@ -50,7 +50,7 @@ const GLOBAL_CSS = `
 `;
 
 /* ─── Theme ──────────────────────────────────────────────────────────────── */
-const T = {
+const LIGHT_T = {
   bg:"#f0e6d3",
   sidebar:"#080b10",
   card:"#fdf8f0",
@@ -78,6 +78,37 @@ const T = {
   inputBg:"#fdf8f0",
   shadow:"0 2px 12px rgba(26,10,0,0.08), 0 0 0 1px rgba(232,213,183,0.6)",
 };
+
+const DARK_T = {
+  bg:"#0b1220",
+  sidebar:"#06090f",
+  card:"#111827",
+  card2:"#0f172a",
+  cardHover:"#172033",
+  border:"#243041",
+  borderLight:"#334155",
+  text:"#e5edf7",
+  textSub:"#cbd5e1",
+  textMuted:"#94a3b8",
+  blue:"#60a5fa",
+  green:"#34d399",
+  gold:"#fbbf24",
+  red:"#f87171",
+  purple:"#a78bfa",
+  teal:"#2dd4bf",
+  orange:"#fb923c",
+  blueDim:"rgba(96,165,250,0.16)",
+  greenDim:"rgba(52,211,153,0.16)",
+  goldDim:"rgba(251,191,36,0.16)",
+  redDim:"rgba(248,113,113,0.16)",
+  purpleDim:"rgba(167,139,250,0.16)",
+  tealDim:"rgba(45,212,191,0.16)",
+  orangeDim:"rgba(251,146,60,0.16)",
+  inputBg:"#0f172a",
+  shadow:"0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(36,48,65,0.7)",
+};
+
+const T = { ...LIGHT_T };
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 const uid       = () => Math.random().toString(36).slice(2,9);
@@ -395,10 +426,14 @@ export default function App() {
   const [projMod,     setProjMod]    = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
 
+  Object.assign(T, dark ? DARK_T : LIGHT_T);
+
   useEffect(() => { persist(data); }, [data]);
   useEffect(()=>{
-  localStorage.setItem("dark", dark);
-},[dark]);
+    localStorage.setItem("dark", dark ? "true" : "false");
+    document.body.style.background = T.bg;
+    document.body.style.color = T.text;
+  },[dark]);
   const showToast = (msg, type="ok") => { setToast({msg,type}); setTimeout(() => setToast(null), 3200); };
 
   const go = p => { setPage(p); setSideOpen(false); };
@@ -439,13 +474,35 @@ export default function App() {
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:24,color:"#ffffff",letterSpacing:"3px"}}>SCORPION ARABIA</div>
               <div style={{fontSize:11,color:"#93c5fd",letterSpacing:"1.5px",marginTop:1}}>DOCUMENT & ASSET MANAGER</div>
             </div>
-            {allExpiries.length>0 && (
-              <div style={{marginLeft:"auto",zIndex:1}}>
+            <div style={{marginLeft:"auto",zIndex:1,display:"flex",alignItems:"center",gap:10}}>
+              <button
+                onClick={()=>setDark(d=>!d)}
+                title={dark ? "Switch to light mode" : "Switch to dark mode"}
+                style={{
+                  background: dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.08)",
+                  border: `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.15)"}`,
+                  color:"#ffffff",
+                  borderRadius:10,
+                  padding:"8px 12px",
+                  fontSize:12,
+                  fontWeight:700,
+                  display:"flex",
+                  alignItems:"center",
+                  gap:8,
+                  cursor:"pointer",
+                  boxShadow:"0 2px 10px rgba(0,0,0,0.12)"
+                }}
+              >
+                <span style={{fontSize:14}}>{dark ? "☀" : "☾"}</span>
+                <span>{dark ? "Light" : "Dark"}</span>
+              </button>
+
+              {allExpiries.length>0 && (
                 <div style={{background:"rgba(220,38,38,0.25)",border:"1px solid rgba(220,38,38,0.5)",color:"#fca5a5",borderRadius:8,padding:"6px 14px",fontSize:12,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
                   ▲ <span style={{background:T.red,color:"#fff",borderRadius:999,padding:"1px 7px",fontSize:11,fontWeight:700}}>{allExpiries.length}</span> alerts
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </header>
 
