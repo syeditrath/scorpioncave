@@ -325,7 +325,7 @@ function WelcomeScreen({onEnter}) {
           border:"3px solid rgba(251,191,36,0.6)",
         }}>
           <img src="logo.png" alt="Scorpion Arabia"
-            style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
+            style={{width:"115%",height:"115%",objectFit:"cover",mixBlendMode:"lighten"}}/>
         </div>
       </div>
 
@@ -599,8 +599,23 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
           onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor=T.borderLight;}}>
           <span style={{fontSize:16,color:T.blue}}>⊕</span>
           <div>
-            <div style={{fontSize:12,fontWeight:600,color:dark?"#2f2113":T.text}}>Manage Projects</div>
-            <div style={{fontSize:10,color:dark?"#8a6a45":T.textMuted}}>Add, rename, delete</div>
+            <div
+  style={{
+    fontSize: 12,
+    fontWeight: 600,
+    color: dark ? "#2f2113" : "#e2e8f0",
+  }}
+>
+  Manage Projects
+</div>
+<div
+  style={{
+    fontSize: 10,
+    color: dark ? "#8a6a45" : "#94a3b8",
+  }}
+>
+  Add, rename, delete
+</div>
           </div>
         </button>
       </div>
