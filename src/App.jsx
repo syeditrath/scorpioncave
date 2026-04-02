@@ -355,7 +355,7 @@ function WelcomeScreen({onEnter}) {
           <img src="logo.png" alt="Scorpion Arabia"
             style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
         </div>
-      </div>
+      
 
       {/* Welcome text */}
       <div style={{textAlign:"center",marginBottom:48}}>
