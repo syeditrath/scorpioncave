@@ -363,17 +363,6 @@ function WelcomeScreen({onEnter}) {
         objectFit: "cover",
         display: "block",
         transition: "transform 0.4s ease",
-    }}
-  >
-    <img
-      src="logo.png?v=3"
-      alt="logo"
-      style={{
-        width: "115%",
-        height: "115%",
-        objectFit: "cover",
-        display: "block",
-        transition: "transform 0.4s ease",
         }}>
           <img src="logo.png" alt="Scorpion Arabia"
             style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
