@@ -81,7 +81,7 @@ const LIGHT_T = {
 
 const DARK_T = {
   bg:"#0b1220",
-  sidebar:"#06090f",
+  sidebar:"#f0e6d3",
   card:"#111827",
   card2:"#0f172a",
   cardHover:"#172033",
