@@ -46,36 +46,35 @@ const GLOBAL_CSS = `
   @keyframes fadeOut    { from{opacity:1;}to{opacity:0;} }
   .spin-slow  { animation: spinSlow 8s linear infinite; }
   .pulse-logo { animation: pulse 3s ease-in-out infinite; }
-  .glow-ring  { animation: glowRing 2.5s ease-in-out infinite;
+  .glow-ring  { animation: glowRing 2.5s ease-in-out infinite; }
   @keyframes logoRingPulse {
-  0% {
-    transform: scale(1);
-    box-shadow:
-      0 0 0 2px rgba(251,191,36,0.55),
-      0 0 0 0 rgba(251,191,36,0.18),
-      0 6px 20px rgba(0,0,0,0.28);
+    0% {
+      transform: scale(1);
+      box-shadow:
+        0 0 0 2px rgba(251,191,36,0.55),
+        0 0 0 0 rgba(251,191,36,0.18),
+        0 6px 20px rgba(0,0,0,0.28);
+    }
+    50% {
+      transform: scale(1.03);
+      box-shadow:
+        0 0 0 2px rgba(251,191,36,0.9),
+        0 0 0 10px rgba(251,191,36,0.08),
+        0 10px 28px rgba(0,0,0,0.34);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow:
+        0 0 0 2px rgba(251,191,36,0.55),
+        0 0 0 0 rgba(251,191,36,0),
+        0 6px 20px rgba(0,0,0,0.28);
+    }
   }
-  50% {
-    transform: scale(1.03);
-    box-shadow:
-      0 0 0 2px rgba(251,191,36,0.9),
-      0 0 0 10px rgba(251,191,36,0.08),
-      0 10px 28px rgba(0,0,0,0.34);
+  @keyframes logoInnerFloat {
+    0% { transform: scale(1.24) translateY(0px); }
+    50% { transform: scale(1.28) translateY(-1px); }
+    100% { transform: scale(1.24) translateY(0px); }
   }
-  100% {
-    transform: scale(1);
-    box-shadow:
-      0 0 0 2px rgba(251,191,36,0.55),
-      0 0 0 0 rgba(251,191,36,0),
-      0 6px 20px rgba(0,0,0,0.28);
-  }
-}
-
-@keyframes logoInnerFloat {
-  0% { transform: scale(1.2) translateY(0px); }
-  50% { transform: scale(1.23) translateY(-1px); }
-  100% { transform: scale(1.2) translateY(0px); }
-}}
 `;
 
 /* ─── Theme ──────────────────────────────────────────────────────────────── */
@@ -329,48 +328,14 @@ function WelcomeScreen({onEnter}) {
       </div>
 
       {/* Logo container */}
-      <div
-  style={{
-    width: 74,
-    height: 74,
-    borderRadius: "50%",
-    background: "linear-gradient(145deg,#000,#111)",   // 👈 changed to black
-    padding: 3,
-    flexShrink: 0,
-    boxShadow:
-      "0 0 0 2px rgba(251,191,36,0.6), 0 6px 20px rgba(0,0,0,0.25)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "all 0.35s ease",
-  }}
->
-  {/* Inner circle */}
-  <div
-    style={{
-      width: "100%",
-      height: "100%",
-      borderRadius: "50%",
-      overflow: "hidden",
-      background: "#000000",  // 👈 also black inside
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
-    <img
-      src="logo.png?v=3"
-      alt="Scorpion Arabia"
-      style={{
-        width: "120%",
-        height: "120%",
-        objectFit: "cover",
-        objectPosition: "center",
-        display: "block",
-      }}
-    />
-  </div>
-</div>
+      <div style={{position:"relative",marginBottom:40}}>
+        {/* Outer glow ring */}
+        <div className="glow-ring" style={{
+          width:180, height:180, borderRadius:"50%",
+          border:"2px solid rgba(251,191,36,0.4)",
+          position:"absolute", top:-14, left:-14,
+          zIndex:0,
+        }}/>
 
         {/* Spinning accent ring */}
         <div className="spin-slow" style={{
@@ -381,56 +346,16 @@ function WelcomeScreen({onEnter}) {
         }}/>
 
         {/* Logo */}
-        <div
-  style={{
-    width: 74,
-    height: 74,
-    borderRadius: "50%",
-    background: "#000000",
-    padding: 3,
-    flexShrink: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    animation: "logoRingPulse 2.8s ease-in-out infinite",
-    transition: "all 0.35s ease",
-    cursor: "pointer",
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.animationDuration = "1.6s";
-    e.currentTarget.style.transform = "scale(1.06)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.animationDuration = "2.8s";
-    e.currentTarget.style.transform = "scale(1)";
-  }}
->
-  <div
-    style={{
-      width: "100%",
-      height: "100%",
-      borderRadius: "50%",
-      overflow: "hidden",
-      background: "#000000",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
-    <img
-      src="logo.png?v=3"
-      alt="Scorpion Arabia"
-      style={{
-        width: "120%",
-        height: "120%",
-        objectFit: "cover",
-        objectPosition: "center",
-        display: "block",
-        animation: "logoInnerFloat 3.2s ease-in-out infinite",
-      }}
-    />
-  </div>
-</div>
+        <div className="pulse-logo" style={{
+          width:152, height:152, borderRadius:"50%",
+          overflow:"hidden", position:"relative", zIndex:1,
+          boxShadow:"0 0 40px rgba(251,191,36,0.3), 0 0 80px rgba(251,191,36,0.1)",
+          border:"3px solid rgba(251,191,36,0.6)",
+        }}>
+          <img src="logo.png" alt="Scorpion Arabia"
+            style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
+        </div>
+      </div>
 
       {/* Welcome text */}
       <div style={{textAlign:"center",marginBottom:48}}>
@@ -628,23 +553,23 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
               width:74,
               height:74,
               borderRadius:"50%",
-              background:"linear-gradient(145deg,#ffffff,#f3f4f6)",
+              background:"#000000",
               padding:3,
               flexShrink:0,
-              boxShadow:"0 0 0 2px rgba(251,191,36,0.6), 0 6px 20px rgba(0,0,0,0.25)",
               display:"flex",
               alignItems:"center",
               justifyContent:"center",
+              animation:"logoRingPulse 2.8s ease-in-out infinite",
               transition:"all 0.35s ease",
               cursor:"pointer"
             }}
             onMouseEnter={e=>{
-              e.currentTarget.style.transform="scale(1.08)";
-              e.currentTarget.style.boxShadow="0 0 0 2px rgba(251,191,36,0.9), 0 12px 30px rgba(0,0,0,0.35)";
+              e.currentTarget.style.animationDuration="1.6s";
+              e.currentTarget.style.transform="scale(1.06)";
             }}
             onMouseLeave={e=>{
+              e.currentTarget.style.animationDuration="2.8s";
               e.currentTarget.style.transform="scale(1)";
-              e.currentTarget.style.boxShadow="0 0 0 2px rgba(251,191,36,0.6), 0 6px 20px rgba(0,0,0,0.25)";
             }}
           >
             <div
@@ -653,7 +578,7 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
                 height:"100%",
                 borderRadius:"50%",
                 overflow:"hidden",
-                background:"#fff",
+                background:"#000000",
                 display:"flex",
                 alignItems:"center",
                 justifyContent:"center"
@@ -663,15 +588,16 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
                 src="logo.png?v=3"
                 alt="Scorpion Arabia"
                 style={{
-                  width:"128%",
-                  height:"128%",
+                  width:"124%",
+                  height:"124%",
                   objectFit:"cover",
                   objectPosition:"center",
                   display:"block",
-                  transition:"transform 0.4s ease"
+                  animation:"logoInnerFloat 3.2s ease-in-out infinite"
                 }}
               />
             </div>
+          </div>
           </div>
           <div>
             <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:"clamp(16px,1.4vw,22px)",color:dark?"#24160b":"#ffffff",letterSpacing:".5px",lineHeight:1.1}}>SCORPION ARABIA</div>
@@ -702,23 +628,8 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
           onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor=T.borderLight;}}>
           <span style={{fontSize:16,color:T.blue}}>⊕</span>
           <div>
-            <div
-  style={{
-    fontSize: 12,
-    fontWeight: 600,
-    color: dark ? "#2f2113" : "#e2e8f0",
-  }}
->
-  Manage Projects
-</div>
-<div
-  style={{
-    fontSize: 10,
-    color: dark ? "#8a6a45" : "#94a3b8",
-  }}
->
-  Add, rename, delete
-</div>
+            <div style={{fontSize:12,fontWeight:600,color:dark?"#2f2113":T.text}}>Manage Projects</div>
+            <div style={{fontSize:10,color:dark?"#8a6a45":T.textMuted}}>Add, rename, delete</div>
           </div>
         </button>
       </div>
