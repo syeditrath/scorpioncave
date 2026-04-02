@@ -318,9 +318,7 @@ function WelcomeScreen({onEnter}) {
         }}/>
 
         {/* Logo */}
-        <div className="pulse-logo" style={{
-          style={{
-    width: 72,
+        <div className="pulse-logo" style={{width: 72,
     height: 72,
     borderRadius: "50%",
     background: "linear-gradient(135deg,#ffffff,#f3f4f6)",
@@ -354,6 +352,17 @@ function WelcomeScreen({onEnter}) {
       alignItems: "center",
       justifyContent: "center",
       background: "#fff",
+    }}
+  >
+    <img
+      src="logo.png?v=3"
+      alt="logo"
+      style={{
+        width: "115%",
+        height: "115%",
+        objectFit: "cover",
+        display: "block",
+        transition: "transform 0.4s ease",
     }}
   >
     <img
