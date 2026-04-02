@@ -225,7 +225,7 @@ function persist(data) { try { localStorage.setItem("cta_v1", JSON.stringify(dat
 /* ════════════════════════════════════════════════════════════════════════════
    WELCOME SCREEN
 ════════════════════════════════════════════════════════════════════════════ */
-function WelcomeScreen({ onEnter }) {
+function WelcomeScreen({onEnter}) {
   const [leaving, setLeaving] = useState(false);
 
   const handleEnter = () => {
@@ -246,9 +246,13 @@ function WelcomeScreen({ onEnter }) {
       opacity: leaving ? 0 : 1,
       transition: leaving ? "opacity 0.6s ease" : "none",
     }}>
-
-      {/* Animated rings */}
-      <div style={{position:"absolute", inset:0}}>
+      {/* Animated background rings */}
+      <div style={{
+        position:"absolute",
+        inset:0,
+        overflow:"hidden",
+        pointerEvents:"none"
+      }}>
         {[300,450,600,750].map((s,i)=>(
           <div key={i} style={{
             position:"absolute",
@@ -259,34 +263,13 @@ function WelcomeScreen({ onEnter }) {
             transform:"translate(-50%,-50%)",
             border:`1px solid rgba(251,191,36,${0.06-i*0.01})`,
             borderRadius:"50%",
+            animation:`spinSlow ${12+i*4}s linear infinite ${i%2===0?"":"reverse"}`,
           }}/>
         ))}
       </div>
 
-      {/* Logo */}
-      <img src="logo.png" style={{width:140, marginBottom:30}} />
-
-      {/* Title */}
-      <h1 style={{color:"#fff"}}>SCORPION ARABIA</h1>
-
-      <button onClick={handleEnter} style={{
-        marginTop:30,
-        padding:"12px 40px",
-        background:"#fbbf24",
-        border:"none",
-        borderRadius:50,
-        fontWeight:"bold"
-      }}>
-        ENTER PORTAL
-      </button>
-
-    </div>
-  );
-}
-
       {/* Logo container */}
       <div style={{position:"relative",marginBottom:40}}>
-
         {/* Outer glow ring */}
         <div className="glow-ring" style={{
           width:180, height:180, borderRadius:"50%",
@@ -354,33 +337,12 @@ function WelcomeScreen({ onEnter }) {
           PORTAL
         </div>
         <div style={{
-  display:"flex",
-  justifyContent:"space-between",
-  alignItems:"center",
-  padding:"10px 20px"
-}}>
-
-  <h2>Dashboard</h2>
-
-  <div style={{display:"flex", gap:10}}>
-    <button onClick={()=>setPage("dashboard")}>Dashboard</button>
-    <button onClick={()=>setPage("scorpion")}>Docs</button>
-
-    {/* ✅ DARK MODE HERE */}
-    <button onClick={()=>setDark(d=>!d)}>
-      {dark ? "☀️" : "🌙"}
-    </button>
-  </div>
-
-</div>
-        <div style={{
           width:80, height:2,
           background:"linear-gradient(90deg,transparent,#fbbf24,transparent)",
           margin:"18px auto 0",
           animation:"subReveal 1s ease 1.2s both",
         }}/>
       </div>
-      
 
       {/* Enter button */}
       <button onClick={handleEnter} style={{
