@@ -225,7 +225,7 @@ function persist(data) { try { localStorage.setItem("cta_v1", JSON.stringify(dat
 /* ════════════════════════════════════════════════════════════════════════════
    WELCOME SCREEN
 ════════════════════════════════════════════════════════════════════════════ */
-function WelcomeScreen({onEnter}) {
+function WelcomeScreen({ onEnter }) {
   const [leaving, setLeaving] = useState(false);
 
   const handleEnter = () => {
@@ -233,44 +233,56 @@ function WelcomeScreen({onEnter}) {
     setTimeout(onEnter, 600);
   };
 
-return (
-  <div style={{
-    position:"fixed",
-    inset:0,
-    zIndex:9999,
-    background:"linear-gradient(135deg,#080b10 0%,#0e1520 50%,#080b10 100%)",
-    display:"flex",
-    flexDirection:"column",
-    alignItems:"center",
-    justifyContent:"center",
-    opacity: leaving ? 0 : 1,
-    transition: leaving ? "opacity 0.6s ease" : "none",
-  }}>
-
-    {/* Animated background rings */}
+  return (
     <div style={{
-      position:"absolute",
+      position:"fixed",
       inset:0,
-      overflow:"hidden",
-      pointerEvents:"none"
+      zIndex:9999,
+      background:"linear-gradient(135deg,#080b10 0%,#0e1520 50%,#080b10 100%)",
+      display:"flex",
+      flexDirection:"column",
+      alignItems:"center",
+      justifyContent:"center",
+      opacity: leaving ? 0 : 1,
+      transition: leaving ? "opacity 0.6s ease" : "none",
     }}>
-      {[300,450,600,750].map((s,i)=>(
-        <div key={i} style={{
-          position:"absolute",
-          top:"50%",
-          left:"50%",
-          width:s,
-          height:s,
-          transform:"translate(-50%,-50%)",
-          border:`1px solid rgba(251,191,36,${0.06-i*0.01})`,
-          borderRadius:"50%",
-          animation:`spinSlow ${12+i*4}s linear infinite ${i%2===0?"":"reverse"}`,
-        }}/>
-      ))}
-    </div>
 
-  </div>
-);
+      {/* Animated rings */}
+      <div style={{position:"absolute", inset:0}}>
+        {[300,450,600,750].map((s,i)=>(
+          <div key={i} style={{
+            position:"absolute",
+            top:"50%",
+            left:"50%",
+            width:s,
+            height:s,
+            transform:"translate(-50%,-50%)",
+            border:`1px solid rgba(251,191,36,${0.06-i*0.01})`,
+            borderRadius:"50%",
+          }}/>
+        ))}
+      </div>
+
+      {/* Logo */}
+      <img src="logo.png" style={{width:140, marginBottom:30}} />
+
+      {/* Title */}
+      <h1 style={{color:"#fff"}}>SCORPION ARABIA</h1>
+
+      <button onClick={handleEnter} style={{
+        marginTop:30,
+        padding:"12px 40px",
+        background:"#fbbf24",
+        border:"none",
+        borderRadius:50,
+        fontWeight:"bold"
+      }}>
+        ENTER PORTAL
+      </button>
+
+    </div>
+  );
+}
 
       {/* Logo container */}
       <div style={{position:"relative",marginBottom:40}}>
