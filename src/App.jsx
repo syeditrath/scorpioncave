@@ -318,51 +318,11 @@ function WelcomeScreen({onEnter}) {
         }}/>
 
         {/* Logo */}
-        <div className="pulse-logo" style={{width: 72,
-    height: 72,
-    borderRadius: "50%",
-    background: "linear-gradient(135deg,#ffffff,#f3f4f6)",
-    padding: 3,
-    boxShadow: "0 0 0 2px rgba(251,191,36,0.6)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "all 0.3s ease",
-    position: "relative",
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "scale(1.08)";
-    e.currentTarget.style.boxShadow =
-      "0 0 0 2px rgba(251,191,36,0.9), 0 8px 25px rgba(0,0,0,0.25)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "scale(1)";
-    e.currentTarget.style.boxShadow =
-      "0 0 0 2px rgba(251,191,36,0.6)";
-  }}
->
-  {/* Inner circle */}
-  <div
-    style={{
-      width: "100%",
-      height: "100%",
-      borderRadius: "50%",
-      overflow: "hidden",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "#fff",
-    }}
-  >
-    <img
-      src="logo.png?v=3"
-      alt="logo"
-      style={{
-        width: "115%",
-        height: "115%",
-        objectFit: "cover",
-        display: "block",
-        transition: "transform 0.4s ease",
+        <div className="pulse-logo" style={{
+          width:152, height:152, borderRadius:"50%",
+          overflow:"hidden", position:"relative", zIndex:1,
+          boxShadow:"0 0 40px rgba(251,191,36,0.3), 0 0 80px rgba(251,191,36,0.1)",
+          border:"3px solid rgba(251,191,36,0.6)",
         }}>
           <img src="logo.png" alt="Scorpion Arabia"
             style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
@@ -560,9 +520,56 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
     <aside style={{width:"clamp(220px,18vw,280px)",flexShrink:0,background:T.sidebar,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",zIndex:50,position:isMobile?"fixed":"relative",top:0,left:0,height:"100%",transform:isMobile?(sideOpen?"translateX(0)":"translateX(-100%)"):"none",transition:"transform .28s ease",boxShadow:dark?"2px 0 14px rgba(0,0,0,0.14)":"2px 0 12px rgba(0,0,0,0.06)"}}>
       <div style={{padding:"22px 20px 18px",borderBottom:`1px solid ${T.border}`}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <div style={{width:56,height:56,borderRadius:"50%",background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,overflow:"hidden",boxShadow:"0 0 0 2px rgba(251,191,36,0.5)"}}>
-          <img src="logo.png" alt="Scorpion Arabia" style={{width:"100%",height:"100%",objectFit:"contain",mixBlendMode:"normal",display:"block",padding:4,filter:"contrast(1.15) saturate(1.1)"}}/>
-        </div>
+          <div
+            style={{
+              width:74,
+              height:74,
+              borderRadius:"50%",
+              background:"linear-gradient(145deg,#ffffff,#f3f4f6)",
+              padding:3,
+              flexShrink:0,
+              boxShadow:"0 0 0 2px rgba(251,191,36,0.6), 0 6px 20px rgba(0,0,0,0.25)",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center",
+              transition:"all 0.35s ease",
+              cursor:"pointer"
+            }}
+            onMouseEnter={e=>{
+              e.currentTarget.style.transform="scale(1.08)";
+              e.currentTarget.style.boxShadow="0 0 0 2px rgba(251,191,36,0.9), 0 12px 30px rgba(0,0,0,0.35)";
+            }}
+            onMouseLeave={e=>{
+              e.currentTarget.style.transform="scale(1)";
+              e.currentTarget.style.boxShadow="0 0 0 2px rgba(251,191,36,0.6), 0 6px 20px rgba(0,0,0,0.25)";
+            }}
+          >
+            <div
+              style={{
+                width:"100%",
+                height:"100%",
+                borderRadius:"50%",
+                overflow:"hidden",
+                background:"#fff",
+                display:"flex",
+                alignItems:"center",
+                justifyContent:"center"
+              }}
+            >
+              <img
+                src="logo.png?v=3"
+                alt="Scorpion Arabia"
+                style={{
+                  width:"128%",
+                  height:"128%",
+                  objectFit:"cover",
+                  objectPosition:"center",
+                  display:"block",
+                  transition:"transform 0.4s ease"
+                }}
+              />
+            </div>
+          </div>
           <div>
             <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:"clamp(16px,1.4vw,22px)",color:dark?"#24160b":"#ffffff",letterSpacing:".5px",lineHeight:1.1}}>SCORPION ARABIA</div>
             <div style={{fontSize:11,fontWeight:600,letterSpacing:"1.4px",marginTop:3,color:dark?"#6b4a2b":"#93c5fd"}}>ASSET MANAGER</div>
