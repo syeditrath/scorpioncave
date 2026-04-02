@@ -319,10 +319,52 @@ function WelcomeScreen({onEnter}) {
 
         {/* Logo */}
         <div className="pulse-logo" style={{
-          width:152, height:152, borderRadius:"50%",
-          overflow:"hidden", position:"relative", zIndex:1,
-          boxShadow:"0 0 40px rgba(251,191,36,0.3), 0 0 80px rgba(251,191,36,0.1)",
-          border:"3px solid rgba(251,191,36,0.6)",
+          style={{
+    width: 72,
+    height: 72,
+    borderRadius: "50%",
+    background: "linear-gradient(135deg,#ffffff,#f3f4f6)",
+    padding: 3,
+    boxShadow: "0 0 0 2px rgba(251,191,36,0.6)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.3s ease",
+    position: "relative",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "scale(1.08)";
+    e.currentTarget.style.boxShadow =
+      "0 0 0 2px rgba(251,191,36,0.9), 0 8px 25px rgba(0,0,0,0.25)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+    e.currentTarget.style.boxShadow =
+      "0 0 0 2px rgba(251,191,36,0.6)";
+  }}
+>
+  {/* Inner circle */}
+  <div
+    style={{
+      width: "100%",
+      height: "100%",
+      borderRadius: "50%",
+      overflow: "hidden",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#fff",
+    }}
+  >
+    <img
+      src="logo.png?v=3"
+      alt="logo"
+      style={{
+        width: "115%",
+        height: "115%",
+        objectFit: "cover",
+        display: "block",
+        transition: "transform 0.4s ease",
         }}>
           <img src="logo.png" alt="Scorpion Arabia"
             style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
