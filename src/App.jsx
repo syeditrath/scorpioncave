@@ -300,14 +300,48 @@ function WelcomeScreen({onEnter}) {
       </div>
 
       {/* Logo container */}
-      <div style={{position:"relative",marginBottom:40}}>
-        {/* Outer glow ring */}
-        <div className="glow-ring" style={{
-          width:180, height:180, borderRadius:"50%",
-          border:"2px solid rgba(251,191,36,0.4)",
-          position:"absolute", top:-14, left:-14,
-          zIndex:0,
-        }}/>
+      <div
+  style={{
+    width: 74,
+    height: 74,
+    borderRadius: "50%",
+    background: "#000000",   // 👈 changed to black
+    padding: 3,
+    flexShrink: 0,
+    boxShadow:
+      "0 0 0 2px rgba(251,191,36,0.6), 0 6px 20px rgba(0,0,0,0.25)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.35s ease",
+  }}
+>
+  {/* Inner circle */}
+  <div
+    style={{
+      width: "100%",
+      height: "100%",
+      borderRadius: "50%",
+      overflow: "hidden",
+      background: "#000000",  // 👈 also black inside
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <img
+      src="logo.png?v=3"
+      alt="Scorpion Arabia"
+      style={{
+        width: "120%",
+        height: "120%",
+        objectFit: "cover",
+        objectPosition: "center",
+        display: "block",
+      }}
+    />
+  </div>
+</div>
 
         {/* Spinning accent ring */}
         <div className="spin-slow" style={{
