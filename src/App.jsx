@@ -466,10 +466,10 @@ export default function App() {
         {/* ── Top bar ── */}
         <header style={{background:T.sidebar,borderBottom:`1px solid ${T.border}`,padding:"0 20px",flexShrink:0,boxShadow:dark?"0 2px 8px rgba(0,0,0,0.25)":"0 2px 8px rgba(13,31,53,0.2)"}}>
           <div style={{display:"flex",alignItems:"center",height:64,position:"relative"}}>
-            <button onClick={()=>setSideOpen(true)} style={{background:dark?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)",border:`1px solid ${dark?"rgba(0,0,0,0.12)":"rgba(255,255,255,0.15)"}`,color:dark?"#1a0a00":"#ffffff",borderRadius:8,width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0,zIndex:1}}>☰</button>
+            <button onClick={()=>setSideOpen(true)} style={{background:dark?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)",border:`1px solid ${dark?"rgba(0,0,0,0.12)":"rgba(255,255,255,0.15)"}`,color:dark?"#24160b":"#ffffff",borderRadius:8,width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0,zIndex:1}}>☰</button>
             <div style={{position:"absolute",left:0,right:0,textAlign:"center",pointerEvents:"none"}}>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:24,color:dark?"#1a0a00":"#ffffff",letterSpacing:"3px"}}>SCORPION ARABIA</div>
-              <div style={{fontSize:11,color:dark?"#5c3d1e":"#93c5fd",letterSpacing:"1.5px",marginTop:1}}>DOCUMENT & ASSET MANAGER</div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:24,color:dark?"#24160b":"#ffffff",letterSpacing:"3px"}}>SCORPION ARABIA</div>
+              <div style={{fontSize:11,color:dark?"#6b4a2b":"#93c5fd",letterSpacing:"1.5px",marginTop:1}}>DOCUMENT & ASSET MANAGER</div>
             </div>
             <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:10,zIndex:1}}>
               <button onClick={()=>setDark(d=>!d)} style={{background:dark?"#111827":"rgba(255,255,255,0.08)",border:`1px solid ${dark?"#243041":"rgba(255,255,255,0.15)"}`,color:dark?"#f0e6d3":"#ffffff",borderRadius:10,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>
@@ -520,12 +520,12 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
     <aside style={{width:"clamp(220px,18vw,280px)",flexShrink:0,background:T.sidebar,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",zIndex:50,position:isMobile?"fixed":"relative",top:0,left:0,height:"100%",transform:isMobile?(sideOpen?"translateX(0)":"translateX(-100%)"):"none",transition:"transform .28s ease",boxShadow:dark?"2px 0 14px rgba(0,0,0,0.14)":"2px 0 12px rgba(0,0,0,0.06)"}}>
       <div style={{padding:"22px 20px 18px",borderBottom:`1px solid ${T.border}`}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <div style={{width:56,height:56,borderRadius:"50%",background:dark?"#fff":"#000",flexShrink:0,overflow:"hidden",boxShadow:"0 0 0 2px rgba(251,191,36,0.5)"}}>
-          <img src="logo.png" alt="Scorpion Arabia" style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
+          <div style={{width:56,height:56,borderRadius:"50%",background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,overflow:"hidden",boxShadow:"0 0 0 2px rgba(251,191,36,0.5)"}}>
+          <img src="logo.png" alt="Scorpion Arabia" style={{width:"100%",height:"100%",objectFit:"contain",mixBlendMode:"normal",display:"block",padding:4,filter:"contrast(1.15) saturate(1.1)"}}/>
         </div>
           <div>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:"clamp(16px,1.4vw,22px)",color:dark?"#1a0a00":"#ffffff",letterSpacing:".5px",lineHeight:1.1}}>SCORPION ARABIA</div>
-            <div style={{fontSize:11,fontWeight:600,letterSpacing:"1.4px",marginTop:3,color:dark?"#5c3d1e":"#93c5fd"}}>ASSET MANAGER</div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:"clamp(16px,1.4vw,22px)",color:dark?"#24160b":"#ffffff",letterSpacing:".5px",lineHeight:1.1}}>SCORPION ARABIA</div>
+            <div style={{fontSize:11,fontWeight:600,letterSpacing:"1.4px",marginTop:3,color:dark?"#6b4a2b":"#93c5fd"}}>ASSET MANAGER</div>
           </div>
         </div>
       </div>
@@ -535,10 +535,10 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
           const badge=n.id==="dashboard"?alerts:0;
           return (
             <button key={n.id} onClick={()=>go(n.id)} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"11px 12px",borderRadius:8,border:"none",marginBottom:3,textAlign:"left",background:active?(dark?"rgba(26,10,0,0.08)":"rgba(59,130,246,0.15)"):"transparent",borderLeft:`2px solid ${active?(dark?"#5c3d1e":"#93c5fd"):"transparent"}`,transition:"all .15s"}}>
-              <span style={{fontSize:20,color:active?(dark?"#5c3d1e":"#93c5fd"):T.textMuted}}>{n.icon}</span>
+              <span style={{fontSize:20,color:active?(dark?"#5c3d1e":"#93c5fd"):(dark?"#8a6a45":"#94a3b8")}}>{n.icon}</span>
               <div style={{flex:1}}>
-                <div style={{fontSize:"clamp(12px,1vw,14px)",fontWeight:600,color:active?(dark?"#1a0a00":"#93c5fd"):T.text}}>{n.label}</div>
-                <div style={{fontSize:10,color:T.textMuted,marginTop:1}}>{n.desc}</div>
+                <div style={{fontSize:"clamp(12px,1vw,14px)",fontWeight:600,color:active?(dark?"#24160b":"#93c5fd"):(dark?"#2f2113":"#e2e8f0")}}>{n.label}</div>
+                <div style={{fontSize:10,color:dark?"#8a6a45":"#94a3b8",marginTop:1}}>{n.desc}</div>
               </div>
               {badge>0&&<span style={{background:T.red,color:"#fff",borderRadius:999,padding:"1px 7px",fontSize:10,fontWeight:700}}>{badge}</span>}
             </button>
@@ -552,8 +552,8 @@ function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
           onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor=T.borderLight;}}>
           <span style={{fontSize:16,color:T.blue}}>⊕</span>
           <div>
-            <div style={{fontSize:12,fontWeight:600,color:T.text}}>Manage Projects</div>
-            <div style={{fontSize:10,color:T.textMuted}}>Add, rename, delete</div>
+            <div style={{fontSize:12,fontWeight:600,color:dark?"#2f2113":T.text}}>Manage Projects</div>
+            <div style={{fontSize:10,color:dark?"#8a6a45":T.textMuted}}>Add, rename, delete</div>
           </div>
         </button>
       </div>
@@ -2045,7 +2045,7 @@ function EquipmentDetail({eq,projects,onBack,onUpdate,onDelete,onEdit,showToast}
                   <div key={r.id||i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:T.bg,borderRadius:8,padding:"8px 12px",border:`1px solid ${s.color}33`}}>
                     <div style={{minWidth:0}}>
                       <div style={{fontSize:13,fontWeight:600,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{lbl}</div>
-                      <div style={{fontSize:11,color:T.textMuted,marginTop:1}}>Expires: {fmtDate(r.expiryDate)}</div>
+                      <div style={{fontSize:11,color:dark?"#8a6a45":"#94a3b8",marginTop:1}}>Expires: {fmtDate(r.expiryDate)}</div>
                     </div>
                     <div style={{textAlign:"right",flexShrink:0,marginLeft:12}}>
                       <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:20,color:s.color,lineHeight:1}}>{Math.abs(d)}</div>
