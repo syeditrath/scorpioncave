@@ -355,7 +355,7 @@ function WelcomeScreen({onEnter}) {
           <img src="logo.png" alt="Scorpion Arabia"
             style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
         </div>
-      
+      </div>
 
       {/* Welcome text */}
       <div style={{textAlign:"center",marginBottom:48}}>
@@ -535,234 +535,105 @@ export default function App() {
 /* ════════════════════════════════════════════════════════════════════════════
    SIDEBAR
 ════════════════════════════════════════════════════════════════════════════ */
-function Sidebar({ T, dark, page, go, sideOpen, alerts, data, onManageProjects }) {
+function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
   const isMobile = window.innerWidth < 900;
-
   const NAV = [
-    { id: "dashboard", icon: "▦", label: "Dashboard", desc: "Overview" },
-    { id: "scorpion", icon: "◉", label: "Scorpion Documents", desc: "Company docs & licenses" },
-    { id: "projects", icon: "◆", label: "Project Docs", desc: "Invoices, certs & orders" },
-    { id: "manpower", icon: "◈", label: "Manpower", desc: "Staff & certifications" },
-    { id: "equipment", icon: "◎", label: "Equipment", desc: "Assets & records" },
+    {id:"dashboard", icon:"▦", label:"Dashboard",          desc:"Overview"},
+    {id:"scorpion",  icon:"◉", label:"Scorpion Documents", desc:"Company docs & licenses"},
+    {id:"projects",  icon:"◆", label:"Project Docs",       desc:"Invoices, certs & orders"},
+    {id:"manpower",  icon:"◈", label:"Manpower",           desc:"Staff & certifications"},
+    {id:"equipment", icon:"◎", label:"Equipment",          desc:"Assets & records"},
   ];
-
   return (
-    <aside
-      style={{
-        width: "clamp(220px,18vw,280px)",
-        flexShrink: 0,
-        background: T.sidebar,
-        borderRight: `1px solid ${T.border}`,
-        display: "flex",
-        flexDirection: "column",
-        zIndex: 50,
-        position: isMobile ? "fixed" : "relative",
-        top: 0,
-        left: 0,
-        height: "100%",
-        transform: isMobile ? (sideOpen ? "translateX(0)" : "translateX(-100%)") : "none",
-        transition: "transform .28s ease",
-        boxShadow: dark ? "2px 0 14px rgba(0,0,0,0.14)" : "2px 0 12px rgba(0,0,0,0.06)",
-      }}
-    >
-      <div style={{ padding: "22px 20px 18px", borderBottom: `1px solid ${T.border}` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+    <aside style={{width:"clamp(220px,18vw,280px)",flexShrink:0,background:T.sidebar,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",zIndex:50,position:isMobile?"fixed":"relative",top:0,left:0,height:"100%",transform:isMobile?(sideOpen?"translateX(0)":"translateX(-100%)"):"none",transition:"transform .28s ease",boxShadow:dark?"2px 0 14px rgba(0,0,0,0.14)":"2px 0 12px rgba(0,0,0,0.06)"}}>
+      <div style={{padding:"22px 20px 18px",borderBottom:`1px solid ${T.border}`}}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
           <div
             style={{
-              width: 74,
-              height: 74,
-              borderRadius: "50%",
-              background: "#000000",
-              padding: 3,
-              flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              animation: "logoRingPulse 2.8s ease-in-out infinite",
-              transition: "all 0.35s ease",
-              cursor: "pointer",
+              width:74,
+              height:74,
+              borderRadius:"50%",
+              background:"#000000",
+              padding:3,
+              flexShrink:0,
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center",
+              animation:"logoRingPulse 2.8s ease-in-out infinite",
+              transition:"all 0.35s ease",
+              cursor:"pointer"
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.animationDuration = "1.6s";
-              e.currentTarget.style.transform = "scale(1.06)";
+            onMouseEnter={e=>{
+              e.currentTarget.style.animationDuration="1.6s";
+              e.currentTarget.style.transform="scale(1.06)";
             }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.animationDuration = "2.8s";
-              e.currentTarget.style.transform = "scale(1)";
+            onMouseLeave={e=>{
+              e.currentTarget.style.animationDuration="2.8s";
+              e.currentTarget.style.transform="scale(1)";
             }}
           >
             <div
               style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                overflow: "hidden",
-                background: "#000000",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                width:"100%",
+                height:"100%",
+                borderRadius:"50%",
+                overflow:"hidden",
+                background:"#000000",
+                display:"flex",
+                alignItems:"center",
+                justifyContent:"center"
               }}
             >
               <img
                 src="logo.png?v=3"
                 alt="Scorpion Arabia"
                 style={{
-                  width: "124%",
-                  height: "124%",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                  display: "block",
-                  animation: "logoInnerFloat 3.2s ease-in-out infinite",
+                  width:"124%",
+                  height:"124%",
+                  objectFit:"cover",
+                  objectPosition:"center",
+                  display:"block",
+                  animation:"logoInnerFloat 3.2s ease-in-out infinite"
                 }}
               />
             </div>
           </div>
 
           <div>
-            <div
-              style={{
-                fontFamily: "'Barlow Condensed',sans-serif",
-                fontWeight: 800,
-                fontSize: "clamp(16px,1.4vw,22px)",
-                color: dark ? "#24160b" : "#ffffff",
-                letterSpacing: ".5px",
-                lineHeight: 1.1,
-              }}
-            >
-              SCORPION ARABIA
-            </div>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "1.4px",
-                marginTop: 3,
-                color: dark ? "#6b4a2b" : "#93c5fd",
-              }}
-            >
-              ASSET MANAGER
-            </div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:"clamp(16px,1.4vw,22px)",color:dark?"#24160b":"#ffffff",letterSpacing:".5px",lineHeight:1.1}}>SCORPION ARABIA</div>
+            <div style={{fontSize:11,fontWeight:600,letterSpacing:"1.4px",marginTop:3,color:dark?"#6b4a2b":"#93c5fd"}}>ASSET MANAGER</div>
           </div>
         </div>
       </div>
-
-      <nav style={{ padding: "14px 10px", flex: 1, overflowY: "auto" }}>
-        {NAV.map((n) => {
-          const active = page === n.id;
-          const badge = n.id === "dashboard" ? alerts : 0;
-
+      <nav style={{padding:"14px 10px",flex:1,overflowY:"auto"}}>
+        {NAV.map(n=>{
+          const active=page===n.id;
+          const badge=n.id==="dashboard"?alerts:0;
           return (
-            <button
-              key={n.id}
-              onClick={() => go(n.id)}
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "11px 12px",
-                borderRadius: 8,
-                border: "none",
-                marginBottom: 3,
-                textAlign: "left",
-                background: active
-                  ? dark
-                    ? "rgba(26,10,0,0.08)"
-                    : "rgba(59,130,246,0.15)"
-                  : "transparent",
-                borderLeft: `2px solid ${active ? (dark ? "#5c3d1e" : "#93c5fd") : "transparent"}`,
-                transition: "all .15s",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 20,
-                  color: active ? (dark ? "#5c3d1e" : "#93c5fd") : dark ? "#8a6a45" : "#94a3b8",
-                }}
-              >
-                {n.icon}
-              </span>
-
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: "clamp(12px,1vw,14px)",
-                    fontWeight: 600,
-                    color: active ? (dark ? "#24160b" : "#93c5fd") : dark ? "#2f2113" : "#e2e8f0",
-                  }}
-                >
-                  {n.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: dark ? "#8a6a45" : "#94a3b8",
-                    marginTop: 1,
-                  }}
-                >
-                  {n.desc}
-                </div>
+            <button key={n.id} onClick={()=>go(n.id)} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"11px 12px",borderRadius:8,border:"none",marginBottom:3,textAlign:"left",background:active?(dark?"rgba(26,10,0,0.08)":"rgba(59,130,246,0.15)"):"transparent",borderLeft:`2px solid ${active?(dark?"#5c3d1e":"#93c5fd"):"transparent"}`,transition:"all .15s"}}>
+              <span style={{fontSize:20,color:active?(dark?"#5c3d1e":"#93c5fd"):(dark?"#8a6a45":"#94a3b8")}}>{n.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{fontSize:"clamp(12px,1vw,14px)",fontWeight:600,color:active?(dark?"#24160b":"#93c5fd"):(dark?"#2f2113":"#e2e8f0")}}>{n.label}</div>
+                <div style={{fontSize:10,color:dark?"#8a6a45":"#94a3b8",marginTop:1}}>{n.desc}</div>
               </div>
-
-              {badge > 0 && (
-                <span
-                  style={{
-                    background: T.red,
-                    color: "#fff",
-                    borderRadius: 999,
-                    padding: "1px 7px",
-                    fontSize: 10,
-                    fontWeight: 700,
-                  }}
-                >
-                  {badge}
-                </span>
-              )}
+              {badge>0&&<span style={{background:T.red,color:"#fff",borderRadius:999,padding:"1px 7px",fontSize:10,fontWeight:700}}>{badge}</span>}
             </button>
           );
         })}
       </nav>
-
-      <div style={{ padding: "10px 10px 0" }}>
-        <button
-          onClick={onManageProjects}
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "10px 12px",
-            borderRadius: 8,
-            border: `1px solid ${T.borderLight}`,
-            background: "transparent",
-            textAlign: "left",
-            transition: "all .15s",
-            marginBottom: 4,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = dark ? "rgba(26,10,0,0.06)" : "rgba(255,255,255,0.1)";
-            e.currentTarget.style.borderColor = dark ? "#5c3d1e" : "#93c5fd";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.borderColor = T.borderLight;
-          }}
-        >
-          <span style={{ fontSize: 16, color: T.blue }}>⊕</span>
+      {/* Manage Projects */}
+      <div style={{padding:"10px 10px 0"}}>
+        <button onClick={onManageProjects} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:8,border:`1px solid ${T.borderLight}`,background:"transparent",textAlign:"left",transition:"all .15s",marginBottom:4}}
+          onMouseEnter={e=>{e.currentTarget.style.background=dark?"rgba(26,10,0,0.06)":"rgba(255,255,255,0.1)";e.currentTarget.style.borderColor=dark?"#5c3d1e":"#93c5fd";}}
+          onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor=T.borderLight;}}>
+          <span style={{fontSize:16,color:T.blue}}>⊕</span>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: dark ? "#2f2113" : T.text }}>
-              Manage Projects
-            </div>
-            <div style={{ fontSize: 10, color: dark ? "#8a6a45" : T.textMuted }}>
-              Add, rename, delete
-            </div>
+            <div style={{fontSize:12,fontWeight:600,color:dark?"#2f2113":T.text}}>Manage Projects</div>
+            <div style={{fontSize:10,color:dark?"#8a6a45":T.textMuted}}>Add, rename, delete</div>
           </div>
         </button>
       </div>
-
-      <div style={{ padding: "8px 18px 16px", fontSize: 10, color: T.textMuted, textAlign: "center" }}>
-        Scorpion Arabia © 2025
-      </div>
+      <div style={{padding:"8px 18px 16px",fontSize:10,color:T.textMuted,textAlign:"center"}}>Scorpion Arabia © 2025</div>
     </aside>
   );
 }
