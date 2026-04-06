@@ -903,26 +903,87 @@ function ScorpionDocs({ data, setData, showToast }) {
 }
 
 function DocModal({ mode, doc, cats, onClose, onSave }) {
+  const [f, setF] = useState(doc || {});
+  const [uploading, setUploading] = useState(false);
+
   const handleSave = async () => {
-  try {
-    setUploading(true);
+    try {
+      setUploading(true);
 
-    const finalData = { ...f };
+      const finalData = { ...f };
 
-    if (f.fileUpload) {
-      const uploadedUrl = await uploadPdfToSupabase(f.fileUpload, "scorpion-docs");
-      finalData.fileLink = uploadedUrl;
+      if (f.fileUpload) {
+        const uploadedUrl = await uploadPdfToSupabase(f.fileUpload, "scorpion-docs");
+        finalData.fileLink = uploadedUrl;
+      }
+
+      delete finalData.fileUpload;
+      onSave(finalData, mode);
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert(`PDF upload failed: ${err?.message || "Unknown error"}`);
+    } finally {
+      setUploading(false);
     }
+  };
 
-    delete finalData.fileUpload;
-    onSave(finalData, mode);
-  } catch (err) {
-    console.error("Upload error:", err);
-    alert(`PDF upload failed: ${err?.message || "Unknown error"}`);
-  } finally {
-    setUploading(false);
-  }
-};
+  return (
+    <FormModal
+      title={`${mode === "add" ? "ADD" : "EDIT"} DOCUMENT`}
+      color={T.blue}
+      onClose={onClose}
+      onSave={handleSave}
+    >
+      <FieldRow label="Category">
+        <FSelect
+          value={f.category || ""}
+          onChange={(v) => setF((p) => ({ ...p, category: v }))}
+        >
+          <option value="">Select…</option>
+          {cats.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </FSelect>
+      </FieldRow>
+
+      <FieldRow label="File Link (optional manual URL)">
+        <FInput
+          value={f.fileLink || ""}
+          onChange={(v) => setF((p) => ({ ...p, fileLink: v }))}
+        />
+      </FieldRow>
+
+      <FieldRow label="Upload PDF">
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) =>
+            setF((p) => ({
+              ...p,
+              fileUpload: e.target.files?.[0] || null,
+            }))
+          }
+          style={fieldStyle()}
+        />
+      </FieldRow>
+
+      <FieldRow label="Notes">
+        <FTextarea
+          value={f.notes || ""}
+          onChange={(v) => setF((p) => ({ ...p, notes: v }))}
+        />
+      </FieldRow>
+
+      {uploading && (
+        <div style={{ color: T.blue, fontSize: 12, fontWeight: 700, marginTop: 6 }}>
+          Uploading PDF...
+        </div>
+      )}
+    </FormModal>
+  );
+}
 
   return (
     <FormModal
@@ -1086,7 +1147,7 @@ function ProjectDocs({ data, setData, showToast }) {
               <CardRow key={doc.id} delay={i * 0.03} borderLeft={curTab.color}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
-                    <Title>{doc.name}</Title>
+                    <Title>{doc.name || doc.fileUpload?.name || doc.fileLink || "Document"}</Title>
                     {doc.project && <Tag color={T.teal}>{doc.project}</Tag>}
                     {doc.expiryDate && <Tag color={s.color}>{s.label}</Tag>}
                   </div>
