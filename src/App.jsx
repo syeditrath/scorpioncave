@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { createClient } from "@supabase/supabase-js";
 
+
 /* ──────────────────────────────────────────────────────────────────────────
    SUPABASE
 ────────────────────────────────────────────────────────────────────────── */
@@ -43,7 +44,7 @@ async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
    GLOBAL CSS
 ────────────────────────────────────────────────────────────────────────── */
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&family=Cinzel:wght@600;700;800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body, #root { height: 100%; }
   body { font-family: 'Barlow', sans-serif; background: #f0e6d3; color: #1a0a00; -webkit-font-smoothing: antialiased; }
@@ -70,6 +71,57 @@ const GLOBAL_CSS = `
   .fade-up  { animation: fadeUp  0.3s ease both; }
   .slide-up { animation: slideUp 0.35s cubic-bezier(0.34,1.3,0.64,1) both; }
   .fade-in  { animation: fadeIn  0.2s ease both; }
+  @keyframes logoGlow {
+  0%, 100% {
+    text-shadow:
+      0 0 6px rgba(251,191,36,0.18),
+      0 0 14px rgba(251,191,36,0.10);
+    transform: translateY(0);
+  }
+  50% {
+    text-shadow:
+      0 0 10px rgba(251,191,36,0.32),
+      0 0 24px rgba(251,191,36,0.18);
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes shineSweep {
+  0% { background-position: -220% center; }
+  100% { background-position: 220% center; }
+}
+
+.logo-brand {
+  font-family: 'Cinzel', serif;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  background: linear-gradient(
+    90deg,
+    #f7e7b2 0%,
+    #fbbf24 18%,
+    #fff3c4 34%,
+    #f59e0b 52%,
+    #fff3c4 68%,
+    #fbbf24 84%,
+    #f7e7b2 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    shineSweep 6s linear infinite,
+    logoGlow 3s ease-in-out infinite;
+}
+
+.logo-brand-subtle {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #f6d77a;
+  animation: logoGlow 3s ease-in-out infinite;
+}
   /* Card distinct from background */
   .app-card {
     background: #fdf8f0;
@@ -405,17 +457,15 @@ function TopBar({ alerts, onOpenSidebar }) {
 
         <div style={{ position: "absolute", inset: 0, textAlign: "center", pointerEvents: "none" }}>
           <div
-            style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: 24,
-              color: "#fff",
-              letterSpacing: "3px",
-              marginTop: 7,
-            }}
-          >
-            SCORPION ARABIA
-          </div>
+  className="logo-brand"
+  style={{
+    fontSize: "clamp(22px,2.2vw,30px)",
+    marginTop: 6,
+    lineHeight: 1,
+  }}
+>
+  SCORPION ARABIA
+</div>
           <div style={{ fontSize: 11, color: "#93c5fd", letterSpacing: "1.5px", marginTop: -2 }}>
             DOCUMENT & ASSET MANAGER
           </div>
@@ -486,20 +536,25 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
           </div>
           <div>
             <div
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 800,
-                fontSize: 20,
-                color: "#fff",
-                letterSpacing: ".5px",
-              }}
-            >
-              SCORPION ARABIA
-            </div>
-            <div style={{ color: "#93c5fd", fontSize: 11, letterSpacing: "1.5px" }}>ASSET MANAGER</div>
-          </div>
-        </div>
-      </div>
+  className="logo-brand-subtle"
+  style={{
+    fontSize: "clamp(16px,1.3vw,21px)",
+    lineHeight: 1.1,
+  }}
+>
+  SCORPION ARABIA
+</div>
+            <div
+  style={{
+    color: "#93c5fd",
+    fontSize: 10,
+    letterSpacing: "2.6px",
+    marginTop: 3,
+    fontWeight: 700,
+  }}
+>
+  DOCUMENT PORTAL
+</div>
 
       <nav style={{ padding: 10, flex: 1, overflowY: "auto" }}>
         {nav.map((n) => {
