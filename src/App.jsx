@@ -5,17 +5,25 @@ import { createClient } from "@supabase/supabase-js";
 /* ──────────────────────────────────────────────────────────────────────────
    SUPABASE
 ────────────────────────────────────────────────────────────────────────── */
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;
 
 async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
+  if (!supabase) {
+    throw new Error("Supabase environment variables are missing.");
+  }
+
   if (!file) return "";
 
   const cleanName = file.name
     .replace(/\s+/g, "-")
     .replace(/[^a-zA-Z0-9._-]/g, "");
+
   const filePath = `${folder}/${Date.now()}-${cleanName}`;
 
   const { error: uploadError } = await supabase.storage
