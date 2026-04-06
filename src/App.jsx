@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { createClient } from "@supabase/supabase-js";
 
@@ -7,7 +7,6 @@ import { createClient } from "@supabase/supabase-js";
 ────────────────────────────────────────────────────────────────────────── */
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || "";
-
 
 const supabase =
   supabaseUrl && supabaseAnonKey
@@ -39,8 +38,6 @@ async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
   const { data } = supabase.storage.from("documents").getPublicUrl(filePath);
   return data.publicUrl;
 }
-
-
 
 /* ──────────────────────────────────────────────────────────────────────────
    GLOBAL CSS
@@ -90,6 +87,8 @@ const GLOBAL_CSS = `
   .spin-slow  { animation: spinSlow 8s linear infinite; }
   .pulse-logo { animation: pulse 3s ease-in-out infinite; }
   .glow-ring  { animation: glowRing 2.5s ease-in-out infinite; }
+`;
+
 /* ──────────────────────────────────────────────────────────────────────────
    THEME
 ────────────────────────────────────────────────────────────────────────── */
@@ -98,7 +97,6 @@ const LIGHT = {
   sidebar: "#080b10",
   card: "#fdf8f0",
   card2: "#f7f0e6",
-  cardHover: "#f5ead9",
   border: "#e8d5b7",
   borderLight: "#dcc9a0",
   text: "#1a0a00",
@@ -127,7 +125,6 @@ const DARK = {
   sidebar: "#0a0e14",
   card: "#161b22",
   card2: "#0f141b",
-  cardHover: "#1c232d",
   border: "#2d3742",
   borderLight: "#3c4652",
   text: "#e8edf5",
@@ -179,15 +176,9 @@ const daysUntil = (d) => {
 };
 
 function getStatus(days) {
-  if (days === null) {
-    return { label: "Unknown", color: T.textMuted, bg: "rgba(125,125,125,0.12)" };
-  }
-  if (days < 0) {
-    return { label: "Expired", color: T.red, bg: T.redDim };
-  }
-  if (days <= 90) {
-    return { label: "Expiring Soon", color: T.gold, bg: T.goldDim };
-  }
+  if (days === null) return { label: "Unknown", color: T.textMuted, bg: "rgba(125,125,125,0.12)" };
+  if (days < 0) return { label: "Expired", color: T.red, bg: T.redDim };
+  if (days <= 90) return { label: "Expiring Soon", color: T.gold, bg: T.goldDim };
   return { label: "Valid", color: T.green, bg: T.greenDim };
 }
 
@@ -208,7 +199,7 @@ const DEFAULT_SCORPION_CATS = [
   "Trade License",
   "Contracts & Agreements",
   "IBAN",
-   "Zakat",
+  "Zakat",
   "Other",
 ];
 
@@ -292,53 +283,39 @@ export default function App() {
 
     data.scorpionDocs.forEach((d) => {
       const days = daysUntil(d.expiryDate);
-      if (days !== null && days <= 90) {
-        items.push({ label: d.name, src: "Company Doc", days });
-      }
+      if (days !== null && days <= 90) items.push({ label: d.name || "Document", src: "Company Doc", days });
     });
 
     data.projectDocs.forEach((d) => {
       const days = daysUntil(d.expiryDate);
-      if (days !== null && days <= 90) {
-        items.push({ label: d.name, src: "Project Doc", days });
-      }
+      if (days !== null && days <= 90) items.push({ label: d.name || "Project Doc", src: "Project Doc", days });
     });
 
     data.manpower.forEach((p) => {
       [p.passportExpiry, p.visaExpiry, p.iqamaExpiry, p.muqeemExpiry].forEach((x, i) => {
         const names = ["Passport", "Visa", "Iqama", "Muqeem"];
         const days = daysUntil(x);
-        if (days !== null && days <= 90) {
-          items.push({ label: p.name, src: names[i], days });
-        }
+        if (days !== null && days <= 90) items.push({ label: p.name || "Person", src: names[i], days });
       });
 
       (p.certs || []).forEach((c) => {
         const days = daysUntil(c.expiryDate);
-        if (days !== null && days <= 90) {
-          items.push({ label: `${p.name} — ${c.name}`, src: "Cert", days });
-        }
+        if (days !== null && days <= 90) items.push({ label: `${p.name || "Person"} — ${c.name || "Cert"}`, src: "Cert", days });
       });
     });
 
     data.equipment.forEach((e) => {
       (e.certifications || []).forEach((c) => {
         const days = daysUntil(c.expiryDate);
-        if (days !== null && days <= 90) {
-          items.push({ label: `${e.name} — ${c.certNo || "Cert"}`, src: "Eq Cert", days });
-        }
+        if (days !== null && days <= 90) items.push({ label: `${e.name || "Equipment"} — ${c.certNo || "Cert"}`, src: "Eq Cert", days });
       });
       (e.insurance || []).forEach((c) => {
         const days = daysUntil(c.expiryDate);
-        if (days !== null && days <= 90) {
-          items.push({ label: `${e.name} — Insurance`, src: "Insurance", days });
-        }
+        if (days !== null && days <= 90) items.push({ label: `${e.name || "Equipment"} — Insurance`, src: "Insurance", days });
       });
       (e.permits || []).forEach((c) => {
         const days = daysUntil(c.expiryDate);
-        if (days !== null && days <= 90) {
-          items.push({ label: `${e.name} — ${c.type || "Permit"}`, src: "Permit", days });
-        }
+        if (days !== null && days <= 90) items.push({ label: `${e.name || "Equipment"} — ${c.type || "Permit"}`, src: "Permit", days });
       });
     });
 
@@ -351,12 +328,7 @@ export default function App() {
         <div
           className="fade-in"
           onClick={() => setSideOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.35)",
-            zIndex: 40,
-          }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 40 }}
         />
       )}
 
@@ -372,38 +344,14 @@ export default function App() {
       />
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <TopBar
-          alerts={allAlerts.length}
-          onOpenSidebar={() => setSideOpen(true)}
-          darkMode={darkMode}
-        />
+        <TopBar alerts={allAlerts.length} onOpenSidebar={() => setSideOpen(true)} />
 
-        <main
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "clamp(14px,2vw,28px)",
-          }}
-        >
-          {page === "dashboard" && (
-            <Dashboard data={data} alerts={allAlerts} setPage={setPage} />
-          )}
-
-          {page === "scorpion" && (
-            <ScorpionDocs data={data} setData={setData} showToast={showToast} />
-          )}
-
-          {page === "projects" && (
-            <ProjectDocs data={data} setData={setData} showToast={showToast} />
-          )}
-
-          {page === "manpower" && (
-            <ManpowerPage data={data} setData={setData} showToast={showToast} />
-          )}
-
-          {page === "equipment" && (
-            <EquipmentPage data={data} setData={setData} showToast={showToast} />
-          )}
+        <main style={{ flex: 1, overflowY: "auto", padding: "clamp(14px,2vw,28px)" }}>
+          {page === "dashboard" && <Dashboard data={data} alerts={allAlerts} setPage={setPage} />}
+          {page === "scorpion" && <ScorpionDocs data={data} setData={setData} showToast={showToast} />}
+          {page === "projects" && <ProjectDocs data={data} setData={setData} showToast={showToast} />}
+          {page === "manpower" && <ManpowerPage data={data} setData={setData} showToast={showToast} />}
+          {page === "equipment" && <EquipmentPage data={data} setData={setData} showToast={showToast} />}
         </main>
       </div>
 
@@ -447,21 +395,11 @@ export default function App() {
 /* ──────────────────────────────────────────────────────────────────────────
    LAYOUT
 ────────────────────────────────────────────────────────────────────────── */
-function TopBar({ alerts, onOpenSidebar, darkMode }) {
+function TopBar({ alerts, onOpenSidebar }) {
   return (
-    <header
-      style={{
-        background: T.sidebar,
-        borderBottom: `1px solid ${T.border}`,
-        padding: "0 18px",
-        flexShrink: 0,
-      }}
-    >
+    <header style={{ background: T.sidebar, borderBottom: `1px solid ${T.border}`, padding: "0 18px", flexShrink: 0 }}>
       <div style={{ height: 58, display: "flex", alignItems: "center", position: "relative" }}>
-        <button
-          onClick={onOpenSidebar}
-          style={iconBtnStyle("rgba(255,255,255,0.08)", "#fff")}
-        >
+        <button onClick={onOpenSidebar} style={iconBtnStyle("rgba(255,255,255,0.08)", "#fff")}>
           ☰
         </button>
 
@@ -486,7 +424,7 @@ function TopBar({ alerts, onOpenSidebar, darkMode }) {
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
           <div
             style={{
-              background: darkMode ? "rgba(255,255,255,0.08)" : "rgba(220,38,38,0.2)",
+              background: alerts ? "rgba(220,38,38,0.2)" : "rgba(255,255,255,0.08)",
               border: `1px solid ${alerts ? "rgba(220,38,38,0.45)" : "rgba(255,255,255,0.14)"}`,
               color: alerts ? "#fecaca" : "#fff",
               borderRadius: 8,
@@ -503,16 +441,7 @@ function TopBar({ alerts, onOpenSidebar, darkMode }) {
   );
 }
 
-function Sidebar({
-  page,
-  setPage,
-  sideOpen,
-  setSideOpen,
-  alerts,
-  darkMode,
-  setDarkMode,
-  onManageProjects,
-}) {
+function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDarkMode, onManageProjects }) {
   const isMobile = window.innerWidth < 900;
 
   const nav = [
@@ -529,7 +458,7 @@ function Sidebar({
         width: "clamp(220px,18vw,280px)",
         flexShrink: 0,
         background: T.sidebar,
-        borderRight: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.08)"}`,
+        borderRight: `1px solid rgba(255,255,255,0.08)`,
         display: "flex",
         flexDirection: "column",
         zIndex: 50,
@@ -553,11 +482,7 @@ function Sidebar({
               boxShadow: "0 0 0 2px rgba(251,191,36,0.5)",
             }}
           >
-            <img
-              src="logo.png"
-              alt="Scorpion Arabia"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
+            <img src="logo.png" alt="Scorpion Arabia" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </div>
           <div>
             <div
@@ -629,17 +554,11 @@ function Sidebar({
       </nav>
 
       <div style={{ padding: "8px 10px", display: "grid", gap: 8 }}>
-        <button
-          onClick={onManageProjects}
-          style={sidebarAuxBtnStyle()}
-        >
+        <button onClick={onManageProjects} style={sidebarAuxBtnStyle()}>
           ⊕ Manage Projects
         </button>
 
-        <button
-          onClick={() => setDarkMode((d) => !d)}
-          style={sidebarAuxBtnStyle()}
-        >
+        <button onClick={() => setDarkMode((d) => !d)} style={sidebarAuxBtnStyle()}>
           {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
         </button>
       </div>
@@ -693,45 +612,13 @@ function Dashboard({ data, alerts, setPage }) {
           marginBottom: 18,
         }}
       >
-        <QuickCard
-          title="Scorpion Documents"
-          sub="CR, insurance, licenses, contracts"
-          stat={`${data.scorpionDocs.length} total / ${scorpionExp} expiring`}
-          color={T.blue}
-          onClick={() => setPage("scorpion")}
-        />
-        <QuickCard
-          title="Project Docs"
-          sub="Invoices, certificates, work orders"
-          stat={`${projectCount} records`}
-          color={T.teal}
-          onClick={() => setPage("projects")}
-        />
-        <QuickCard
-          title="Manpower"
-          sub="Staff documents and certifications"
-          stat={`${manpowerCount} people`}
-          color={T.green}
-          onClick={() => setPage("manpower")}
-        />
-        <QuickCard
-          title="Equipment"
-          sub="Assets, certs, insurance, permits"
-          stat={`${equipmentCount} assets`}
-          color={T.gold}
-          onClick={() => setPage("equipment")}
-        />
+        <QuickCard title="Scorpion Documents" sub="CR, insurance, licenses, contracts" stat={`${data.scorpionDocs.length} total / ${scorpionExp} expiring`} color={T.blue} onClick={() => setPage("scorpion")} />
+        <QuickCard title="Project Docs" sub="Invoices, certificates, work orders" stat={`${projectCount} records`} color={T.teal} onClick={() => setPage("projects")} />
+        <QuickCard title="Manpower" sub="Staff documents and certifications" stat={`${manpowerCount} people`} color={T.green} onClick={() => setPage("manpower")} />
+        <QuickCard title="Equipment" sub="Assets, certs, insurance, permits" stat={`${equipmentCount} assets`} color={T.gold} onClick={() => setPage("equipment")} />
       </div>
 
-      <div
-        style={{
-          background: T.card,
-          border: `1px solid ${T.border}`,
-          borderRadius: 14,
-          boxShadow: T.shadow,
-          padding: 18,
-        }}
-      >
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, boxShadow: T.shadow, padding: 18 }}>
         <div
           style={{
             fontFamily: "'Barlow Condensed', sans-serif",
@@ -801,20 +688,10 @@ function ScorpionDocs({ data, setData, showToast }) {
 
   return (
     <PageWrap>
-      <PageHeader
-        title="SCORPION DOCUMENTS"
-        sub="Company licenses, insurance, contracts & registrations"
-        color={T.blue}
-      >
-        <Btn color={T.blue} onClick={() => setCatModal(true)}>
-          ⊕ Categories
-        </Btn>
-        <Btn color={T.blue} onClick={() => exportToExcel(docs, "Scorpion_Documents")}>
-          ⬇ Export Excel
-        </Btn>
-        <Btn color={T.blue} solid onClick={() => setModal({ mode: "add" })}>
-          + Add Document
-        </Btn>
+      <PageHeader title="SCORPION DOCUMENTS" sub="Company licenses, insurance, contracts & registrations">
+        <Btn color={T.blue} onClick={() => setCatModal(true)}>⊕ Categories</Btn>
+        <Btn color={T.blue} onClick={() => exportToExcel(docs, "Scorpion_Documents")}>⬇ Export Excel</Btn>
+        <Btn color={T.blue} solid onClick={() => setModal({ mode: "add" })}>+ Add Document</Btn>
       </PageHeader>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
@@ -838,13 +715,7 @@ function ScorpionDocs({ data, setData, showToast }) {
       </div>
 
       {visible.length === 0 ? (
-        <Empty
-          icon="◉"
-          label="No company documents yet"
-          sub="Add your first document"
-          color={T.blue}
-          onAdd={() => setModal({ mode: "add" })}
-        />
+        <Empty icon="◉" label="No company documents yet" sub="Add your first document" color={T.blue} onAdd={() => setModal({ mode: "add" })} />
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
           {visible.map((doc, i) => {
@@ -853,29 +724,20 @@ function ScorpionDocs({ data, setData, showToast }) {
               <CardRow key={doc.id} delay={i * 0.03} borderLeft={doc.expiryDate ? s.color : T.blue}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
-                    <Title>{doc.name}</Title>
+                    <Title>{doc.name || "Document"}</Title>
                     {doc.category && <Tag color={T.blue}>{doc.category}</Tag>}
                     {doc.expiryDate && <Tag color={s.color}>{s.label}</Tag>}
                   </div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {doc.docNo && <Chip>Ref: {doc.docNo}</Chip>}
                     {doc.issueDate && <Chip>Issue: {fmtDate(doc.issueDate)}</Chip>}
                     {doc.expiryDate && <Chip color={s.color}>Expiry: {fmtDate(doc.expiryDate)}</Chip>}
                     {doc.fileLink && <FileLink href={doc.fileLink} />}
                   </div>
-                  {doc.notes && (
-                    <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>
-                      {doc.notes}
-                    </div>
-                  )}
+                  {doc.notes && <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>{doc.notes}</div>}
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", doc })}>
-                    ✎
-                  </ABtn>
-                  <ABtn color={T.red} onClick={() => delDoc(doc.id)}>
-                    ✕
-                  </ABtn>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", doc })}>✎</ABtn>
+                  <ABtn color={T.red} onClick={() => delDoc(doc.id)}>✕</ABtn>
                 </div>
               </CardRow>
             );
@@ -941,10 +803,7 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
       onSave={handleSave}
     >
       <FieldRow label="Category">
-        <FSelect
-          value={f.category || ""}
-          onChange={(v) => setF((p) => ({ ...p, category: v }))}
-        >
+        <FSelect value={f.category || ""} onChange={(v) => setF((p) => ({ ...p, category: v }))}>
           <option value="">Select…</option>
           {cats.map((c) => (
             <option key={c} value={c}>
@@ -952,6 +811,10 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
             </option>
           ))}
         </FSelect>
+      </FieldRow>
+
+      <FieldRow label="File Link (optional manual URL)">
+        <FInput value={f.fileLink || ""} onChange={(v) => setF((p) => ({ ...p, fileLink: v }))} />
       </FieldRow>
 
       <FieldRow label="Upload PDF">
@@ -969,14 +832,11 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
       </FieldRow>
 
       <FieldRow label="Notes">
-        <FTextarea
-          value={f.notes || ""}
-          onChange={(v) => setF((p) => ({ ...p, notes: v }))}
-        />
+        <FTextarea value={f.notes || ""} onChange={(v) => setF((p) => ({ ...p, notes: v }))} />
       </FieldRow>
 
       {uploading && (
-        <div style={{ color: T.blue, fontSize: 12, fontWeight: 700 }}>
+        <div style={{ color: T.blue, fontSize: 12, fontWeight: 700, marginTop: 6 }}>
           Uploading PDF...
         </div>
       )}
@@ -988,9 +848,9 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
    PROJECT DOCS
 ────────────────────────────────────────────────────────────────────────── */
 const PROJECT_TABS = [
-  { id: "invoices", label: "Invoices", icon: "🧾", color: T.green },
-  { id: "certificates", label: "Job Completion Certificates", icon: "📜", color: T.blue },
-  { id: "workorders", label: "Work Orders / Agreements", icon: "📋", color: T.purple },
+  { id: "invoices", label: "Invoices", icon: "🧾", color: "#34d399" },
+  { id: "certificates", label: "Job Completion Certificates", icon: "📜", color: "#38bdf8" },
+  { id: "workorders", label: "Work Orders / Agreements", icon: "📋", color: "#a78bfa" },
 ];
 
 function ProjectDocs({ data, setData, showToast }) {
@@ -1000,20 +860,15 @@ function ProjectDocs({ data, setData, showToast }) {
 
   const docs = data.projectDocs || [];
   const projects = data.projects || [];
-
-  const visible = docs.filter(
-    (d) => d.subTab === subTab && (!filterProject || d.project === filterProject)
-  );
-
+  const visible = docs.filter((d) => d.subTab === subTab && (!filterProject || d.project === filterProject));
   const curTab = PROJECT_TABS.find((t) => t.id === subTab);
 
   const saveDoc = (doc, mode) => {
     setModal(null);
     setData((prev) => {
       const list = [...prev.projectDocs];
-      if (mode === "add") {
-        list.push({ ...doc, id: uid(), subTab });
-      } else {
+      if (mode === "add") list.push({ ...doc, id: uid(), subTab });
+      else {
         const idx = list.findIndex((x) => x.id === doc.id);
         if (idx >= 0) list[idx] = { ...doc, subTab };
       }
@@ -1023,23 +878,14 @@ function ProjectDocs({ data, setData, showToast }) {
   };
 
   const delDoc = (id) => {
-    setData((prev) => ({
-      ...prev,
-      projectDocs: prev.projectDocs.filter((d) => d.id !== id),
-    }));
+    setData((prev) => ({ ...prev, projectDocs: prev.projectDocs.filter((d) => d.id !== id) }));
     showToast("Document deleted", "del");
   };
 
   return (
     <PageWrap>
-      <PageHeader
-        title="PROJECT DOCUMENTS"
-        sub="Invoices, completion certificates and work orders"
-        color={T.teal}
-      >
-        <Btn color={curTab.color} onClick={() => exportToExcel(visible, "Project_Documents")}>
-          ⬇ Export Excel
-        </Btn>
+      <PageHeader title="PROJECT DOCUMENTS" sub="Invoices, completion certificates and work orders">
+        <Btn color={curTab.color} onClick={() => exportToExcel(visible, "Project_Documents")}>⬇ Export Excel</Btn>
         <Btn color={curTab.color} solid onClick={() => setModal({ mode: "add" })}>
           + Add {curTab.label.replace(/s$/, "")}
         </Btn>
@@ -1066,11 +912,7 @@ function ProjectDocs({ data, setData, showToast }) {
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
-        <select
-          value={filterProject}
-          onChange={(e) => setFilterProject(e.target.value)}
-          style={fieldStyle()}
-        >
+        <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)} style={fieldStyle()}>
           <option value="">All Projects</option>
           {projects.map((p) => (
             <option key={p} value={p}>
@@ -1096,7 +938,7 @@ function ProjectDocs({ data, setData, showToast }) {
               <CardRow key={doc.id} delay={i * 0.03} borderLeft={curTab.color}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
-                    <Title>{doc.name || doc.fileUpload?.name || doc.fileLink || "Document"}</Title>
+                    <Title>{doc.name || "Project Document"}</Title>
                     {doc.project && <Tag color={T.teal}>{doc.project}</Tag>}
                     {doc.expiryDate && <Tag color={s.color}>{s.label}</Tag>}
                   </div>
@@ -1107,19 +949,11 @@ function ProjectDocs({ data, setData, showToast }) {
                     {doc.amount && <Chip color={T.green}>SAR {Number(doc.amount).toLocaleString()}</Chip>}
                     {doc.fileLink && <FileLink href={doc.fileLink} />}
                   </div>
-                  {doc.notes && (
-                    <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>
-                      {doc.notes}
-                    </div>
-                  )}
+                  {doc.notes && <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>{doc.notes}</div>}
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", doc })}>
-                    ✎
-                  </ABtn>
-                  <ABtn color={T.red} onClick={() => delDoc(doc.id)}>
-                    ✕
-                  </ABtn>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", doc })}>✎</ABtn>
+                  <ABtn color={T.red} onClick={() => delDoc(doc.id)}>✕</ABtn>
                 </div>
               </CardRow>
             );
@@ -1143,21 +977,14 @@ function ProjectDocs({ data, setData, showToast }) {
 
 function ProjectDocModal({ mode, doc, projects, subTab, onClose, onSave }) {
   const [f, setF] = useState(doc || {});
-  const color =
-    subTab === "invoices" ? T.green : subTab === "certificates" ? T.blue : T.purple;
+  const color = subTab === "invoices" ? T.green : subTab === "certificates" ? T.blue : T.purple;
 
   return (
     <FormModal
       title={`${mode === "add" ? "ADD" : "EDIT"} ${subTab === "invoices" ? "INVOICE" : subTab === "certificates" ? "CERTIFICATE" : "WORK ORDER"}`}
       color={color}
       onClose={onClose}
-      onSave={() => {
-        if (!f.name) {
-          alert("Name is required");
-          return;
-        }
-        onSave(f, mode);
-      }}
+      onSave={() => onSave(f, mode)}
     >
       <FieldRow label="Title / Name">
         <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
@@ -1216,9 +1043,8 @@ function ManpowerPage({ data, setData, showToast }) {
     setModal(null);
     setData((prev) => {
       const list = [...prev.manpower];
-      if (mode === "add") {
-        list.push({ ...person, id: uid(), certs: person.certs || [], docs: person.docs || [] });
-      } else {
+      if (mode === "add") list.push({ ...person, id: uid(), certs: person.certs || [], docs: person.docs || [] });
+      else {
         const idx = list.findIndex((x) => x.id === person.id);
         if (idx >= 0) list[idx] = person;
       }
@@ -1228,26 +1054,15 @@ function ManpowerPage({ data, setData, showToast }) {
   };
 
   const delPerson = (id) => {
-    setData((prev) => ({
-      ...prev,
-      manpower: prev.manpower.filter((p) => p.id !== id),
-    }));
+    setData((prev) => ({ ...prev, manpower: prev.manpower.filter((p) => p.id !== id) }));
     showToast("Person deleted", "del");
   };
 
   return (
     <PageWrap>
-      <PageHeader
-        title="MANPOWER"
-        sub="Staff records, IDs and certifications"
-        color={T.green}
-      >
-        <Btn color={T.green} onClick={() => exportToExcel(people, "Manpower")}>
-          ⬇ Export Excel
-        </Btn>
-        <Btn color={T.green} solid onClick={() => setModal({ mode: "add" })}>
-          + Add Person
-        </Btn>
+      <PageHeader title="MANPOWER" sub="Staff records, IDs and certifications">
+        <Btn color={T.green} onClick={() => exportToExcel(people, "Manpower")}>⬇ Export Excel</Btn>
+        <Btn color={T.green} solid onClick={() => setModal({ mode: "add" })}>+ Add Person</Btn>
       </PageHeader>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
@@ -1271,13 +1086,7 @@ function ManpowerPage({ data, setData, showToast }) {
       </div>
 
       {visible.length === 0 ? (
-        <Empty
-          icon="◈"
-          label="No manpower records yet"
-          sub="Add your first employee"
-          color={T.green}
-          onAdd={() => setModal({ mode: "add" })}
-        />
+        <Empty icon="◈" label="No manpower records yet" sub="Add your first employee" color={T.green} onAdd={() => setModal({ mode: "add" })} />
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
           {visible.map((p, i) => {
@@ -1291,7 +1100,7 @@ function ManpowerPage({ data, setData, showToast }) {
               <CardRow key={p.id} delay={i * 0.03} borderLeft={alerts ? T.gold : T.green}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
-                    <Title>{p.name}</Title>
+                    <Title>{p.name || "Person"}</Title>
                     {p.category && <Tag color={T.green}>{p.category}</Tag>}
                     {p.designation && <Tag color={T.teal}>{p.designation}</Tag>}
                     {alerts ? <Tag color={T.gold}>{alerts} expiring</Tag> : null}
@@ -1305,12 +1114,8 @@ function ManpowerPage({ data, setData, showToast }) {
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", person: p })}>
-                    ✎
-                  </ABtn>
-                  <ABtn color={T.red} onClick={() => delPerson(p.id)}>
-                    ✕
-                  </ABtn>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", person: p })}>✎</ABtn>
+                  <ABtn color={T.red} onClick={() => delPerson(p.id)}>✕</ABtn>
                 </div>
               </CardRow>
             );
@@ -1339,13 +1144,7 @@ function ManpowerModal({ mode, person, cats, onClose, onSave }) {
       title={`${mode === "add" ? "ADD" : "EDIT"} PERSON`}
       color={T.green}
       onClose={onClose}
-      onSave={() => {
-        if (!f.name) {
-          alert("Name is required");
-          return;
-        }
-        onSave(f, mode);
-      }}
+      onSave={() => onSave(f, mode)}
     >
       <FieldRow label="Name">
         <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
@@ -1419,42 +1218,20 @@ function EquipmentPage({ data, setData, showToast }) {
   };
 
   const delEq = (id) => {
-    setData((prev) => ({
-      ...prev,
-      equipment: prev.equipment.filter((e) => e.id !== id),
-    }));
+    setData((prev) => ({ ...prev, equipment: prev.equipment.filter((e) => e.id !== id) }));
     showToast("Equipment deleted", "del");
   };
 
   return (
     <PageWrap>
-      <PageHeader
-        title="EQUIPMENT"
-        sub="Assets, certifications, insurance and permits"
-        color={T.gold}
-      >
-        <input
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Search equipment…"
-          style={{ ...fieldStyle(), width: 220 }}
-        />
-        <Btn color={T.gold} onClick={() => exportToExcel(data.equipment, "Equipment")}>
-          ⬇ Export Excel
-        </Btn>
-        <Btn color={T.gold} solid onClick={() => setModal({ mode: "add" })}>
-          + Add Equipment
-        </Btn>
+      <PageHeader title="EQUIPMENT" sub="Assets, certifications, insurance and permits">
+        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search equipment…" style={{ ...fieldStyle(), width: 220 }} />
+        <Btn color={T.gold} onClick={() => exportToExcel(data.equipment, "Equipment")}>⬇ Export Excel</Btn>
+        <Btn color={T.gold} solid onClick={() => setModal({ mode: "add" })}>+ Add Equipment</Btn>
       </PageHeader>
 
       {visible.length === 0 ? (
-        <Empty
-          icon="◎"
-          label="No equipment found"
-          sub="Add your first asset"
-          color={T.gold}
-          onAdd={() => setModal({ mode: "add" })}
-        />
+        <Empty icon="◎" label="No equipment found" sub="Add your first asset" color={T.gold} onAdd={() => setModal({ mode: "add" })} />
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
           {visible.map((eq, i) => {
@@ -1482,7 +1259,7 @@ function EquipmentPage({ data, setData, showToast }) {
               <CardRow key={eq.id} delay={i * 0.03} borderLeft={statusColor}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
-                    <Title>{eq.name}</Title>
+                    <Title>{eq.name || "Equipment"}</Title>
                     {eq.status && <Tag color={statusColor}>{eq.status}</Tag>}
                     {alerts ? <Tag color={T.gold}>{alerts} expiring</Tag> : null}
                   </div>
@@ -1492,19 +1269,11 @@ function EquipmentPage({ data, setData, showToast }) {
                     {eq.project && <Chip>{eq.project}</Chip>}
                     {eq.operator && <Chip>Op: {eq.operator}</Chip>}
                   </div>
-                  {eq.notes && (
-                    <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>
-                      {eq.notes}
-                    </div>
-                  )}
+                  {eq.notes && <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>{eq.notes}</div>}
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", eq })}>
-                    ✎
-                  </ABtn>
-                  <ABtn color={T.red} onClick={() => delEq(eq.id)}>
-                    ✕
-                  </ABtn>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", eq })}>✎</ABtn>
+                  <ABtn color={T.red} onClick={() => delEq(eq.id)}>✕</ABtn>
                 </div>
               </CardRow>
             );
@@ -1533,13 +1302,7 @@ function EquipmentModal({ mode, eq, projects, onClose, onSave }) {
       title={`${mode === "add" ? "ADD" : "EDIT"} EQUIPMENT`}
       color={T.gold}
       onClose={onClose}
-      onSave={() => {
-        if (!f.name) {
-          alert("Equipment name is required");
-          return;
-        }
-        onSave(f, mode);
-      }}
+      onSave={() => onSave(f, mode)}
     >
       <FieldRow label="Equipment Name">
         <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
@@ -1603,16 +1366,8 @@ function ProjectsModal({ projects, onSave, onClose }) {
         <ModalHeader title="MANAGE PROJECTS" sub="Add or delete projects" onClose={onClose} />
         <div style={{ padding: 18, display: "grid", gap: 10 }}>
           <div style={{ display: "flex", gap: 8 }}>
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && add()}
-              placeholder="New project name…"
-              style={{ ...fieldStyle(), flex: 1 }}
-            />
-            <Btn color={T.green} solid onClick={add}>
-              + Add
-            </Btn>
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} placeholder="New project name…" style={{ ...fieldStyle(), flex: 1 }} />
+            <Btn color={T.green} solid onClick={add}>+ Add</Btn>
           </div>
 
           <div style={{ display: "grid", gap: 8 }}>
@@ -1630,16 +1385,12 @@ function ProjectsModal({ projects, onSave, onClose }) {
                 }}
               >
                 <div style={{ flex: 1, color: T.text, fontSize: 14 }}>{p}</div>
-                <ABtn color={T.red} onClick={() => del(i)}>
-                  ✕
-                </ABtn>
+                <ABtn color={T.red} onClick={() => del(i)}>✕</ABtn>
               </div>
             ))}
           </div>
 
-          <Btn color={T.blue} solid onClick={() => onSave(list)}>
-            Save Projects
-          </Btn>
+          <Btn color={T.blue} solid onClick={() => onSave(list)}>Save Projects</Btn>
         </div>
       </div>
     </Overlay>
@@ -1668,16 +1419,8 @@ function CatManagerModal({ title, cats, onSave, onClose }) {
         <ModalHeader title={title} sub="Manage your categories" onClose={onClose} />
         <div style={{ padding: 18, display: "grid", gap: 10 }}>
           <div style={{ display: "flex", gap: 8 }}>
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && add()}
-              placeholder="New category…"
-              style={{ ...fieldStyle(), flex: 1 }}
-            />
-            <Btn color={T.blue} solid onClick={add}>
-              + Add
-            </Btn>
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} placeholder="New category…" style={{ ...fieldStyle(), flex: 1 }} />
+            <Btn color={T.blue} solid onClick={add}>+ Add</Btn>
           </div>
 
           <div style={{ display: "grid", gap: 8 }}>
@@ -1695,16 +1438,12 @@ function CatManagerModal({ title, cats, onSave, onClose }) {
                 }}
               >
                 <div style={{ flex: 1, color: T.text, fontSize: 14 }}>{c}</div>
-                <ABtn color={T.red} onClick={() => del(i)}>
-                  ✕
-                </ABtn>
+                <ABtn color={T.red} onClick={() => del(i)}>✕</ABtn>
               </div>
             ))}
           </div>
 
-          <Btn color={T.blue} solid onClick={() => onSave(list)}>
-            Save Categories
-          </Btn>
+          <Btn color={T.blue} solid onClick={() => onSave(list)}>Save Categories</Btn>
         </div>
       </div>
     </Overlay>
@@ -1718,7 +1457,7 @@ function PageWrap({ children }) {
   return <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>{children}</div>;
 }
 
-function PageHeader({ title, sub, color, children }) {
+function PageHeader({ title, sub, children }) {
   return (
     <div
       style={{
@@ -1791,14 +1530,7 @@ function QuickCard({ title, sub, stat, color, onClick }) {
         cursor: "pointer",
       }}
     >
-      <div
-        style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
-          fontWeight: 800,
-          fontSize: 18,
-          color: T.text,
-        }}
-      >
+      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: T.text }}>
         {title}
       </div>
       <div style={{ fontSize: 12, color: T.textMuted, marginTop: 3 }}>{sub}</div>
@@ -1858,9 +1590,7 @@ function Empty({ icon, label, sub, color, onAdd }) {
         {label}
       </div>
       <div style={{ color: T.textMuted, fontSize: 13, marginBottom: 14 }}>{sub}</div>
-      <Btn color={color} solid onClick={onAdd}>
-        + Add
-      </Btn>
+      <Btn color={color} solid onClick={onAdd}>+ Add</Btn>
     </div>
   );
 }
@@ -2030,12 +1760,8 @@ function FormModal({ title, color, onClose, onSave, children }) {
         <div style={{ padding: 18, display: "grid", gap: 12 }}>
           {children}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-            <Btn color={T.textMuted} onClick={onClose}>
-              Cancel
-            </Btn>
-            <Btn color={color} solid onClick={onSave}>
-              Save
-            </Btn>
+            <Btn color={T.textMuted} onClick={onClose}>Cancel</Btn>
+            <Btn color={color} solid onClick={onSave}>Save</Btn>
           </div>
         </div>
       </div>
@@ -2056,21 +1782,12 @@ function ModalHeader({ title, sub, onClose }) {
       }}
     >
       <div>
-        <div
-          style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 800,
-            fontSize: 22,
-            color: T.text,
-          }}
-        >
+        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 22, color: T.text }}>
           {title}
         </div>
         <div style={{ fontSize: 12, color: T.textMuted }}>{sub}</div>
       </div>
-      <button onClick={onClose} style={iconBtnStyle(T.card2, T.text)}>
-        ×
-      </button>
+      <button onClick={onClose} style={iconBtnStyle(T.card2, T.text)}>×</button>
     </div>
   );
 }
@@ -2085,14 +1802,7 @@ function FieldRow({ label, children }) {
 }
 
 function FInput({ value, onChange, type = "text" }) {
-  return (
-    <input
-      type={type}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={fieldStyle()}
-    />
-  );
+  return <input type={type} value={value} onChange={(e) => onChange(e.target.value)} style={fieldStyle()} />;
 }
 
 function FSelect({ value, onChange, children }) {
