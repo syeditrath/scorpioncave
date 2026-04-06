@@ -532,29 +532,38 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
               boxShadow: "0 0 0 2px rgba(251,191,36,0.5)",
             }}
           >
-            <img src="logo.png" alt="Scorpion Arabia" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <img
+              src="logo.png"
+              alt="Scorpion Arabia"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
           </div>
+
           <div>
             <div
-  className="logo-brand-subtle"
-  style={{
-    fontSize: "clamp(16px,1.3vw,21px)",
-    lineHeight: 1.1,
-  }}
->
-  SCORPION ARABIA
-</div>
-            <div>
-  style={{
-    color: "#93c5fd",
-    fontSize: 10,
-    letterSpacing: "2.6px",
-    marginTop: 3,
-    fontWeight: 700,
-  }}
->
-  DOCUMENT PORTAL
-</div>
+              className="logo-brand-subtle"
+              style={{
+                fontSize: "clamp(16px,1.3vw,21px)",
+                lineHeight: 1.1,
+              }}
+            >
+              SCORPION ARABIA
+            </div>
+
+            <div
+              style={{
+                color: "#93c5fd",
+                fontSize: 10,
+                letterSpacing: "2.6px",
+                marginTop: 3,
+                fontWeight: 700,
+              }}
+            >
+              DOCUMENT PORTAL
+            </div>
+          </div>
+        </div>
+      </div>
 
       <nav style={{ padding: 10, flex: 1, overflowY: "auto" }}>
         {nav.map((n) => {
@@ -583,12 +592,14 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
               }}
             >
               <span style={{ fontSize: 19, color: active ? "#93c5fd" : "#94a3b8" }}>{n.icon}</span>
+
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#93c5fd" : "#e2e8f0" }}>
                   {n.label}
                 </div>
                 <div style={{ fontSize: 10, color: "#64748b" }}>{n.desc}</div>
               </div>
+
               {badge ? (
                 <span
                   style={{
@@ -618,7 +629,14 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         </button>
       </div>
 
-      <div style={{ padding: "12px 18px 18px", fontSize: 10, color: "rgba(255,255,255,0.2)", textAlign: "center" }}>
+      <div
+        style={{
+          padding: "12px 18px 18px",
+          fontSize: 10,
+          color: "rgba(255,255,255,0.2)",
+          textAlign: "center",
+        }}
+      >
         Scorpion Arabia © 2025
       </div>
     </aside>
