@@ -910,7 +910,10 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
     try {
       setUploading(true);
 
-      const finalData = { ...f };
+      const finalData = {
+        ...f,
+        name: f.name || f.fileUpload?.name || "Document",
+      };
 
       if (f.fileUpload) {
         const uploadedUrl = await uploadPdfToSupabase(f.fileUpload, "scorpion-docs");
@@ -948,13 +951,6 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
         </FSelect>
       </FieldRow>
 
-      <FieldRow label="File Link (optional manual URL)">
-        <FInput
-          value={f.fileLink || ""}
-          onChange={(v) => setF((p) => ({ ...p, fileLink: v }))}
-        />
-      </FieldRow>
-
       <FieldRow label="Upload PDF">
         <input
           type="file"
@@ -977,57 +973,7 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
       </FieldRow>
 
       {uploading && (
-        <div style={{ color: T.blue, fontSize: 12, fontWeight: 700, marginTop: 6 }}>
-          Uploading PDF...
-        </div>
-      )}
-    </FormModal>
-  );
-}
-
-  return (
-    <FormModal
-      title={`${mode === "add" ? "ADD" : "EDIT"} DOCUMENT`}
-      color={T.blue}
-      onClose={onClose}
-      onSave={handleSave}
-    >
-
-      <FieldRow label="Category">
-        <FSelect value={f.category || ""} onChange={(v) => setF((p) => ({ ...p, category: v }))}>
-          <option value="">Select…</option>
-          {cats.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </FSelect>
-      </FieldRow>
-
-      <FieldRow label="File Link (optional manual URL)">
-        <FInput value={f.fileLink || ""} onChange={(v) => setF((p) => ({ ...p, fileLink: v }))} />
-      </FieldRow>
-
-      <FieldRow label="Upload PDF">
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) =>
-            setF((p) => ({
-              ...p,
-              fileUpload: e.target.files?.[0] || null,
-            }))
-          }
-          style={fieldStyle()}
-        />
-      </FieldRow>
-
-      <FieldRow label="Notes">
-        <FTextarea value={f.notes || ""} onChange={(v) => setF((p) => ({ ...p, notes: v }))} />
-      </FieldRow>
-
-      {uploading && (
-        <div style={{ color: T.blue, fontSize: 12, fontWeight: 700, marginTop: 6 }}>
+        <div style={{ color: T.blue, fontSize: 12, fontWeight: 700 }}>
           Uploading PDF...
         </div>
       )}
