@@ -47,46 +47,49 @@ async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
 ────────────────────────────────────────────────────────────────────────── */
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body, #root { height: 100%; }
-  body {
-    font-family: 'Barlow', sans-serif;
-    background: #f0e6d3;
-    color: #1a0a00;
-    -webkit-font-smoothing: antialiased;
-  }
-  button, input, select, textarea { font-family: inherit; }
+  body { font-family: 'Barlow', sans-serif; background: #f0e6d3; color: #1a0a00; -webkit-font-smoothing: antialiased; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #f0e6d3; }
+  ::-webkit-scrollbar-thumb { background: #e8d5b7; border-radius: 3px; }
+  input, select, textarea, button { font-family: 'Barlow', sans-serif; }
   button { cursor: pointer; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 999px; }
+  /* Responsive font scaling */
+  html { font-size: 16px; }
+  @media (min-width: 1400px) { html { font-size: 17px; } }
+  @media (min-width: 1800px) { html { font-size: 19px; } }
+  @media (max-width: 768px)  { html { font-size: 14px; } }
 
-  .fade-up { animation: fadeUp .28s ease both; }
-  .fade-in { animation: fadeIn .2s ease both; }
-  .slide-up { animation: slideUp .32s cubic-bezier(.22,.9,.3,1) both; }
+  /* Responsive layout helpers */
+  .resp-grid-2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr)); gap:clamp(10px,1.5vw,20px); }
+  .resp-grid-3 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr)); gap:clamp(10px,1.5vw,18px); }
+  .resp-grid-4 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr)); gap:clamp(8px,1.2vw,16px); }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);} }
+  @keyframes fadeIn  { from{opacity:0;}to{opacity:1;} }
+  @keyframes slideIn { from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);} }
+  .fade-up  { animation: fadeUp  0.3s ease both; }
+  .slide-up { animation: slideUp 0.35s cubic-bezier(0.34,1.3,0.64,1) both; }
+  .fade-in  { animation: fadeIn  0.2s ease both; }
+  /* Card distinct from background */
+  .app-card {
+    background: #fdf8f0;
+    border: 1px solid #e8d5b7;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(26,10,0,0.06), 0 0 0 1px rgba(232,213,183,0.4);
   }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes spinSlow {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
-
-  @media (max-width: 900px) {
-    html { font-size: 14px; }
-  }
-`;
-
+  .slide-in { animation: slideIn 0.3s ease both; }
+  @keyframes spinSlow   { from{transform:rotate(0deg);}to{transform:rotate(360deg);} }
+  @keyframes pulse      { 0%,100%{transform:scale(1);}50%{transform:scale(1.06);} }
+  @keyframes glowRing   { 0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0);}50%{box-shadow:0 0 0 18px rgba(251,191,36,0.18);} }
+  @keyframes textReveal { from{opacity:0;letter-spacing:12px;}to{opacity:1;letter-spacing:4px;} }
+  @keyframes subReveal  { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
+  @keyframes fadeOut    { from{opacity:1;}to{opacity:0;} }
+  .spin-slow  { animation: spinSlow 8s linear infinite; }
+  .pulse-logo { animation: pulse 3s ease-in-out infinite; }
+  .glow-ring  { animation: glowRing 2.5s ease-in-out infinite; }
 /* ──────────────────────────────────────────────────────────────────────────
    THEME
 ────────────────────────────────────────────────────────────────────────── */
