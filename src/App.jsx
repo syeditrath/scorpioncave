@@ -201,10 +201,11 @@ function exportToExcel(rows, filename) {
 ────────────────────────────────────────────────────────────────────────── */
 const DEFAULT_SCORPION_CATS = [
   "Company Registration / CR",
-  "Insurance Policies",
-  "Trade Licenses",
+  "Insurance",
+  "Trade License",
   "Contracts & Agreements",
   "IBAN",
+   "Zakat",
   "Other",
 ];
 
@@ -938,9 +939,6 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
       onClose={onClose}
       onSave={handleSave}
     >
-      <FieldRow label="Document Name">
-        <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
-      </FieldRow>
 
       <FieldRow label="Category">
         <FSelect value={f.category || ""} onChange={(v) => setF((p) => ({ ...p, category: v }))}>
@@ -951,18 +949,6 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
             </option>
           ))}
         </FSelect>
-      </FieldRow>
-
-      <FieldRow label="Reference / Doc No.">
-        <FInput value={f.docNo || ""} onChange={(v) => setF((p) => ({ ...p, docNo: v }))} />
-      </FieldRow>
-
-      <FieldRow label="Issue Date">
-        <FInput type="date" value={f.issueDate || ""} onChange={(v) => setF((p) => ({ ...p, issueDate: v }))} />
-      </FieldRow>
-
-      <FieldRow label="Expiry Date">
-        <FInput type="date" value={f.expiryDate || ""} onChange={(v) => setF((p) => ({ ...p, expiryDate: v }))} />
       </FieldRow>
 
       <FieldRow label="File Link (optional manual URL)">
