@@ -903,31 +903,26 @@ function ScorpionDocs({ data, setData, showToast }) {
 }
 
 function DocModal({ mode, doc, cats, onClose, onSave }) {
-  const [f, setF] = useState(doc || {});
-  const [uploading, setUploading] = useState(false);
+  const handleSave = async () => {
+  try {
+    setUploading(true);
 
-  
+    const finalData = { ...f };
+
+    if (f.fileUpload) {
+      const uploadedUrl = await uploadPdfToSupabase(f.fileUpload, "scorpion-docs");
+      finalData.fileLink = uploadedUrl;
     }
 
-    try {
-      setUploading(true);
-
-      const finalData = { ...f };
-
-      if (f.fileUpload) {
-        const uploadedUrl = await uploadPdfToSupabase(f.fileUpload, "scorpion-docs");
-        finalData.fileLink = uploadedUrl;
-      }
-
-      delete finalData.fileUpload;
-      onSave(finalData, mode);
-    } catch (err) {
-      console.error(err);
-      alert("PDF upload failed. Check Supabase bucket settings.");
-    } finally {
-      setUploading(false);
-    }
+    delete finalData.fileUpload;
+    onSave(finalData, mode);
+  } catch (err) {
+    console.error("Upload error:", err);
+    alert(`PDF upload failed: ${err?.message || "Unknown error"}`);
+  } finally {
+    setUploading(false);
   }
+};
 
   return (
     <FormModal
