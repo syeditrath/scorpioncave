@@ -40,9 +40,7 @@ async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
   return data.publicUrl;
 }
 
-  const { data } = supabase.storage.from("documents").getPublicUrl(filePath);
-  return data.publicUrl;
-}
+
 
 /* ──────────────────────────────────────────────────────────────────────────
    GLOBAL CSS
