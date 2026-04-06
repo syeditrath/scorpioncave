@@ -927,7 +927,7 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
     } finally {
       setUploading(false);
     }
-  };
+  }
 
   return (
     <FormModal
