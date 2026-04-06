@@ -906,10 +906,7 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
   const [f, setF] = useState(doc || {});
   const [uploading, setUploading] = useState(false);
 
-  const handleSave = async () => {
-    if (!f.name) {
-      alert("Document name is required");
-      return;
+  
     }
 
     try {
