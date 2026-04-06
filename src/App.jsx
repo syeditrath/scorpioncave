@@ -71,19 +71,24 @@ const GLOBAL_CSS = `
   .fade-up  { animation: fadeUp  0.3s ease both; }
   .slide-up { animation: slideUp 0.35s cubic-bezier(0.34,1.3,0.64,1) both; }
   .fade-in  { animation: fadeIn  0.2s ease both; }
-  @keyframes logoGlow {
+  @keyframes brandFloat {
   0%, 100% {
-    text-shadow:
-      0 0 6px rgba(251,191,36,0.18),
-      0 0 14px rgba(251,191,36,0.10);
     transform: translateY(0);
+    opacity: 0.96;
   }
   50% {
-    text-shadow:
-      0 0 10px rgba(251,191,36,0.32),
-      0 0 24px rgba(251,191,36,0.18);
     transform: translateY(-1px);
+    opacity: 1;
   }
+}
+
+.brand-text {
+  font-family: 'Cinzel', serif;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: #f4d06f;
+  animation: brandFloat 3.2s ease-in-out infinite;
 }
 
 @keyframes shineSweep {
@@ -520,31 +525,42 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         transition: "transform .28s ease",
       }}
     >
+      {/* HEADER */}
       <div style={{ padding: "22px 18px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+
+          {/* LOGO (SHARP FIXED) */}
           <div
             style={{
-              width: 58,
-              height: 58,
+              width: 60,
+              height: 60,
               borderRadius: "50%",
               overflow: "hidden",
               background: "#000",
-              boxShadow: "0 0 0 2px rgba(251,191,36,0.5)",
+              flexShrink: 0,
+              boxShadow: "0 0 0 2px rgba(251,191,36,0.35)",
             }}
           >
             <img
               src="logo.png"
               alt="Scorpion Arabia"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                display: "block",
+                transform: "scale(0.92)",
+              }}
             />
           </div>
 
+          {/* BRAND */}
           <div>
             <div
-              className="logo-brand-subtle"
+              className="brand-text"
               style={{
-                fontSize: "clamp(16px,1.3vw,21px)",
-                lineHeight: 1.1,
+                fontSize: "clamp(15px,1.2vw,19px)",
+                lineHeight: 1.05,
               }}
             >
               SCORPION ARABIA
@@ -554,8 +570,8 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
               style={{
                 color: "#93c5fd",
                 fontSize: 10,
-                letterSpacing: "2.6px",
-                marginTop: 3,
+                letterSpacing: "2px",
+                marginTop: 4,
                 fontWeight: 700,
               }}
             >
@@ -565,6 +581,7 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         </div>
       </div>
 
+      {/* NAVIGATION */}
       <nav style={{ padding: 10, flex: 1, overflowY: "auto" }}>
         {nav.map((n) => {
           const active = page === n.id;
@@ -589,12 +606,21 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
                 textAlign: "left",
                 background: active ? "rgba(59,130,246,0.15)" : "transparent",
                 borderLeft: `2px solid ${active ? "#93c5fd" : "transparent"}`,
+                transition: "all 0.2s ease",
               }}
             >
-              <span style={{ fontSize: 19, color: active ? "#93c5fd" : "#94a3b8" }}>{n.icon}</span>
+              <span style={{ fontSize: 19, color: active ? "#93c5fd" : "#94a3b8" }}>
+                {n.icon}
+              </span>
 
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#93c5fd" : "#e2e8f0" }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: active ? "#93c5fd" : "#e2e8f0",
+                  }}
+                >
                   {n.label}
                 </div>
                 <div style={{ fontSize: 10, color: "#64748b" }}>{n.desc}</div>
@@ -619,6 +645,7 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         })}
       </nav>
 
+      {/* ACTIONS */}
       <div style={{ padding: "8px 10px", display: "grid", gap: 8 }}>
         <button onClick={onManageProjects} style={sidebarAuxBtnStyle()}>
           ⊕ Manage Projects
@@ -629,6 +656,7 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         </button>
       </div>
 
+      {/* FOOTER */}
       <div
         style={{
           padding: "12px 18px 18px",
