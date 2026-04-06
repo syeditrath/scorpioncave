@@ -82,6 +82,28 @@ const GLOBAL_CSS = `
   }
 }
 
+@keyframes premiumGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(251,191,36,0.18),
+      0 10px 30px rgba(0,0,0,0.16);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(251,191,36,0.30),
+      0 14px 34px rgba(0,0,0,0.22);
+  }
+}
+
+@keyframes navPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(56,189,248,0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(56,189,248,0.06);
+  }
+}
+
 .brand-text {
   font-family: 'Cinzel', serif;
   font-weight: 800;
@@ -91,12 +113,25 @@ const GLOBAL_CSS = `
   animation: brandFloat 3.2s ease-in-out infinite;
 }
 
+.sidebar-glass {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.sidebar-logo-shell {
+  animation: premiumGlow 3.6s ease-in-out infinite;
+}
+
+.sidebar-nav-active {
+  animation: navPulse 2.6s ease-in-out infinite;
+}
+
 @keyframes shineSweep {
   0% { background-position: -220% center; }
   100% { background-position: 220% center; }
 }
 
-.logo-brand {
+.brand-text {
   font-family: 'Cinzel', serif;
   font-weight: 800;
   letter-spacing: 3px;
@@ -454,38 +489,122 @@ export default function App() {
 ────────────────────────────────────────────────────────────────────────── */
 function TopBar({ alerts, onOpenSidebar }) {
   return (
-    <header style={{ background: T.sidebar, borderBottom: `1px solid ${T.border}`, padding: "0 18px", flexShrink: 0 }}>
-      <div style={{ height: 58, display: "flex", alignItems: "center", position: "relative" }}>
-        <button onClick={onOpenSidebar} style={iconBtnStyle("rgba(255,255,255,0.08)", "#fff")}>
+    <header
+      style={{
+        background:
+          "linear-gradient(90deg, rgba(8,11,16,0.98) 0%, rgba(12,17,26,0.98) 50%, rgba(8,11,16,0.98) 100%)",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        padding: "0 18px",
+        flexShrink: 0,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* premium accent line */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background:
+            "linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.95) 22%, rgba(56,189,248,0.9) 52%, rgba(251,191,36,0.95) 78%, transparent 100%)",
+        }}
+      />
+
+      <div
+        style={{
+          height: 64,
+          display: "flex",
+          alignItems: "center",
+          position: "relative",
+        }}
+      >
+        <button
+          onClick={onOpenSidebar}
+          style={{
+            ...iconBtnStyle("rgba(255,255,255,0.06)", "#fff"),
+            border: "1px solid rgba(255,255,255,0.10)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            boxShadow: "0 8px 18px rgba(0,0,0,0.18)",
+            zIndex: 2,
+          }}
+        >
           ☰
         </button>
 
-        <div style={{ position: "absolute", inset: 0, textAlign: "center", pointerEvents: "none" }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            textAlign: "center",
+            pointerEvents: "none",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <div
-  className="logo-brand"
-  style={{
-    fontSize: "clamp(22px,2.2vw,30px)",
-    marginTop: 6,
-    lineHeight: 1,
-  }}
->
-  SCORPION ARABIA
-</div>
-          <div style={{ fontSize: 11, color: "#93c5fd", letterSpacing: "1.5px", marginTop: -2 }}>
-            DOCUMENT & ASSET MANAGER
+            className="brand-text"
+            style={{
+              fontSize: "clamp(22px,2vw,28px)",
+              lineHeight: 1,
+              letterSpacing: "2px",
+            }}
+          >
+            SCORPION ARABIA
+          </div>
+
+          <div
+            style={{
+              fontSize: 10,
+              color: "#93c5fd",
+              letterSpacing: "2.4px",
+              marginTop: 5,
+              fontWeight: 700,
+              textTransform: "uppercase",
+            }}
+          >
+            Document & Asset Manager
           </div>
         </div>
 
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            zIndex: 2,
+          }}
+        >
           <div
             style={{
-              background: alerts ? "rgba(220,38,38,0.2)" : "rgba(255,255,255,0.08)",
-              border: `1px solid ${alerts ? "rgba(220,38,38,0.45)" : "rgba(255,255,255,0.14)"}`,
+              background: alerts
+                ? "linear-gradient(135deg, rgba(220,38,38,0.22), rgba(239,68,68,0.14))"
+                : "rgba(255,255,255,0.06)",
+              border: `1px solid ${
+                alerts ? "rgba(220,38,38,0.42)" : "rgba(255,255,255,0.10)"
+              }`,
               color: alerts ? "#fecaca" : "#fff",
-              borderRadius: 8,
-              padding: "6px 10px",
+              borderRadius: 999,
+              minWidth: 44,
+              height: 34,
+              padding: "0 12px",
               fontSize: 12,
-              fontWeight: 700,
+              fontWeight: 800,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: alerts
+                ? "0 8px 18px rgba(220,38,38,0.18)"
+                : "0 8px 18px rgba(0,0,0,0.14)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
             }}
           >
             ▲ {alerts}
@@ -509,11 +628,13 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
 
   return (
     <aside
+      className="sidebar-glass"
       style={{
-        width: "clamp(220px,18vw,280px)",
+        width: "clamp(230px,18vw,290px)",
         flexShrink: 0,
-        background: T.sidebar,
-        borderRight: `1px solid rgba(255,255,255,0.08)`,
+        background:
+          "linear-gradient(180deg, rgba(8,11,16,0.98) 0%, rgba(11,15,22,0.98) 42%, rgba(8,11,16,0.99) 100%)",
+        borderRight: "1px solid rgba(255,255,255,0.07)",
         display: "flex",
         flexDirection: "column",
         zIndex: 50,
@@ -523,22 +644,43 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         height: "100%",
         transform: isMobile ? (sideOpen ? "translateX(0)" : "translateX(-100%)") : "none",
         transition: "transform .28s ease",
+        boxShadow: isMobile
+          ? "0 24px 60px rgba(0,0,0,0.45)"
+          : "8px 0 30px rgba(0,0,0,0.22)",
+        overflow: "hidden",
       }}
     >
-      {/* HEADER */}
-      <div style={{ padding: "22px 18px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      {/* Decorative top bar */}
+      <div
+        style={{
+          height: 3,
+          background: "linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.95) 22%, rgba(56,189,248,0.9) 52%, rgba(251,191,36,0.95) 78%, transparent 100%)",
+          flexShrink: 0,
+        }}
+      />
 
-          {/* LOGO (SHARP FIXED) */}
+      {/* HEADER */}
+      <div
+        style={{
+          padding: "24px 18px 18px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
+            className="sidebar-logo-shell"
             style={{
-              width: 60,
-              height: 60,
+              width: 66,
+              height: 66,
               borderRadius: "50%",
               overflow: "hidden",
-              background: "#000",
+              background: "radial-gradient(circle at 30% 30%, #111 0%, #000 75%)",
               flexShrink: 0,
-              boxShadow: "0 0 0 2px rgba(251,191,36,0.35)",
+              border: "1px solid rgba(251,191,36,0.26)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <img
@@ -549,18 +691,19 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
                 height: "100%",
                 objectFit: "contain",
                 display: "block",
-                transform: "scale(0.92)",
+                transform: "scale(0.9)",
+                filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.22))",
               }}
             />
           </div>
 
-          {/* BRAND */}
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div
               className="brand-text"
               style={{
-                fontSize: "clamp(15px,1.2vw,19px)",
+                fontSize: "clamp(15px,1.25vw,20px)",
                 lineHeight: 1.05,
+                whiteSpace: "nowrap",
               }}
             >
               SCORPION ARABIA
@@ -570,16 +713,187 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
               style={{
                 color: "#93c5fd",
                 fontSize: 10,
-                letterSpacing: "2px",
-                marginTop: 4,
+                letterSpacing: "2.4px",
+                marginTop: 5,
                 fontWeight: 700,
+                textTransform: "uppercase",
               }}
             >
-              DOCUMENT PORTAL
+              Document Portal
             </div>
+
+            <div
+              style={{
+                marginTop: 8,
+                width: 88,
+                height: 1,
+                background: "linear-gradient(90deg, rgba(251,191,36,0.85), rgba(56,189,248,0.45), transparent)",
+              }}
+            />
           </div>
         </div>
       </div>
+
+      {/* NAVIGATION */}
+      <nav style={{ padding: "14px 10px", flex: 1, overflowY: "auto" }}>
+        {nav.map((n) => {
+          const active = page === n.id;
+          const badge = n.id === "dashboard" ? alerts : null;
+
+          return (
+            <button
+              key={n.id}
+              onClick={() => {
+                setPage(n.id);
+                setSideOpen(false);
+              }}
+              className={active ? "sidebar-nav-active" : ""}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 13px",
+                borderRadius: 12,
+                border: active
+                  ? "1px solid rgba(147,197,253,0.22)"
+                  : "1px solid transparent",
+                marginBottom: 7,
+                textAlign: "left",
+                background: active
+                  ? "linear-gradient(135deg, rgba(59,130,246,0.16), rgba(255,255,255,0.03))"
+                  : "transparent",
+                borderLeft: `3px solid ${active ? "#93c5fd" : "transparent"}`,
+                transition: "all 0.22s ease",
+                boxShadow: active ? "0 10px 24px rgba(0,0,0,0.16)" : "none",
+              }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+                  e.currentTarget.style.transform = "translateX(2px)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "transparent";
+                  e.currentTarget.style.transform = "translateX(0)";
+                }
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 20,
+                  width: 22,
+                  textAlign: "center",
+                  color: active ? "#93c5fd" : "#94a3b8",
+                  flexShrink: 0,
+                }}
+              >
+                {n.icon}
+              </span>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: active ? "#eaf4ff" : "#e2e8f0",
+                    letterSpacing: ".2px",
+                  }}
+                >
+                  {n.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: active ? "#8fb9df" : "#64748b",
+                    marginTop: 2,
+                  }}
+                >
+                  {n.desc}
+                </div>
+              </div>
+
+              {badge ? (
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #dc2626, #ef4444)",
+                    color: "#fff",
+                    borderRadius: 999,
+                    minWidth: 22,
+                    height: 22,
+                    padding: "0 7px",
+                    fontSize: 10,
+                    fontWeight: 800,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 6px 14px rgba(220,38,38,0.28)",
+                  }}
+                >
+                  {badge}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* ACTIONS */}
+      <div
+        style={{
+          padding: "10px",
+          display: "grid",
+          gap: 8,
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+          background: "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)",
+        }}
+      >
+        <button
+          onClick={onManageProjects}
+          style={{
+            ...sidebarAuxBtnStyle(),
+            background: "linear-gradient(135deg, rgba(251,191,36,0.10), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(251,191,36,0.18)",
+            color: "#f6d77a",
+            boxShadow: "0 8px 18px rgba(0,0,0,0.15)",
+          }}
+        >
+          ⊕ Manage Projects
+        </button>
+
+        <button
+          onClick={() => setDarkMode((d) => !d)}
+          style={{
+            ...sidebarAuxBtnStyle(),
+            background: "linear-gradient(135deg, rgba(56,189,248,0.10), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(56,189,248,0.16)",
+            color: "#bde8ff",
+            boxShadow: "0 8px 18px rgba(0,0,0,0.15)",
+          }}
+        >
+          {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+        </button>
+      </div>
+
+      {/* FOOTER */}
+      <div
+        style={{
+          padding: "14px 18px 18px",
+          fontSize: 10,
+          color: "rgba(255,255,255,0.28)",
+          textAlign: "center",
+          letterSpacing: "1.2px",
+          textTransform: "uppercase",
+        }}
+      >
+        Scorpion Arabia © 2025
+      </div>
+    </aside>
+  );
+}
 
       {/* NAVIGATION */}
       <nav style={{ padding: 10, flex: 1, overflowY: "auto" }}>
@@ -1969,12 +2283,15 @@ function sidebarAuxBtnStyle() {
   return {
     width: "100%",
     textAlign: "left",
-    padding: "10px 12px",
-    borderRadius: 8,
+    padding: "11px 12px",
+    borderRadius: 10,
     border: "1px solid rgba(255,255,255,0.10)",
-    background: "transparent",
+    background: "rgba(255,255,255,0.03)",
     color: "#e2e8f0",
     fontSize: 12,
     fontWeight: 700,
+    transition: "all 0.2s ease",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
   };
 }
