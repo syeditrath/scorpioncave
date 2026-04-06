@@ -1,16 +1,21 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import { createClient } from "@supabase/supabase-js";
-const supabaseUrl = "YOUR_SUPABASE_URL";
-const supabaseAnonKey = "YOUR_SUPABASE_ANON_KEY";
+
+/* ──────────────────────────────────────────────────────────────────────────
+   SUPABASE
+────────────────────────────────────────────────────────────────────────── */
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
   if (!file) return "";
 
-  const fileExt = file.name.split(".").pop()?.toLowerCase() || "pdf";
-  const cleanName = file.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "");
+  const cleanName = file.name
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9._-]/g, "");
   const filePath = `${folder}/${Date.now()}-${cleanName}`;
 
   const { error: uploadError } = await supabase.storage
@@ -23,159 +28,166 @@ async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
   if (uploadError) throw uploadError;
 
   const { data } = supabase.storage.from("documents").getPublicUrl(filePath);
-
   return data.publicUrl;
 }
-/* ─── Global CSS ─────────────────────────────────────────────────────────── */
+
+/* ──────────────────────────────────────────────────────────────────────────
+   GLOBAL CSS
+────────────────────────────────────────────────────────────────────────── */
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body, #root { height: 100%; }
-  body { font-family: 'Barlow', sans-serif; background: #f0e6d3; color: #1a0a00; -webkit-font-smoothing: antialiased; }
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: #f0e6d3; }
-  ::-webkit-scrollbar-thumb { background: #e8d5b7; border-radius: 3px; }
-  input, select, textarea, button { font-family: 'Barlow', sans-serif; }
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: #f0e6d3;
+    color: #1a0a00;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select, textarea { font-family: inherit; }
   button { cursor: pointer; }
-  /* Responsive font scaling */
-  html { font-size: 16px; }
-  @media (min-width: 1400px) { html { font-size: 17px; } }
-  @media (min-width: 1800px) { html { font-size: 19px; } }
-  @media (max-width: 768px)  { html { font-size: 14px; } }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 999px; }
 
-  /* Responsive layout helpers */
-  .resp-grid-2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr)); gap:clamp(10px,1.5vw,20px); }
-  .resp-grid-3 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr)); gap:clamp(10px,1.5vw,18px); }
-  .resp-grid-4 { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr)); gap:clamp(8px,1.2vw,16px); }
+  .fade-up { animation: fadeUp .28s ease both; }
+  .fade-in { animation: fadeIn .2s ease both; }
+  .slide-up { animation: slideUp .32s cubic-bezier(.22,.9,.3,1) both; }
 
-  @keyframes fadeUp  { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
-  @keyframes slideUp { from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);} }
-  @keyframes fadeIn  { from{opacity:0;}to{opacity:1;} }
-  @keyframes slideIn { from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);} }
-  .fade-up  { animation: fadeUp  0.3s ease both; }
-  .slide-up { animation: slideUp 0.35s cubic-bezier(0.34,1.3,0.64,1) both; }
-  .fade-in  { animation: fadeIn  0.2s ease both; }
-  /* Card distinct from background */
-  .app-card {
-    background: #fdf8f0;
-    border: 1px solid #e8d5b7;
-    border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(26,10,0,0.06), 0 0 0 1px rgba(232,213,183,0.4);
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  .slide-in { animation: slideIn 0.3s ease both; }
-  @keyframes spinSlow   { from{transform:rotate(0deg);}to{transform:rotate(360deg);} }
-  @keyframes pulse      { 0%,100%{transform:scale(1);}50%{transform:scale(1.06);} }
-  @keyframes glowRing   { 0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0);}50%{box-shadow:0 0 0 18px rgba(251,191,36,0.18);} }
-  @keyframes textReveal { from{opacity:0;letter-spacing:12px;}to{opacity:1;letter-spacing:4px;} }
-  @keyframes subReveal  { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
-  @keyframes fadeOut    { from{opacity:1;}to{opacity:0;} }
-  .spin-slow  { animation: spinSlow 8s linear infinite; }
-  .pulse-logo { animation: pulse 3s ease-in-out infinite; }
-  .glow-ring  { animation: glowRing 2.5s ease-in-out infinite; }
-  @keyframes logoRingPulse {
-    0% {
-      transform: scale(1);
-      box-shadow:
-        0 0 0 2px rgba(251,191,36,0.55),
-        0 0 0 0 rgba(251,191,36,0.18),
-        0 6px 20px rgba(0,0,0,0.28);
-    }
-    50% {
-      transform: scale(1.03);
-      box-shadow:
-        0 0 0 2px rgba(251,191,36,0.9),
-        0 0 0 10px rgba(251,191,36,0.08),
-        0 10px 28px rgba(0,0,0,0.34);
-    }
-    100% {
-      transform: scale(1);
-      box-shadow:
-        0 0 0 2px rgba(251,191,36,0.55),
-        0 0 0 0 rgba(251,191,36,0),
-        0 6px 20px rgba(0,0,0,0.28);
-    }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
-  @keyframes logoInnerFloat {
-    0% { transform: scale(1.24) translateY(0px); }
-    50% { transform: scale(1.28) translateY(-1px); }
-    100% { transform: scale(1.24) translateY(0px); }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 900px) {
+    html { font-size: 14px; }
   }
 `;
 
-/* ─── Theme ──────────────────────────────────────────────────────────────── */
-const LIGHT_T = {
-  bg:"#f0e6d3",
-  sidebar:"#080b10",
-  card:"#fdf8f0",
-  card2:"#f7f0e6",
-  cardHover:"#f0e6d3",
-  border:"#e8d5b7",
-  borderLight:"#dcc9a0",
-  text:"#1a0a00",
-  textSub:"#5c3d1e",
-  textMuted:"#a07850",
-  blue:"#38bdf8",
-  green:"#34d399",
-  gold:"#fbbf24",
-  red:"#f87171",
-  purple:"#a78bfa",
-  teal:"#2dd4bf",
-  orange:"#fb923c",
-  blueDim:"rgba(56,189,248,0.12)",
-  greenDim:"rgba(52,211,153,0.12)",
-  goldDim:"rgba(251,191,36,0.12)",
-  redDim:"rgba(248,113,113,0.12)",
-  purpleDim:"rgba(167,139,250,0.12)",
-  tealDim:"rgba(45,212,191,0.12)",
-  orangeDim:"rgba(251,146,60,0.12)",
-  inputBg:"#fdf8f0",
-  shadow:"0 2px 12px rgba(26,10,0,0.08), 0 0 0 1px rgba(232,213,183,0.6)",
+/* ──────────────────────────────────────────────────────────────────────────
+   THEME
+────────────────────────────────────────────────────────────────────────── */
+const LIGHT = {
+  bg: "#f0e6d3",
+  sidebar: "#080b10",
+  card: "#fdf8f0",
+  card2: "#f7f0e6",
+  cardHover: "#f5ead9",
+  border: "#e8d5b7",
+  borderLight: "#dcc9a0",
+  text: "#1a0a00",
+  textSub: "#5c3d1e",
+  textMuted: "#a07850",
+  inputBg: "#fffaf3",
+  blue: "#38bdf8",
+  green: "#34d399",
+  gold: "#fbbf24",
+  red: "#f87171",
+  purple: "#a78bfa",
+  teal: "#2dd4bf",
+  orange: "#fb923c",
+  blueDim: "rgba(56,189,248,0.12)",
+  greenDim: "rgba(52,211,153,0.12)",
+  goldDim: "rgba(251,191,36,0.12)",
+  redDim: "rgba(248,113,113,0.12)",
+  purpleDim: "rgba(167,139,250,0.12)",
+  tealDim: "rgba(45,212,191,0.12)",
+  orangeDim: "rgba(251,146,60,0.12)",
+  shadow: "0 8px 24px rgba(26,10,0,0.08)",
 };
 
-const DARK_T = {
-  bg:"#0b1220",
-  sidebar:"#f0e6d3",
-  card:"#111827",
-  card2:"#0f172a",
-  cardHover:"#172033",
-  border:"#243041",
-  borderLight:"#334155",
-  text:"#e5edf7",
-  textSub:"#cbd5e1",
-  textMuted:"#94a3b8",
-  blue:"#60a5fa",
-  green:"#34d399",
-  gold:"#fbbf24",
-  red:"#f87171",
-  purple:"#a78bfa",
-  teal:"#2dd4bf",
-  orange:"#fb923c",
-  blueDim:"rgba(96,165,250,0.16)",
-  greenDim:"rgba(52,211,153,0.16)",
-  goldDim:"rgba(251,191,36,0.16)",
-  redDim:"rgba(248,113,113,0.16)",
-  purpleDim:"rgba(167,139,250,0.16)",
-  tealDim:"rgba(45,212,191,0.16)",
-  orangeDim:"rgba(251,146,60,0.16)",
-  inputBg:"#0f172a",
-  shadow:"0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(36,48,65,0.7)",
+const DARK = {
+  bg: "#0d1117",
+  sidebar: "#0a0e14",
+  card: "#161b22",
+  card2: "#0f141b",
+  cardHover: "#1c232d",
+  border: "#2d3742",
+  borderLight: "#3c4652",
+  text: "#e8edf5",
+  textSub: "#b8c1cc",
+  textMuted: "#8996a6",
+  inputBg: "#0d1117",
+  blue: "#38bdf8",
+  green: "#34d399",
+  gold: "#fbbf24",
+  red: "#f87171",
+  purple: "#a78bfa",
+  teal: "#2dd4bf",
+  orange: "#fb923c",
+  blueDim: "rgba(56,189,248,0.12)",
+  greenDim: "rgba(52,211,153,0.12)",
+  goldDim: "rgba(251,191,36,0.12)",
+  redDim: "rgba(248,113,113,0.12)",
+  purpleDim: "rgba(167,139,250,0.12)",
+  tealDim: "rgba(45,212,191,0.12)",
+  orangeDim: "rgba(251,146,60,0.12)",
+  shadow: "0 12px 32px rgba(0,0,0,0.35)",
 };
 
-let T = { ...LIGHT_T };
-
-/* ─── Helpers ────────────────────────────────────────────────────────────── */
-const uid       = () => Math.random().toString(36).slice(2,9);
-const daysUntil = d  => d ? Math.ceil((new Date(d) - new Date()) / 86400000) : null;
-const fmtDate   = d  => d ? new Date(d).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—";
-
-function getStatus(days) {
-  if (days === null) return { label:"Unknown",       color:T.textMuted, bg:"rgba(61,80,104,.15)" };
-  if (days < 0)      return { label:"Expired",       color:T.red,       bg:T.redDim };
-  if (days <= 90)    return { label:"Expiring Soon", color:T.gold,      bg:T.goldDim };
-  return               { label:"Valid",            color:T.green,     bg:T.greenDim };
+let T = LIGHT;
+function setTheme(dark) {
+  T = dark ? DARK : LIGHT;
 }
 
-/* ─── Default data ───────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────────────────
+   HELPERS
+────────────────────────────────────────────────────────────────────────── */
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+const fmtDate = (d) =>
+  d
+    ? new Date(d).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
+
+const daysUntil = (d) => {
+  if (!d) return null;
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return null;
+  const now = new Date();
+  return Math.ceil((date - now) / 86400000);
+};
+
+function getStatus(days) {
+  if (days === null) {
+    return { label: "Unknown", color: T.textMuted, bg: "rgba(125,125,125,0.12)" };
+  }
+  if (days < 0) {
+    return { label: "Expired", color: T.red, bg: T.redDim };
+  }
+  if (days <= 90) {
+    return { label: "Expiring Soon", color: T.gold, bg: T.goldDim };
+  }
+  return { label: "Valid", color: T.green, bg: T.greenDim };
+}
+
+function exportToExcel(rows, filename) {
+  if (!rows?.length) return;
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Data");
+  XLSX.writeFile(wb, `${filename}.xlsx`);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   DEFAULT DATA
+────────────────────────────────────────────────────────────────────────── */
 const DEFAULT_SCORPION_CATS = [
   "Company Registration / CR",
   "Insurance Policies",
@@ -192,1275 +204,695 @@ const DEFAULT_MANPOWER_CATS = [
   "Laborers / General Workers",
 ];
 
-
-/* ─── Excel column maps ──────────────────────────────────────────────────── */
-// Manpower certifications Excel map
-// Expected columns: NAME, EMPLOYEE ID, CERTIFICATE, CERT NO, ISSUE DATE, EXPIRY DATE
-// (flexible - tries multiple common header names)
-const MP_CERT_MAP = {
-  // Exact headers from TUV_Manpower_Tracker.xlsx (headers on row 4)
-  "NAME":"name","EMPLOYEE NAME":"name","EMPLOYEE":"name",
-  "ID":"idNo","EMPLOYEE ID":"idNo","EMPLOYEE NO":"idNo","EMP ID":"idNo","EMP NO":"idNo","ID NO":"idNo","ID NUMBER":"idNo","STAFF ID":"idNo",
-  "CERTIFICATE":"certName","CERTIFICATE TYPE":"certName","CERT TYPE":"certName","CERTIFICATION":"certName",
-  "ISSUED BY":"issuedBy","ISSUING BODY":"issuedBy","ISSUING AUTHORITY":"issuedBy",
-  "CERT NO":"certNo","CERTIFICATE NO":"certNo","CERT NO.":"certNo","CERTIFICATE NO.":"certNo","CERTIFICATE NUMBER":"certNo",
-  "ISSUE DATE":"issueDate","ISSUED DATE":"issueDate","DATE ISSUED":"issueDate","START DATE":"issueDate",
-  "EXPIRY DATE":"expiryDate","EXPIRY":"expiryDate","EXPIRE DATE":"expiryDate","EXPIRATION DATE":"expiryDate",
-  "REMARKS":"remarks","NOTES":"remarks",
-};
-// Manpower file has headers on row 4 — handled by skipToHeaderRow below
-const MP_HEADER_ROW = 1;
-
-// Equipment certifications Excel map
-// Expected columns: EQUIPMENT, SERIAL NO, CERT NO, ISSUED BY, INSPECTION DATE, EXPIRY DATE
-const EQ_CERT_MAP = {
-  // TUV MASTERSHEET headers: Item Type, EQUIPMENT, Serial No, Issued By, Inspection Date, Expiry Date
-  // Sheet3 headers:          Item Type, Item Name/ID, Reg/Serial No, TUV Provider, Start Date, Expiry Date
-  "ITEM TYPE":"itemType",
-  "EQUIPMENT ":"eqName","EQUIPMENT":"eqName","ITEM NAME/ID":"eqName","EQUIPMENT NAME":"eqName","UNIT":"eqName",
-  "SERIAL NO":"serialNo","SERIAL NO.":"serialNo","REG/SERIAL NO":"serialNo","SERIAL NUMBER":"serialNo","S/N":"serialNo",
-  "ISSUED BY":"issuedBy","TUV PROVIDER":"issuedBy","PROVIDER":"issuedBy","ISSUING AUTHORITY":"issuedBy",
-  "INSPECTION DATE":"issueDate","START DATE":"issueDate","ISSUE DATE":"issueDate","ISSUED DATE":"issueDate",
-  "EXPIRY DATE":"expiryDate","EXPIRY":"expiryDate","EXPIRE DATE":"expiryDate","EXPIRATION DATE":"expiryDate",
-  "CERT NO":"certNo","CERTIFICATE NO":"certNo","CERT NO.":"certNo","CERTIFICATE NUMBER":"certNo",
-  "REMARKS":"remarks","NOTES":"remarks",
-};
-const EQ_HEADER_ROW = 1;
-
-function excelDateToStr(val) {
-  if (!val) return "";
-  // JS Date object (from cellDates:true)
-  if (val instanceof Date) { if(!isNaN(val)) return val.toISOString().slice(0,10); }
-  if (typeof val==="number") { const d=new Date(Math.round((val-25569)*86400*1000)); return d.toISOString().slice(0,10); }
-  if (typeof val==="string") {
-    if(val.startsWith("=")) return ""; // skip formulas
-    const d=new Date(val); if(!isNaN(d)) return d.toISOString().slice(0,10);
-  }
-  return "";
-}
-
-function parseExcelRows(rows, map) {
-  const DATE_KEYS=["expiryDate","issueDate","inspectionDate","startDate"];
-  return rows
-    .filter(row=>Object.values(row).some(v=>v!==null&&v!==""))
-    .map(row=>{
-      const rec={id:uid()};
-      // Uppercase all keys for case-insensitive matching
-      const upper={};
-      Object.entries(row).forEach(([k,v])=>{ upper[String(k).toUpperCase().trim()]=v; });
-      Object.entries(map).forEach(([col,key])=>{
-        // Strip map key too (handles "EQUIPMENT " trailing space etc.)
-        const val=upper[col.toUpperCase().trim()];
-        if(val===undefined||val===null||val==="") return;
-        const strVal=String(val);
-        // Skip Excel formula cells
-        if(strVal.startsWith("=")) return;
-        rec[key]=DATE_KEYS.includes(key)?excelDateToStr(val):strVal.trim();
-      });
-      return rec;
-    })
-    // Filter out rows where only id was set (no real data mapped)
-    .filter(rec=>Object.keys(rec).filter(k=>k!=="id").length>0);
-}
-
-// Parse Excel with a specific header row (1-based)
-function parseExcelWithHeaderRow(arrayBuffer, map, headerRow) {
-  const wb = XLSX.read(arrayBuffer, {type:"array", cellDates:true});
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  // range: headerRow-1 makes XLSX use that row as the header
-  const rawRows = XLSX.utils.sheet_to_json(ws, {defval:"", range: headerRow - 1});
-  // Normalize: uppercase all keys so map lookup always works
-  const rows = rawRows.map(row => {
-    const norm = {};
-    Object.entries(row).forEach(([k,v]) => { norm[k.toUpperCase().trim()] = v; });
-    return norm;
-  });
-  return parseExcelRows(rows, map);
-}
-
 const EMPTY_DATA = {
-  scorpionDocs: [],   // { id, category, name, docNo, issueDate, expiryDate, fileLink, notes }
-  manpowerCats: DEFAULT_MANPOWER_CATS,
-  manpower: [],       // { id, category, name, idNo, nationality, designation,
-                      //   passportNo, passportExpiry, visaNo, visaExpiry,
-                      //   iqamaNo, iqamaExpiry, muqeemNo, muqeemExpiry,
-                      //   certs: [{id,name,certNo,issueDate,expiryDate,fileLink}],
-                      //   docs:  [{id,type,docNo,expiryDate,fileLink}]  }
-  equipment: [],      // { id, name, model, serialNo, status, operator, project,
-                      //   purchaseDate, notes,
-                      //   certifications:[{id,certNo,issuedBy,issueDate,expiryDate,fileLink}],
-                      //   invoices:      [{id,invoiceNo,supplier,amount,date,fileLink}],
-                      //   insurance:     [{id,policyNo,insurer,type,issueDate,expiryDate,fileLink}],
-                      //   permits:       [{id,permitNo,type,issuedBy,issueDate,expiryDate,fileLink}] }
+  scorpionDocs: [],
   scorpionDocCats: DEFAULT_SCORPION_CATS,
-  projects: ["NEOM Phase 1","NEOM Phase 2","Riyadh Metro"],
-  projectDocs: [],  // { id, project, subTab, name, refNo, date, expiryDate, amount, fileLink, notes }
+  manpowerCats: DEFAULT_MANPOWER_CATS,
+  manpower: [],
+  equipment: [],
+  projects: ["NEOM Phase 1", "NEOM Phase 2", "Riyadh Metro"],
+  projectDocs: [],
 };
 
 function loadData() {
-  try { const d = localStorage.getItem("cta_v1"); return d ? JSON.parse(d) : EMPTY_DATA; }
-  catch { return EMPTY_DATA; }
-}
-function persist(data) { try { localStorage.setItem("cta_v1", JSON.stringify(data)); } catch {} }
-
-/* ════════════════════════════════════════════════════════════════════════════
-   ROOT APP
-════════════════════════════════════════════════════════════════════════════ */
-/* ════════════════════════════════════════════════════════════════════════════
-   WELCOME SCREEN
-════════════════════════════════════════════════════════════════════════════ */
-function WelcomeScreen({onEnter}) {
-  const [leaving, setLeaving] = useState(false);
-
-  const handleEnter = () => {
-    setLeaving(true);
-    setTimeout(onEnter, 600);
-  };
-
-  return (
-    <div style={{
-      position:"fixed",
-      inset:0,
-      zIndex:9999,
-      background:"linear-gradient(135deg,#080b10 0%,#0e1520 50%,#080b10 100%)",
-      display:"flex",
-      flexDirection:"column",
-      alignItems:"center",
-      justifyContent:"center",
-      opacity: leaving ? 0 : 1,
-      transition: leaving ? "opacity 0.6s ease" : "none",
-    }}>
-      {/* Animated background rings */}
-      <div style={{
-        position:"absolute",
-        inset:0,
-        overflow:"hidden",
-        pointerEvents:"none"
-      }}>
-        {[300,450,600,750].map((s,i)=>(
-          <div key={i} style={{
-            position:"absolute",
-            top:"50%",
-            left:"50%",
-            width:s,
-            height:s,
-            transform:"translate(-50%,-50%)",
-            border:`1px solid rgba(251,191,36,${0.06-i*0.01})`,
-            borderRadius:"50%",
-            animation:`spinSlow ${12+i*4}s linear infinite ${i%2===0?"":"reverse"}`,
-          }}/>
-        ))}
-      </div>
-
-      {/* Logo container */}
-      <div style={{position:"relative",marginBottom:40}}>
-        {/* Outer glow ring */}
-        <div className="glow-ring" style={{
-          width:180, height:180, borderRadius:"50%",
-          border:"2px solid rgba(251,191,36,0.4)",
-          position:"absolute", top:-14, left:-14,
-          zIndex:0,
-        }}/>
-
-        {/* Spinning accent ring */}
-        <div className="spin-slow" style={{
-          position:"absolute", top:-8, left:-8,
-          width:168, height:168, borderRadius:"50%",
-          border:"2px dashed rgba(56,189,248,0.3)",
-          zIndex:0,
-        }}/>
-
-        {/* Logo */}
-        <div className="pulse-logo" style={{
-          width:152, height:152, borderRadius:"50%",
-          overflow:"hidden", position:"relative", zIndex:1,
-          boxShadow:"0 0 40px rgba(251,191,36,0.3), 0 0 80px rgba(251,191,36,0.1)",
-          border:"3px solid rgba(251,191,36,0.6)",
-        }}>
-          <img src="logo.png" alt="Scorpion Arabia"
-            style={{width:"100%",height:"100%",objectFit:"cover",mixBlendMode:"lighten"}}/>
-        </div>
-      </div>
-
-      {/* Welcome text */}
-      <div style={{textAlign:"center",marginBottom:48}}>
-        <div style={{
-          fontFamily:"'Barlow Condensed',sans-serif",
-          fontWeight:800,
-          fontSize:"clamp(18px,3vw,28px)",
-          color:"#fbbf24",
-          letterSpacing:"4px",
-          animation:"textReveal 1.2s cubic-bezier(0.16,1,0.3,1) 0.3s both",
-          textTransform:"uppercase",
-          marginBottom:12,
-        }}>
-          WELCOME TO
-        </div>
-        <div style={{
-          fontFamily:"'Barlow Condensed',sans-serif",
-          fontWeight:800,
-          fontSize:"clamp(26px,5vw,48px)",
-          color:"#ffffff",
-          letterSpacing:"4px",
-          animation:"textReveal 1.4s cubic-bezier(0.16,1,0.3,1) 0.5s both",
-          textTransform:"uppercase",
-          lineHeight:1.1,
-          marginBottom:8,
-        }}>
-          SCORPION ARABIA
-        </div>
-        <div style={{
-          fontFamily:"'Barlow Condensed',sans-serif",
-          fontWeight:600,
-          fontSize:"clamp(14px,2.5vw,20px)",
-          color:"#38bdf8",
-          letterSpacing:"6px",
-          animation:"textReveal 1.4s cubic-bezier(0.16,1,0.3,1) 0.7s both",
-          textTransform:"uppercase",
-        }}>
-          PORTAL
-        </div>
-        <div style={{
-          width:80, height:2,
-          background:"linear-gradient(90deg,transparent,#fbbf24,transparent)",
-          margin:"18px auto 0",
-          animation:"subReveal 1s ease 1.2s both",
-        }}/>
-      </div>
-
-      {/* Enter button */}
-      <button onClick={handleEnter} style={{
-        background:"linear-gradient(135deg,#fbbf24,#f59e0b)",
-        border:"none", borderRadius:999,
-        padding:"14px 48px",
-        fontFamily:"'Barlow Condensed',sans-serif",
-        fontWeight:800, fontSize:16,
-        color:"#080b10",
-        letterSpacing:"2px",
-        textTransform:"uppercase",
-        cursor:"pointer",
-        boxShadow:"0 4px 24px rgba(251,191,36,0.4)",
-        animation:"subReveal 1s ease 1.5s both",
-        transition:"transform 0.2s, box-shadow 0.2s",
-      }}
-        onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.05)";e.currentTarget.style.boxShadow="0 6px 32px rgba(251,191,36,0.6)";}}
-        onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="0 4px 24px rgba(251,191,36,0.4)";}}
-      >
-        ENTER PORTAL
-      </button>
-
-      {/* Bottom tagline */}
-      <div style={{
-        position:"absolute", bottom:32,
-        fontSize:11, color:"rgba(255,255,255,0.3)",
-        letterSpacing:"2px", textTransform:"uppercase",
-        fontFamily:"'Barlow Condensed',sans-serif",
-        animation:"subReveal 1s ease 2s both",
-      }}>
-        Document & Asset Management System
-      </div>
-    </div>
-  );
+  try {
+    const raw = localStorage.getItem("cta_v1");
+    return raw ? JSON.parse(raw) : EMPTY_DATA;
+  } catch {
+    return EMPTY_DATA;
+  }
 }
 
+function persistData(data) {
+  try {
+    localStorage.setItem("cta_v1", JSON.stringify(data));
+  } catch {}
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   APP
+────────────────────────────────────────────────────────────────────────── */
 export default function App() {
   useEffect(() => {
-    if (!document.getElementById("ct-g")) {
-      const s = document.createElement("style"); s.id = "ct-g";
-      s.textContent = GLOBAL_CSS; document.head.appendChild(s);
+    if (!document.getElementById("scorpion-global-css")) {
+      const s = document.createElement("style");
+      s.id = "scorpion-global-css";
+      s.textContent = GLOBAL_CSS;
+      document.head.appendChild(s);
     }
   }, []);
 
-  const [dark, setDark] = useState(localStorage.getItem("dark")==="true");
-  T = dark ? DARK_T : LIGHT_T;
-  const [data,        setData]       = useState(loadData);
-  const [page,        setPage]       = useState("dashboard");
-  const [sideOpen,    setSideOpen]   = useState(false);
-  const [toast,       setToast]      = useState(null);
-  const [projMod,     setProjMod]    = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem("cta_dark") === "true";
+    } catch {
+      return false;
+    }
+  });
 
-  useEffect(() => { persist(data); }, [data]);
-  useEffect(()=>{
-  localStorage.setItem("dark", dark);
-},[dark]);
-  const showToast = (msg, type="ok") => { setToast({msg,type}); setTimeout(() => setToast(null), 3200); };
+  setTheme(darkMode);
 
-  const go = p => { setPage(p); setSideOpen(false); };
+  useEffect(() => {
+    document.body.style.background = T.bg;
+    localStorage.setItem("cta_dark", String(darkMode));
+  }, [darkMode]);
 
-  const saveProjects = projects => setData(prev=>({...prev,projects}));
+  const [data, setData] = useState(loadData);
+  const [page, setPage] = useState("dashboard");
+  const [sideOpen, setSideOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [projectModal, setProjectModal] = useState(false);
 
-  /* ── expiry alerts across everything ── */
-  const allExpiries = [
-    ...data.scorpionDocs.filter(d=>d.expiryDate).map(d=>({label:d.name,src:"Company Doc",days:daysUntil(d.expiryDate)})),
-    ...(data.projectDocs||[]).filter(d=>d.expiryDate).map(d=>({label:d.name,src:"Project Doc",days:daysUntil(d.expiryDate)})),
-    ...data.manpower.flatMap(p=>[
-      p.passportExpiry && {label:p.name,src:"Passport",    days:daysUntil(p.passportExpiry)},
-      p.visaExpiry     && {label:p.name,src:"Visa",        days:daysUntil(p.visaExpiry)},
-      p.iqamaExpiry    && {label:p.name,src:"Iqama",       days:daysUntil(p.iqamaExpiry)},
-      p.muqeemExpiry   && {label:p.name,src:"Muqeem",      days:daysUntil(p.muqeemExpiry)},
-      ...(p.certs||[]).map(c=>({label:`${p.name} — ${c.name}`,src:"Cert",days:daysUntil(c.expiryDate)})),
-    ].filter(Boolean)),
-    ...data.equipment.flatMap(e=>[
-      ...(e.certifications||[]).map(c=>({label:`${e.name} — ${c.certNo||"Cert"}`,src:"Eq Cert",days:daysUntil(c.expiryDate)})),
-      ...(e.insurance||[]).map(c=>({label:`${e.name} — Insurance`,src:"Insurance",days:daysUntil(c.expiryDate)})),
-      ...(e.permits||[]).map(c=>({label:`${e.name} — ${c.type||"Permit"}`,src:"Permit",days:daysUntil(c.expiryDate)})),
-    ]),
-  ].filter(x=>x.days!==null&&x.days<=90).sort((a,b)=>a.days-b.days);
+  useEffect(() => {
+    persistData(data);
+  }, [data]);
+
+  const showToast = (msg, type = "ok") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 2600);
+  };
+
+  const allAlerts = useMemo(() => {
+    const items = [];
+
+    data.scorpionDocs.forEach((d) => {
+      const days = daysUntil(d.expiryDate);
+      if (days !== null && days <= 90) {
+        items.push({ label: d.name, src: "Company Doc", days });
+      }
+    });
+
+    data.projectDocs.forEach((d) => {
+      const days = daysUntil(d.expiryDate);
+      if (days !== null && days <= 90) {
+        items.push({ label: d.name, src: "Project Doc", days });
+      }
+    });
+
+    data.manpower.forEach((p) => {
+      [p.passportExpiry, p.visaExpiry, p.iqamaExpiry, p.muqeemExpiry].forEach((x, i) => {
+        const names = ["Passport", "Visa", "Iqama", "Muqeem"];
+        const days = daysUntil(x);
+        if (days !== null && days <= 90) {
+          items.push({ label: p.name, src: names[i], days });
+        }
+      });
+
+      (p.certs || []).forEach((c) => {
+        const days = daysUntil(c.expiryDate);
+        if (days !== null && days <= 90) {
+          items.push({ label: `${p.name} — ${c.name}`, src: "Cert", days });
+        }
+      });
+    });
+
+    data.equipment.forEach((e) => {
+      (e.certifications || []).forEach((c) => {
+        const days = daysUntil(c.expiryDate);
+        if (days !== null && days <= 90) {
+          items.push({ label: `${e.name} — ${c.certNo || "Cert"}`, src: "Eq Cert", days });
+        }
+      });
+      (e.insurance || []).forEach((c) => {
+        const days = daysUntil(c.expiryDate);
+        if (days !== null && days <= 90) {
+          items.push({ label: `${e.name} — Insurance`, src: "Insurance", days });
+        }
+      });
+      (e.permits || []).forEach((c) => {
+        const days = daysUntil(c.expiryDate);
+        if (days !== null && days <= 90) {
+          items.push({ label: `${e.name} — ${c.type || "Permit"}`, src: "Permit", days });
+        }
+      });
+    });
+
+    return items.sort((a, b) => a.days - b.days);
+  }, [data]);
 
   return (
-    <div style={{display:"flex",height:"100vh",overflow:"hidden",background:T.bg}}>
-      {showWelcome && <WelcomeScreen onEnter={()=>setShowWelcome(false)}/>}
-      {sideOpen && <div className="fade-in" onClick={()=>setSideOpen(false)} style={{position:"fixed",inset:0,background:dark?"rgba(0,0,0,0.45)":"rgba(13,31,53,0.45)",zIndex:49}}/>}
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: T.bg }}>
+      {sideOpen && (
+        <div
+          className="fade-in"
+          onClick={() => setSideOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            zIndex: 40,
+          }}
+        />
+      )}
 
-      <Sidebar dark={dark} page={page} go={go} sideOpen={sideOpen} alerts={allExpiries.length} data={data} onManageProjects={()=>{setSideOpen(false);setProjMod(true);}}/>
+      <Sidebar
+        page={page}
+        setPage={setPage}
+        sideOpen={sideOpen}
+        setSideOpen={setSideOpen}
+        alerts={allAlerts.length}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        onManageProjects={() => setProjectModal(true)}
+      />
 
-      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
-        {/* ── Top bar ── */}
-        <header style={{background:T.sidebar,borderBottom:`1px solid ${T.border}`,padding:"0 20px",flexShrink:0,boxShadow:dark?"0 2px 8px rgba(0,0,0,0.25)":"0 2px 8px rgba(13,31,53,0.2)"}}>
-          <div style={{display:"flex",alignItems:"center",height:64,position:"relative"}}>
-            <button onClick={()=>setSideOpen(true)} style={{background:dark?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)",border:`1px solid ${dark?"rgba(0,0,0,0.12)":"rgba(255,255,255,0.15)"}`,color:dark?"#24160b":"#ffffff",borderRadius:8,width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0,zIndex:1}}>☰</button>
-            <div style={{position:"absolute",left:0,right:0,textAlign:"center",pointerEvents:"none"}}>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:24,color:dark?"#24160b":"#ffffff",letterSpacing:"3px"}}>SCORPION ARABIA</div>
-              <div style={{fontSize:11,color:dark?"#6b4a2b":"#93c5fd",letterSpacing:"1.5px",marginTop:1}}>DOCUMENT & ASSET MANAGER</div>
-            </div>
-            <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:10,zIndex:1}}>
-              <button onClick={()=>setDark(d=>!d)} style={{background:dark?"#111827":"rgba(255,255,255,0.08)",border:`1px solid ${dark?"#243041":"rgba(255,255,255,0.15)"}`,color:dark?"#f0e6d3":"#ffffff",borderRadius:10,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>
-                {dark ? "☀ Light" : "🌙 Dark"}
-              </button>
-              {allExpiries.length>0 && (
-                <div style={{background:"rgba(220,38,38,0.25)",border:"1px solid rgba(220,38,38,0.5)",color:"#fca5a5",borderRadius:8,padding:"6px 14px",fontSize:12,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
-                  ▲ <span style={{background:T.red,color:"#fff",borderRadius:999,padding:"1px 7px",fontSize:11,fontWeight:700}}>{allExpiries.length}</span> alerts
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <TopBar
+          alerts={allAlerts.length}
+          onOpenSidebar={() => setSideOpen(true)}
+          darkMode={darkMode}
+        />
 
-        <main style={{flex:1,overflowY:"auto",padding:"clamp(16px,2.5vw,36px) clamp(16px,3vw,40px)"}}>
-          {page==="dashboard" && <Dashboard data={data} alerts={allExpiries} go={go}/>}
-          {page==="scorpion"  && <ScorpionDocs data={data} setData={setData} showToast={showToast}/>}
-          {page==="projects"  && <ProjectDocs data={data} setData={setData} showToast={showToast}/>}
-          {page==="manpower"  && <ManpowerPage data={data} setData={setData} showToast={showToast}/>}
-          {page==="equipment" && <EquipmentPage data={data} setData={setData} showToast={showToast}/>}
+        <main
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "clamp(14px,2vw,28px)",
+          }}
+        >
+          {page === "dashboard" && (
+            <Dashboard data={data} alerts={allAlerts} setPage={setPage} />
+          )}
+
+          {page === "scorpion" && (
+            <ScorpionDocs data={data} setData={setData} showToast={showToast} />
+          )}
+
+          {page === "projects" && (
+            <ProjectDocs data={data} setData={setData} showToast={showToast} />
+          )}
+
+          {page === "manpower" && (
+            <ManpowerPage data={data} setData={setData} showToast={showToast} />
+          )}
+
+          {page === "equipment" && (
+            <EquipmentPage data={data} setData={setData} showToast={showToast} />
+          )}
         </main>
       </div>
 
-      {projMod && <ProjectsModal projects={data.projects||[]} onSave={saveProjects} onClose={()=>setProjMod(false)}/>}
+      {projectModal && (
+        <ProjectsModal
+          projects={data.projects}
+          onClose={() => setProjectModal(false)}
+          onSave={(projects) => {
+            setData((p) => ({ ...p, projects }));
+            setProjectModal(false);
+            showToast("Projects updated");
+          }}
+        />
+      )}
 
       {toast && (
-        <div className="fade-up" style={{position:"fixed",bottom:24,right:24,zIndex:999,background:toast.type==="del"?"#fee2e2":"#d1fae5",border:`1px solid ${toast.type==="del"?T.red:T.green}`,color:toast.type==="del"?T.red:T.green,borderRadius:10,padding:"12px 20px",fontSize:14,fontWeight:600,boxShadow:T.shadow,display:"flex",alignItems:"center",gap:10}}>
-          {toast.type==="del"?"✕":"✓"} {toast.msg}
+        <div
+          className="fade-up"
+          style={{
+            position: "fixed",
+            right: 24,
+            bottom: 24,
+            zIndex: 99,
+            background: toast.type === "del" ? "#fee2e2" : "#d1fae5",
+            border: `1px solid ${toast.type === "del" ? T.red : T.green}`,
+            color: toast.type === "del" ? "#b91c1c" : "#047857",
+            borderRadius: 10,
+            padding: "12px 16px",
+            fontSize: 13,
+            fontWeight: 700,
+            boxShadow: T.shadow,
+          }}
+        >
+          {toast.type === "del" ? "✕" : "✓"} {toast.msg}
         </div>
       )}
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════════════
-   SIDEBAR
-════════════════════════════════════════════════════════════════════════════ */
-function Sidebar({dark,page,go,sideOpen,alerts,data,onManageProjects}) {
-  const isMobile = window.innerWidth < 900;
-  const NAV = [
-    {id:"dashboard", icon:"▦", label:"Dashboard",          desc:"Overview"},
-    {id:"scorpion",  icon:"◉", label:"Scorpion Documents", desc:"Company docs & licenses"},
-    {id:"projects",  icon:"◆", label:"Project Docs",       desc:"Invoices, certs & orders"},
-    {id:"manpower",  icon:"◈", label:"Manpower",           desc:"Staff & certifications"},
-    {id:"equipment", icon:"◎", label:"Equipment",          desc:"Assets & records"},
-  ];
+/* ──────────────────────────────────────────────────────────────────────────
+   LAYOUT
+────────────────────────────────────────────────────────────────────────── */
+function TopBar({ alerts, onOpenSidebar, darkMode }) {
   return (
-    <aside style={{width:"clamp(220px,18vw,280px)",flexShrink:0,background:T.sidebar,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",zIndex:50,position:isMobile?"fixed":"relative",top:0,left:0,height:"100%",transform:isMobile?(sideOpen?"translateX(0)":"translateX(-100%)"):"none",transition:"transform .28s ease",boxShadow:dark?"2px 0 14px rgba(0,0,0,0.14)":"2px 0 12px rgba(0,0,0,0.06)"}}>
-      <div style={{padding:"22px 20px 18px",borderBottom:`1px solid ${T.border}`}}>
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
+    <header
+      style={{
+        background: T.sidebar,
+        borderBottom: `1px solid ${T.border}`,
+        padding: "0 18px",
+        flexShrink: 0,
+      }}
+    >
+      <div style={{ height: 58, display: "flex", alignItems: "center", position: "relative" }}>
+        <button
+          onClick={onOpenSidebar}
+          style={iconBtnStyle("rgba(255,255,255,0.08)", "#fff")}
+        >
+          ☰
+        </button>
+
+        <div style={{ position: "absolute", inset: 0, textAlign: "center", pointerEvents: "none" }}>
           <div
             style={{
-              width:74,
-              height:74,
-              borderRadius:"50%",
-              background:"#000000",
-              padding:3,
-              flexShrink:0,
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              animation:"logoRingPulse 2.8s ease-in-out infinite",
-              transition:"all 0.35s ease",
-              cursor:"pointer"
-            }}
-            onMouseEnter={e=>{
-              e.currentTarget.style.animationDuration="1.6s";
-              e.currentTarget.style.transform="scale(1.06)";
-            }}
-            onMouseLeave={e=>{
-              e.currentTarget.style.animationDuration="2.8s";
-              e.currentTarget.style.transform="scale(1)";
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 800,
+              fontSize: 24,
+              color: "#fff",
+              letterSpacing: "3px",
+              marginTop: 7,
             }}
           >
-            <div
-              style={{
-                width:"100%",
-                height:"100%",
-                borderRadius:"50%",
-                overflow:"hidden",
-                background:"#000000",
-                display:"flex",
-                alignItems:"center",
-                justifyContent:"center"
-              }}
-            >
-              <img
-                src="logo.png?v=3"
-                alt="Scorpion Arabia"
-                style={{
-                  width:"124%",
-                  height:"124%",
-                  objectFit:"cover",
-                  objectPosition:"center",
-                  display:"block",
-                  animation:"logoInnerFloat 3.2s ease-in-out infinite"
-                }}
-              />
-            </div>
+            SCORPION ARABIA
           </div>
+          <div style={{ fontSize: 11, color: "#93c5fd", letterSpacing: "1.5px", marginTop: -2 }}>
+            DOCUMENT & ASSET MANAGER
+          </div>
+        </div>
 
-          <div>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:"clamp(16px,1.4vw,22px)",color:dark?"#24160b":"#ffffff",letterSpacing:".5px",lineHeight:1.1}}>SCORPION ARABIA</div>
-            <div style={{fontSize:11,fontWeight:600,letterSpacing:"1.4px",marginTop:3,color:dark?"#6b4a2b":"#93c5fd"}}>ASSET MANAGER</div>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              background: darkMode ? "rgba(255,255,255,0.08)" : "rgba(220,38,38,0.2)",
+              border: `1px solid ${alerts ? "rgba(220,38,38,0.45)" : "rgba(255,255,255,0.14)"}`,
+              color: alerts ? "#fecaca" : "#fff",
+              borderRadius: 8,
+              padding: "6px 10px",
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            ▲ {alerts}
           </div>
         </div>
       </div>
-      <nav style={{padding:"14px 10px",flex:1,overflowY:"auto"}}>
-        {NAV.map(n=>{
-          const active=page===n.id;
-          const badge=n.id==="dashboard"?alerts:0;
+    </header>
+  );
+}
+
+function Sidebar({
+  page,
+  setPage,
+  sideOpen,
+  setSideOpen,
+  alerts,
+  darkMode,
+  setDarkMode,
+  onManageProjects,
+}) {
+  const isMobile = window.innerWidth < 900;
+
+  const nav = [
+    { id: "dashboard", icon: "▦", label: "Dashboard", desc: "Overview" },
+    { id: "scorpion", icon: "◉", label: "Scorpion Documents", desc: "Company docs" },
+    { id: "projects", icon: "◆", label: "Project Docs", desc: "Invoices & certs" },
+    { id: "manpower", icon: "◈", label: "Manpower", desc: "Staff & records" },
+    { id: "equipment", icon: "◎", label: "Equipment", desc: "Assets & permits" },
+  ];
+
+  return (
+    <aside
+      style={{
+        width: "clamp(220px,18vw,280px)",
+        flexShrink: 0,
+        background: T.sidebar,
+        borderRight: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.08)"}`,
+        display: "flex",
+        flexDirection: "column",
+        zIndex: 50,
+        position: isMobile ? "fixed" : "relative",
+        top: 0,
+        left: 0,
+        height: "100%",
+        transform: isMobile ? (sideOpen ? "translateX(0)" : "translateX(-100%)") : "none",
+        transition: "transform .28s ease",
+      }}
+    >
+      <div style={{ padding: "22px 18px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 58,
+              height: 58,
+              borderRadius: "50%",
+              overflow: "hidden",
+              background: "#000",
+              boxShadow: "0 0 0 2px rgba(251,191,36,0.5)",
+            }}
+          >
+            <img
+              src="logo.png"
+              alt="Scorpion Arabia"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+          </div>
+          <div>
+            <div
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: 20,
+                color: "#fff",
+                letterSpacing: ".5px",
+              }}
+            >
+              SCORPION ARABIA
+            </div>
+            <div style={{ color: "#93c5fd", fontSize: 11, letterSpacing: "1.5px" }}>ASSET MANAGER</div>
+          </div>
+        </div>
+      </div>
+
+      <nav style={{ padding: 10, flex: 1, overflowY: "auto" }}>
+        {nav.map((n) => {
+          const active = page === n.id;
+          const badge = n.id === "dashboard" ? alerts : null;
+
           return (
-            <button key={n.id} onClick={()=>go(n.id)} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"11px 12px",borderRadius:8,border:"none",marginBottom:3,textAlign:"left",background:active?(dark?"rgba(26,10,0,0.08)":"rgba(59,130,246,0.15)"):"transparent",borderLeft:`2px solid ${active?(dark?"#5c3d1e":"#93c5fd"):"transparent"}`,transition:"all .15s"}}>
-              <span style={{fontSize:20,color:active?(dark?"#5c3d1e":"#93c5fd"):(dark?"#8a6a45":"#94a3b8")}}>{n.icon}</span>
-              <div style={{flex:1}}>
-                <div style={{fontSize:"clamp(12px,1vw,14px)",fontWeight:600,color:active?(dark?"#24160b":"#93c5fd"):(dark?"#2f2113":"#e2e8f0")}}>{n.label}</div>
-                <div style={{fontSize:10,color:dark?"#8a6a45":"#94a3b8",marginTop:1}}>{n.desc}</div>
+            <button
+              key={n.id}
+              onClick={() => {
+                setPage(n.id);
+                setSideOpen(false);
+              }}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "11px 12px",
+                borderRadius: 8,
+                border: "none",
+                marginBottom: 4,
+                textAlign: "left",
+                background: active ? "rgba(59,130,246,0.15)" : "transparent",
+                borderLeft: `2px solid ${active ? "#93c5fd" : "transparent"}`,
+              }}
+            >
+              <span style={{ fontSize: 19, color: active ? "#93c5fd" : "#94a3b8" }}>{n.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#93c5fd" : "#e2e8f0" }}>
+                  {n.label}
+                </div>
+                <div style={{ fontSize: 10, color: "#64748b" }}>{n.desc}</div>
               </div>
-              {badge>0&&<span style={{background:T.red,color:"#fff",borderRadius:999,padding:"1px 7px",fontSize:10,fontWeight:700}}>{badge}</span>}
+              {badge ? (
+                <span
+                  style={{
+                    background: "#dc2626",
+                    color: "#fff",
+                    borderRadius: 999,
+                    padding: "1px 7px",
+                    fontSize: 10,
+                    fontWeight: 700,
+                  }}
+                >
+                  {badge}
+                </span>
+              ) : null}
             </button>
           );
         })}
       </nav>
-      {/* Manage Projects */}
-      <div style={{padding:"10px 10px 0"}}>
-        <button onClick={onManageProjects} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:8,border:`1px solid ${T.borderLight}`,background:"transparent",textAlign:"left",transition:"all .15s",marginBottom:4}}
-          onMouseEnter={e=>{e.currentTarget.style.background=dark?"rgba(26,10,0,0.06)":"rgba(255,255,255,0.1)";e.currentTarget.style.borderColor=dark?"#5c3d1e":"#93c5fd";}}
-          onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor=T.borderLight;}}>
-          <span style={{fontSize:16,color:T.blue}}>⊕</span>
-          <div>
-            <div style={{fontSize:12,fontWeight:600,color:dark?"#2f2113":T.text}}>Manage Projects</div>
-            <div style={{fontSize:10,color:dark?"#8a6a45":T.textMuted}}>Add, rename, delete</div>
-          </div>
+
+      <div style={{ padding: "8px 10px", display: "grid", gap: 8 }}>
+        <button
+          onClick={onManageProjects}
+          style={sidebarAuxBtnStyle()}
+        >
+          ⊕ Manage Projects
+        </button>
+
+        <button
+          onClick={() => setDarkMode((d) => !d)}
+          style={sidebarAuxBtnStyle()}
+        >
+          {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
         </button>
       </div>
-      <div style={{padding:"8px 18px 16px",fontSize:10,color:T.textMuted,textAlign:"center"}}>Scorpion Arabia © 2025</div>
+
+      <div style={{ padding: "12px 18px 18px", fontSize: 10, color: "rgba(255,255,255,0.2)", textAlign: "center" }}>
+        Scorpion Arabia © 2025
+      </div>
     </aside>
   );
 }
 
-/* ── Projects Manager Modal ──────────────────────────────────────────────── */
-function ProjectsModal({projects,onSave,onClose}) {
-  const [list,    setList]    = useState([...projects]);
-  const [newName, setNewName] = useState("");
-  const [editing, setEditing] = useState(null); // {idx, val}
-
-  const add = () => {
-    const n=newName.trim();
-    if(!n||list.includes(n)) return;
-    setList(l=>[...l,n]);
-    setNewName("");
-  };
-
-  const del = idx => setList(l=>l.filter((_,i)=>i!==idx));
-
-  const startEdit = (idx,val) => setEditing({idx,val});
-  const commitEdit = () => {
-    if(!editing) return;
-    const n=editing.val.trim();
-    if(n&&!list.some((x,i)=>x===n&&i!==editing.idx)){
-      setList(l=>l.map((x,i)=>i===editing.idx?n:x));
-    }
-    setEditing(null);
-  };
-
-  return (
-    <Overlay onClose={onClose}>
-      <div className="slide-up" style={{background:T.sidebar,border:`1px solid ${T.border}`,borderRadius:18,width:"100%",maxWidth:460,maxHeight:"80vh",display:"flex",flexDirection:"column"}}>
-        <div style={{padding:"20px 22px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
-          <div>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:20,color:T.text}}>MANAGE PROJECTS</div>
-            <div style={{fontSize:12,color:T.textMuted,marginTop:2}}>Add, rename or delete projects</div>
-          </div>
-          <button onClick={onClose} style={{background:T.bg,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>×</button>
-        </div>
-
-        {/* Add new */}
-        <div style={{padding:"14px 22px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}>
-          <div style={{display:"flex",gap:8}}>
-            <input value={newName} onChange={e=>setNewName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&add()}
-              placeholder="New project name…"
-              style={{flex:1,background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,color:T.text,outline:"none",colorScheme:"light"}}
-              onFocus={e=>e.target.style.borderColor=T.green} onBlur={e=>e.target.style.borderColor=T.border}/>
-            <button onClick={add} style={{background:T.green,color:"#000",border:"none",borderRadius:8,padding:"9px 18px",fontSize:13,fontWeight:700,flexShrink:0}}>+ Add</button>
-          </div>
-        </div>
-
-        {/* List */}
-        <div style={{flex:1,overflowY:"auto",padding:"12px 22px"}}>
-          <div style={{fontSize:11,fontWeight:700,color:T.textMuted,marginBottom:10,letterSpacing:".5px"}}>PROJECTS ({list.length})</div>
-          {list.length===0&&<div style={{textAlign:"center",padding:"30px",color:T.textMuted,fontSize:13}}>No projects yet.</div>}
-          {list.map((p,i)=>(
-            <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:T.bg,borderRadius:9,marginBottom:7,border:`1px solid ${T.border}`}}>
-              <div style={{width:7,height:7,borderRadius:"50%",background:T.blue,flexShrink:0}}/>
-              {editing&&editing.idx===i
-                ? <input autoFocus value={editing.val} onChange={e=>setEditing({...editing,val:e.target.value})} onKeyDown={e=>{if(e.key==="Enter")commitEdit();if(e.key==="Escape")setEditing(null);}} onBlur={commitEdit}
-                    style={{flex:1,background:T.inputBg,border:`1px solid ${T.blue}`,borderRadius:6,padding:"5px 9px",fontSize:13,color:T.text,outline:"none"}}/>
-                : <span style={{flex:1,fontSize:14,color:T.text,cursor:"text"}} onDoubleClick={()=>startEdit(i,p)}>{p}</span>
-              }
-              <button onClick={()=>startEdit(i,p)} style={{background:T.blueDim,border:`1px solid ${T.blue}33`,color:T.blue,borderRadius:6,width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>✎</button>
-              <button onClick={()=>del(i)} style={{background:T.redDim,border:`1px solid ${T.red}33`,color:T.red,borderRadius:6,width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>✕</button>
-            </div>
-          ))}
-        </div>
-
-        <div style={{padding:"12px 22px 22px",flexShrink:0,borderTop:`1px solid ${T.border}`}}>
-          <button onClick={()=>{onSave(list);onClose();}} style={{width:"100%",background:T.blue,border:"none",color:"#000",borderRadius:10,padding:"12px",fontSize:14,fontWeight:700}}>Save Projects</button>
-        </div>
-      </div>
-    </Overlay>
-  );
-}
-
-/* ════════════════════════════════════════════════════════════════════════════
+/* ──────────────────────────────────────────────────────────────────────────
    DASHBOARD
-════════════════════════════════════════════════════════════════════════════ */
-function Dashboard({data,alerts,go}) {
-  /* ── computed stats ── */
-  const scorpionExp = data.scorpionDocs.filter(d=>{ const x=daysUntil(d.expiryDate); return x!==null&&x<=90; }).length;
-  const scorpionExp30 = data.scorpionDocs.filter(d=>{ const x=daysUntil(d.expiryDate); return x!==null&&x<=30; }).length;
+────────────────────────────────────────────────────────────────────────── */
+function Dashboard({ data, alerts, setPage }) {
+  const scorpionExp = data.scorpionDocs.filter((d) => {
+    const x = daysUntil(d.expiryDate);
+    return x !== null && x <= 90;
+  }).length;
 
-  const mpPeople = data.manpower.length;
-  const mpCats   = data.manpowerCats.length;
-  const mpDocAlerts = data.manpower.reduce((n,p)=>{
-    const ds=[p.passportExpiry,p.visaExpiry,p.iqamaExpiry,p.muqeemExpiry,...(p.certs||[]).map(c=>c.expiryDate)];
-    return n + ds.filter(d=>{ const x=daysUntil(d); return x!==null&&x<=90; }).length;
-  },0);
-
-  const eqTotal  = data.equipment.length;
-  const eqActive = data.equipment.filter(e=>e.status==="Active").length;
-  const eqMaint  = data.equipment.filter(e=>e.status==="Under Maintenance").length;
-  const eqExp    = data.equipment.reduce((n,e)=>{
-    const ds=[...(e.certifications||[]).map(c=>c.expiryDate),...(e.insurance||[]).map(c=>c.expiryDate),...(e.permits||[]).map(c=>c.expiryDate)];
-    return n + ds.filter(d=>{ const x=daysUntil(d); return x!==null&&x<=90; }).length;
-  },0);
-
-  const totalAlerts  = alerts.length;
-  const overdueCount = alerts.filter(a=>a.days<0).length;
-  const expiring30   = alerts.filter(a=>a.days>=0&&a.days<=30).length;
-
-  /* ── compliance pct (items with expiry tracked) ── */
-  const allTracked = [
-    ...data.scorpionDocs.filter(d=>d.expiryDate).map(d=>daysUntil(d.expiryDate)),
-    ...data.manpower.flatMap(p=>[p.passportExpiry,p.visaExpiry,p.iqamaExpiry,p.muqeemExpiry,...(p.certs||[]).map(c=>c.expiryDate)].filter(Boolean).map(daysUntil)),
-    ...data.equipment.flatMap(e=>[...(e.certifications||[]),...(e.insurance||[]),...(e.permits||[])].map(r=>daysUntil(r.expiryDate))),
-  ];
-  const validCount = allTracked.filter(d=>d!==null&&d>0).length;
-  const pct = allTracked.length ? Math.round(validCount/allTracked.length*100) : 100;
-
-  const expired  = alerts.filter(a=>a.days<0).sort((a,b)=>a.days-b.days);
-  const expiring = alerts.filter(a=>a.days>=0).sort((a,b)=>a.days-b.days);
+  const projectCount = data.projectDocs.length;
+  const manpowerCount = data.manpower.length;
+  const equipmentCount = data.equipment.length;
+  const overdueCount = alerts.filter((a) => a.days < 0).length;
+  const expiring30 = alerts.filter((a) => a.days >= 0 && a.days <= 30).length;
 
   return (
-    <div style={{maxWidth:"min(1400px,95vw)",margin:"0 auto",width:"100%"}}>
-
-      {/* ── Top KPI strip ── */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:20}}>
-        {[
-          {label:"Total Alerts",    v:totalAlerts,  color:totalAlerts>0?T.red:T.green,  icon:"▲"},
-          {label:"Overdue",         v:overdueCount, color:overdueCount>0?T.red:T.textMuted, icon:"✕"},
-          {label:"Due in 30 Days",  v:expiring30,   color:expiring30>0?T.gold:T.textMuted,  icon:"⏱"},
-          {label:"Compliance",      v:`${pct}%`,    color:pct>=80?T.green:pct>=60?T.gold:T.red, icon:"◎"},
-          {label:"People",          v:mpPeople,     color:T.green,  icon:"◈"},
-          {label:"Equipment Assets",v:eqTotal,      color:T.gold,   icon:"◎"},
-        ].map((k,i)=>(
-          <div key={k.label} className="fade-up" style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,boxShadow:"0 1px 6px rgba(26,10,0,0.06),0 0 0 1px rgba(232,213,183,0.4)",padding:"16px 18px",animationDelay:`${i*.05}s`,position:"relative",overflow:"hidden"}}>
-            <div style={{position:"absolute",top:10,right:14,fontSize:26,color:k.color,opacity:.08,fontWeight:800}}>{k.icon}</div>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:"clamp(28px,3vw,42px)",fontWeight:800,color:k.color,lineHeight:1}}>{k.v}</div>
-            <div style={{fontSize:11,color:T.textMuted,marginTop:5,fontWeight:500}}>{k.label}</div>
-          </div>
-        ))}
+    <div style={{ maxWidth: 1300, margin: "0 auto" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))",
+          gap: 12,
+          marginBottom: 18,
+        }}
+      >
+        <KpiCard label="Total Alerts" value={alerts.length} color={alerts.length ? T.red : T.green} />
+        <KpiCard label="Overdue" value={overdueCount} color={overdueCount ? T.red : T.textMuted} />
+        <KpiCard label="Due in 30 Days" value={expiring30} color={expiring30 ? T.gold : T.textMuted} />
+        <KpiCard label="Company Docs" value={data.scorpionDocs.length} color={T.blue} />
+        <KpiCard label="Project Docs" value={projectCount} color={T.teal} />
+        <KpiCard label="People" value={manpowerCount} color={T.green} />
+        <KpiCard label="Equipment" value={equipmentCount} color={T.gold} />
       </div>
 
-      {/* ── Compliance bar ── */}
-      <div className="fade-up" style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"16px 20px",marginBottom:18,animationDelay:".3s"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-          <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:14,color:T.textSub,letterSpacing:".5px"}}>OVERALL COMPLIANCE</span>
-          <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:"clamp(18px,2vw,26px)",color:pct>=80?T.green:pct>=60?T.gold:T.red}}>{pct}%</span>
-        </div>
-        <div style={{height:8,background:T.border,borderRadius:999}}>
-          <div style={{height:"100%",width:`${pct}%`,borderRadius:999,transition:"width .8s ease",background:pct>=80?`linear-gradient(90deg,${T.green},#059669)`:pct>=60?`linear-gradient(90deg,${T.gold},#d97706)`:`linear-gradient(90deg,${T.red},#dc2626)`}}/>
-        </div>
-        <div style={{display:"flex",justifyContent:"space-between",marginTop:6,fontSize:11,color:T.textMuted}}>
-          <span>{validCount} valid of {allTracked.length} tracked items</span>
-          <span>{overdueCount>0?`${overdueCount} overdue`:"No overdue items"}</span>
-        </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+          gap: 14,
+          marginBottom: 18,
+        }}
+      >
+        <QuickCard
+          title="Scorpion Documents"
+          sub="CR, insurance, licenses, contracts"
+          stat={`${data.scorpionDocs.length} total / ${scorpionExp} expiring`}
+          color={T.blue}
+          onClick={() => setPage("scorpion")}
+        />
+        <QuickCard
+          title="Project Docs"
+          sub="Invoices, certificates, work orders"
+          stat={`${projectCount} records`}
+          color={T.teal}
+          onClick={() => setPage("projects")}
+        />
+        <QuickCard
+          title="Manpower"
+          sub="Staff documents and certifications"
+          stat={`${manpowerCount} people`}
+          color={T.green}
+          onClick={() => setPage("manpower")}
+        />
+        <QuickCard
+          title="Equipment"
+          sub="Assets, certs, insurance, permits"
+          stat={`${equipmentCount} assets`}
+          color={T.gold}
+          onClick={() => setPage("equipment")}
+        />
       </div>
 
-      {/* ── 3 section cards ── */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(290px,1fr))",gap:14,marginBottom:20}}>
-
-        {/* Scorpion Documents */}
-        <div className="fade-up" onClick={()=>go("scorpion")}
-          style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"20px",cursor:"pointer",animationDelay:".35s",transition:"border-color .2s,transform .2s"}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=T.blue;e.currentTarget.style.transform="translateY(-2px)";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.border;e.currentTarget.style.transform="none";}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-            <div style={{width:38,height:38,background:T.blueDim,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:T.blue}}>◉</div>
-            <div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text}}>SCORPION DOCUMENTS</div>
-              <div style={{fontSize:11,color:T.textMuted}}>CR, insurance, licenses, contracts</div>
-            </div>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-            {[["Total Docs",data.scorpionDocs.length,T.blue],["Expiring",scorpionExp,scorpionExp>0?T.red:T.textMuted],["Due in 30d",scorpionExp30,scorpionExp30>0?T.gold:T.textMuted],["Categories",(data.scorpionDocCats||[]).length,T.blue]].map(([l,v,c])=>(
-              <div key={l} style={{background:T.bg,borderRadius:8,padding:"10px 12px"}}>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:"clamp(18px,2vw,26px)",fontWeight:800,color:c,lineHeight:1}}>{v}</div>
-                <div style={{fontSize:10,color:T.textMuted,marginTop:3}}>{l}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{fontSize:12,color:T.blue,fontWeight:600,textAlign:"right"}}>Open Documents →</div>
+      <div
+        style={{
+          background: T.card,
+          border: `1px solid ${T.border}`,
+          borderRadius: 14,
+          boxShadow: T.shadow,
+          padding: 18,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 22,
+            color: T.text,
+            marginBottom: 12,
+          }}
+        >
+          ALERTS
         </div>
 
-        {/* Project Docs */}
-        <div className="fade-up" onClick={()=>go("projects")}
-          style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"20px",cursor:"pointer",animationDelay:".40s",transition:"border-color .2s,transform .2s"}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=T.teal;e.currentTarget.style.transform="translateY(-2px)";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.border;e.currentTarget.style.transform="none";}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-            <div style={{width:38,height:38,background:T.tealDim,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:T.teal}}>◆</div>
-            <div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text}}>PROJECT DOCS</div>
-              <div style={{fontSize:11,color:T.textMuted}}>Invoices, completion certs & work orders</div>
-            </div>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-            {[
-              ["Total",(data.projectDocs||[]).length,T.teal],
-              ["Invoices",(data.projectDocs||[]).filter(d=>d.subTab==="invoices").length,T.green],
-              ["Job Certs",(data.projectDocs||[]).filter(d=>d.subTab==="certificates").length,T.blue],
-              ["Work Orders",(data.projectDocs||[]).filter(d=>d.subTab==="workorders").length,T.purple],
-            ].map(([l,v,c])=>(
-              <div key={l} style={{background:T.bg,borderRadius:8,padding:"10px 12px"}}>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:"clamp(18px,2vw,26px)",fontWeight:800,color:c,lineHeight:1}}>{v}</div>
-                <div style={{fontSize:10,color:T.textMuted,marginTop:3}}>{l}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{fontSize:12,color:T.teal,fontWeight:600,textAlign:"right"}}>Open Project Docs →</div>
-        </div>
-
-        {/* Manpower */}
-        <div className="fade-up" onClick={()=>go("manpower")}
-          style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"20px",cursor:"pointer",animationDelay:".42s",transition:"border-color .2s,transform .2s"}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=T.green;e.currentTarget.style.transform="translateY(-2px)";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.border;e.currentTarget.style.transform="none";}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-            <div style={{width:38,height:38,background:T.greenDim,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:T.green}}>◈</div>
-            <div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text}}>MANPOWER</div>
-              <div style={{fontSize:11,color:T.textMuted}}>Staff, documents & certifications</div>
-            </div>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-            {[["People",mpPeople,T.green],["Categories",mpCats,T.green],["Doc Alerts",mpDocAlerts,mpDocAlerts>0?T.red:T.textMuted],["Certs",data.manpower.reduce((n,p)=>n+(p.certs||[]).length,0),T.green]].map(([l,v,c])=>(
-              <div key={l} style={{background:T.bg,borderRadius:8,padding:"10px 12px"}}>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:"clamp(18px,2vw,26px)",fontWeight:800,color:c,lineHeight:1}}>{v}</div>
-                <div style={{fontSize:10,color:T.textMuted,marginTop:3}}>{l}</div>
-              </div>
-            ))}
-          </div>
-          {/* Category breakdown */}
-          <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:10}}>
-            {(data.manpowerCats||[]).map(c=>(
-              <span key={c} style={{background:T.greenDim,color:T.green,borderRadius:5,padding:"2px 8px",fontSize:10,fontWeight:600}}>
-                {c} ({data.manpower.filter(p=>p.category===c).length})
-              </span>
-            ))}
-          </div>
-          <div style={{fontSize:12,color:T.green,fontWeight:600,textAlign:"right"}}>Open Manpower →</div>
-        </div>
-
-        {/* Equipment */}
-        <div className="fade-up" onClick={()=>go("equipment")}
-          style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"20px",cursor:"pointer",animationDelay:".49s",transition:"border-color .2s,transform .2s"}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;e.currentTarget.style.transform="translateY(-2px)";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.border;e.currentTarget.style.transform="none";}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-            <div style={{width:38,height:38,background:T.goldDim,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:T.gold}}>◎</div>
-            <div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text}}>EQUIPMENT</div>
-              <div style={{fontSize:11,color:T.textMuted}}>Assets, certs, invoices & permits</div>
-            </div>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-            {[["Total Assets",eqTotal,T.gold],["Active",eqActive,T.green],["Maintenance",eqMaint,eqMaint>0?T.gold:T.textMuted],["Exp. Alerts",eqExp,eqExp>0?T.red:T.textMuted]].map(([l,v,c])=>(
-              <div key={l} style={{background:T.bg,borderRadius:8,padding:"10px 12px"}}>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:"clamp(18px,2vw,26px)",fontWeight:800,color:c,lineHeight:1}}>{v}</div>
-                <div style={{fontSize:10,color:T.textMuted,marginTop:3}}>{l}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
-            {[["📜 Certs",data.equipment.reduce((n,e)=>n+(e.certifications||[]).length,0)],["🧾 Invoices",data.equipment.reduce((n,e)=>n+(e.invoices||[]).length,0)],["🛡 Insurance",data.equipment.reduce((n,e)=>n+(e.insurance||[]).length,0)],["⬡ Permits",data.equipment.reduce((n,e)=>n+(e.permits||[]).length,0)]].map(([l,v])=>(
-              <span key={l} style={{background:T.goldDim,color:T.gold,borderRadius:5,padding:"2px 8px",fontSize:10,fontWeight:600}}>{l}: {v}</span>
-            ))}
-          </div>
-          <div style={{fontSize:12,color:T.gold,fontWeight:600,textAlign:"right"}}>Open Equipment →</div>
-        </div>
-      </div>
-
-      {/* ── Alerts split into 2 columns ── */}
-      {alerts.length>0 ? (
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-          {/* Overdue */}
-          <div className="fade-up" style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"18px 20px",animationDelay:".55s"}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
-              <div style={{width:3,height:18,borderRadius:2,background:T.red}}/>
-              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:14,color:T.red,letterSpacing:".5px"}}>OVERDUE</span>
-              <span style={{background:T.redDim,color:T.red,borderRadius:999,padding:"1px 8px",fontSize:11,fontWeight:700}}>{expired.length}</span>
-            </div>
-            {expired.length===0
-              ?<div style={{textAlign:"center",padding:"20px",color:T.textMuted,fontSize:13}}>✓ Nothing overdue</div>
-              :<div style={{display:"grid",gap:7}}>
-                {expired.slice(0,8).map((a,i)=><AlertRow key={i} a={a}/>)}
-                {expired.length>8&&<div style={{fontSize:11,color:T.textMuted,textAlign:"center",paddingTop:4}}>+{expired.length-8} more — check Alerts page</div>}
-              </div>
-            }
-          </div>
-
-          {/* Expiring soon */}
-          <div className="fade-up" style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"18px 20px",animationDelay:".62s"}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
-              <div style={{width:3,height:18,borderRadius:2,background:T.gold}}/>
-              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:14,color:T.gold,letterSpacing:".5px"}}>EXPIRING SOON</span>
-              <span style={{background:T.goldDim,color:T.gold,borderRadius:999,padding:"1px 8px",fontSize:11,fontWeight:700}}>{expiring.length}</span>
-            </div>
-            {expiring.length===0
-              ?<div style={{textAlign:"center",padding:"20px",color:T.textMuted,fontSize:13}}>✓ Nothing expiring soon</div>
-              :<div style={{display:"grid",gap:7}}>
-                {expiring.slice(0,8).map((a,i)=><AlertRow key={i} a={a}/>)}
-                {expiring.length>8&&<div style={{fontSize:11,color:T.textMuted,textAlign:"center",paddingTop:4}}>+{expiring.length-8} more</div>}
-              </div>
-            }
-          </div>
-        </div>
-      ) : (
-        <div className="fade-up" style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"40px 20px",textAlign:"center",animationDelay:".55s"}}>
-          <div style={{fontSize:44,marginBottom:12}}>✓</div>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:22,color:T.green,marginBottom:6}}>ALL CLEAR</div>
-          <div style={{fontSize:13,color:T.textMuted}}>No expiring or overdue items — everything is up to date.</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function AlertRow({a}) {
-  const s=getStatus(a.days);
-  const SRC_COLOR={"Company Doc":T.blue,"Passport":T.purple,"Visa":T.teal,"Iqama":T.green,"Muqeem":T.orange,"Cert":T.green,"Eq Cert":T.blue,"Insurance":T.purple,"Permit":T.gold};
-  const sc=SRC_COLOR[a.src]||T.blue;
-  return (
-    <div style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:T.bg,borderRadius:9,border:`1px solid ${T.border}`}}>
-      <div style={{width:3,height:32,borderRadius:2,background:s.color,flexShrink:0}}/>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:12,fontWeight:600,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.label}</div>
-        <div style={{display:"flex",alignItems:"center",gap:5,marginTop:2}}>
-          <span style={{background:`${sc}18`,color:sc,borderRadius:4,padding:"0px 6px",fontSize:9,fontWeight:700}}>{a.src}</span>
-          {a.project&&<span style={{fontSize:10,color:T.textMuted}}>{a.project}</span>}
-        </div>
-      </div>
-      <div style={{textAlign:"right",flexShrink:0}}>
-        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:18,color:s.color,lineHeight:1}}>{Math.abs(a.days)}</div>
-        <div style={{fontSize:8,color:T.textMuted,fontWeight:600,letterSpacing:".3px"}}>{a.days<0?"OVERDUE":"DAYS LEFT"}</div>
-      </div>
-    </div>
-  );
-}
-
-
-/* ════════════════════════════════════════════════════════════════════════════
-   PROJECT DOCS
-════════════════════════════════════════════════════════════════════════════ */
-const PD_TABS = [
-  {id:"invoices",     label:"Invoices",                    icon:"🧾", color:T.green,  dim:T.greenDim},
-  {id:"certificates", label:"Job Completion Certificates", icon:"📜", color:T.blue,   dim:T.blueDim},
-  {id:"workorders",   label:"Work Orders / Agreements",    icon:"📋", color:T.purple, dim:T.purpleDim},
-];
-
-/* ════════════════════════════════════════════════════════════════════════════
-   PROJECT DOCS
-════════════════════════════════════════════════════════════════════════════ */
-function ProjectDocs({data,setData,showToast}) {
-  // ALL hooks must be at the top — never after a conditional return
-  const [subTab,  setSubTab]  = useState("invoices");
-  const [selProj, setSelProj] = useState(null);
-  const [modal,   setModal]   = useState(null);
-  const [fProj,   setFProj]   = useState("");
-
-  const docs     = data.projectDocs || [];
-  const projects = data.projects    || [];
-  const cur      = PD_TABS.find(t=>t.id===subTab);
-  const counts   = Object.fromEntries(PD_TABS.map(t=>[t.id, docs.filter(d=>d.subTab===t.id).length]));
-
-  const changeTab = t => { setSubTab(t); setSelProj(null); setFProj(""); };
-
-  const saveDoc = (doc, mode) => {
-    const st = subTab; // capture before any state changes
-    // Close modal FIRST so it unmounts cleanly before data update triggers re-render
-    setModal(null);
-    setTimeout(() => {
-      setData(prev=>{
-        const list=[...prev.projectDocs];
-        if(mode==="add") list.push({...doc,id:uid(),subTab:st});
-        else { const i=list.findIndex(d=>d.id===doc.id); if(i>=0) list[i]={...doc,subTab:st}; }
-        return{...prev,projectDocs:list};
-      });
-      showToast(mode==="add"?"Document added":"Updated");
-    }, 0);
-  };
-
-  const delDoc = id => {
-    setData(prev=>({...prev,projectDocs:prev.projectDocs.filter(d=>d.id!==id)}));
-    showToast("Deleted","del");
-  };
-
-  // ── Derived data (no hooks below this line) ───────────────────────────
-  const invDocs  = docs.filter(d=>d.subTab==="invoices");
-  const projInvs = selProj ? invDocs.filter(d=>d.project===selProj) : [];
-  const totalAmt = projInvs.reduce((s,d)=>s+(parseFloat(d.amount)||0),0);
-  const certDocs = docs.filter(d=>d.subTab==="certificates"&&(!fProj||d.project===fProj));
-  const woDocs   = docs.filter(d=>d.subTab==="workorders"&&(!fProj||d.project===fProj));
-
-  return (
-    <div style={{maxWidth:"min(1400px,95vw)",margin:"0 auto",width:"100%"}}>
-      <SubTabBar tabs={PD_TABS} active={subTab} counts={counts} onChange={changeTab}/>
-
-      {/* ══ INVOICES ════════════════════════════════════════════════════ */}
-      {subTab==="invoices" && (
-        selProj ? (
-          /* Project detail — invoice list */
-          <div>
-            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
-              <button onClick={()=>setSelProj(null)} style={{background:T.card,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:8,padding:"8px 14px",fontSize:13,fontWeight:600}}>← Back</button>
-              <div style={{flex:1}}>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:22,color:T.text}}>{selProj}</div>
-                <div style={{fontSize:12,color:T.textMuted,marginTop:2}}>
-                  {projInvs.length} invoice{projInvs.length!==1?"s":""} · Total: <span style={{color:T.green,fontWeight:700}}>SAR {totalAmt.toLocaleString()}</span>
-                </div>
-              </div>
-              <Btn color={T.green} solid onClick={()=>setModal({mode:"add",doc:{project:selProj}})}>+ Add Invoice</Btn>
-            </div>
-            {projInvs.length===0
-              ?<Empty icon="🧾" label="No invoices yet" sub="Add the first invoice for this project" color={T.green} onAdd={()=>setModal({mode:"add",doc:{project:selProj}})}/>
-              :<div style={{display:"grid",gap:10}}>
-                {projInvs.map((doc,i)=><InvoiceCard key={doc.id} doc={doc} delay={i*.03} onEdit={()=>setModal({mode:"edit",doc})} onDel={()=>delDoc(doc.id)}/>)}
-              </div>
-            }
-          </div>
+        {alerts.length === 0 ? (
+          <div style={{ color: T.green, fontWeight: 700 }}>✓ No expiring items</div>
         ) : (
-          /* Project grid */
-          <div>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:18}}>
-              <div>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:22,color:T.text}}>INVOICES</div>
-                <div style={{fontSize:13,color:T.textMuted,marginTop:2}}>Select a project to view and manage its invoices</div>
-              </div>
-              <Btn color={T.green} solid onClick={()=>setModal({mode:"add"})}>+ Add Invoice</Btn>
-            </div>
-            {projects.length===0
-              ?<Empty icon="🧾" label="No projects yet" sub="Add projects via Manage Projects in the sidebar" color={T.green} onAdd={()=>{}}/>
-              :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:14}}>
-                {projects.map((p,i)=>{
-                  const pinvs=invDocs.filter(d=>d.project===p);
-                  const total=pinvs.reduce((s,d)=>s+(parseFloat(d.amount)||0),0);
-                  return (
-                    <div key={p} className="fade-up" onClick={()=>setSelProj(p)}
-                      style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"20px",cursor:"pointer",animationDelay:`${i*.05}s`,transition:"border-color .2s,transform .2s"}}
-                      onMouseEnter={e=>{e.currentTarget.style.borderColor=T.green;e.currentTarget.style.transform="translateY(-2px)";}}
-                      onMouseLeave={e=>{e.currentTarget.style.borderColor=T.border;e.currentTarget.style.transform="none";}}>
-                      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-                        <div style={{width:38,height:38,background:T.greenDim,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>🧾</div>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p}</div>
-                          <div style={{fontSize:11,color:T.textMuted,marginTop:2}}>{pinvs.length} invoice{pinvs.length!==1?"s":""}</div>
-                        </div>
-                      </div>
-                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
-                        <div style={{background:T.bg,borderRadius:8,padding:"10px 12px"}}>
-                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:24,fontWeight:800,color:T.green,lineHeight:1}}>{pinvs.length}</div>
-                          <div style={{fontSize:10,color:T.textMuted,marginTop:3}}>Invoices</div>
-                        </div>
-                        <div style={{background:T.bg,borderRadius:8,padding:"10px 12px"}}>
-                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:800,color:T.green,lineHeight:1}}>{total>0?`SAR ${(total/1000).toFixed(0)}K`:"—"}</div>
-                          <div style={{fontSize:10,color:T.textMuted,marginTop:3}}>Total Value</div>
-                        </div>
-                      </div>
-                      <div style={{fontSize:12,color:T.green,fontWeight:600,textAlign:"right"}}>View Invoices →</div>
-                    </div>
-                  );
-                })}
-              </div>
-            }
+          <div style={{ display: "grid", gap: 8 }}>
+            {alerts.slice(0, 10).map((a, i) => (
+              <AlertRow key={i} a={a} />
+            ))}
           </div>
-        )
-      )}
-
-      {/* ══ CERTIFICATES ════════════════════════════════════════════════ */}
-      {subTab==="certificates" && (
-        <div>
-          <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:18}}>
-            <div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:22,color:T.text}}>JOB COMPLETION CERTIFICATES</div>
-              <div style={{fontSize:13,color:T.textMuted,marginTop:2}}>Certificates issued upon completion of drilling work</div>
-            </div>
-            <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <select value={fProj} onChange={e=>setFProj(e.target.value)} style={{background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:T.textSub,outline:"none",colorScheme:"light"}}>
-                <option value="">All Projects</option>
-                {projects.map(p=><option key={p} value={p}>{p}</option>)}
-              </select>
-              <Btn color={T.blue} solid onClick={()=>setModal({mode:"add"})}>+ Add Certificate</Btn>
-            </div>
-          </div>
-          <div style={{fontSize:13,color:T.textMuted,marginBottom:12}}>{certDocs.length} record{certDocs.length!==1?"s":""}</div>
-          {certDocs.length===0
-            ?<Empty icon="📜" label="No certificates yet" sub="Add your first job completion certificate" color={T.blue} onAdd={()=>setModal({mode:"add"})}/>
-            :<div style={{display:"grid",gap:10}}>
-              {certDocs.map((doc,i)=>(
-                <div key={doc.id} className="fade-up"
-                  style={{background:T.card,border:`1px solid ${T.border}`,borderLeft:"4px solid "+T.blue,borderRadius:12,padding:"16px 18px",animationDelay:`${i*.03}s`,display:"flex",alignItems:"flex-start",gap:14}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6,flexWrap:"wrap"}}>
-                      <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text}}>{doc.name}</span>
-                      {doc.project&&<Tag color={T.teal}>{doc.project}</Tag>}
-                      {doc.jobNo&&<Tag color={T.blue}>Job #{doc.jobNo}</Tag>}
-                    </div>
-                    <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                      {doc.client&&<Chip>Client: {doc.client}</Chip>}
-                      {doc.startDate&&<Chip>Start: {fmtDate(doc.startDate)}</Chip>}
-                      {doc.completionDate&&<Chip color={T.green}>Completed: {fmtDate(doc.completionDate)}</Chip>}
-                      {doc.amount&&<Chip color={T.green}>SAR {Number(doc.amount).toLocaleString()}</Chip>}
-                      {doc.refNo&&<Chip>Cert No: {doc.refNo}</Chip>}
-                      {doc.fileLink && (
-  <>
-    <FileLink href={doc.fileLink}/>
-    <ABtn color={T.blue} onClick={()=>window.open(doc.fileLink, "_blank")}>
-      👁
-    </ABtn>
-  </>
-)}
-                    </div>
-                    {doc.notes&&<div style={{marginTop:6,fontSize:12,color:T.textMuted,fontStyle:"italic"}}>{doc.notes}</div>}
-                  </div>
-                  <div style={{display:"flex",gap:6,flexShrink:0}}>
-                    <ABtn color={T.blue} onClick={()=>setModal({mode:"edit",doc})}>✎</ABtn>
-                    <ABtn color={T.red}  onClick={()=>delDoc(doc.id)}>✕</ABtn>
-                  </div>
-                </div>
-              ))}
-            </div>
-          }
-        </div>
-      )}
-
-      {/* ══ WORK ORDERS ═════════════════════════════════════════════════ */}
-      {subTab==="workorders" && (
-        <div>
-          <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:18}}>
-            <div>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:22,color:T.text}}>WORK ORDERS / AGREEMENTS</div>
-              <div style={{fontSize:13,color:T.textMuted,marginTop:2}}>Contracts and work orders with clients</div>
-            </div>
-            <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <select value={fProj} onChange={e=>setFProj(e.target.value)} style={{background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:T.textSub,outline:"none",colorScheme:"light"}}>
-                <option value="">All Projects</option>
-                {projects.map(p=><option key={p} value={p}>{p}</option>)}
-              </select>
-              <Btn color={T.purple} solid onClick={()=>setModal({mode:"add"})}>+ Add Work Order</Btn>
-            </div>
-          </div>
-          <div style={{fontSize:13,color:T.textMuted,marginBottom:12}}>{woDocs.length} record{woDocs.length!==1?"s":""}</div>
-          {woDocs.length===0
-            ?<Empty icon="📋" label="No work orders yet" sub="Add your first work order or agreement" color={T.purple} onAdd={()=>setModal({mode:"add"})}/>
-            :<div style={{display:"grid",gap:10}}>
-              {woDocs.map((doc,i)=>{
-                const hasExp=!!doc.expiryDate;
-                const s=getStatus(daysUntil(doc.expiryDate));
-                return (
-                  <div key={doc.id} className="fade-up"
-                    style={{background:T.card,border:`1px solid ${hasExp&&daysUntil(doc.expiryDate)<=90?s.color+"44":T.border}`,borderLeft:"4px solid "+T.purple,borderRadius:12,padding:"16px 18px",animationDelay:`${i*.03}s`,display:"flex",alignItems:"flex-start",gap:14}}>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6,flexWrap:"wrap"}}>
-                        <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text}}>{doc.name}</span>
-                        {doc.project&&<Tag color={T.teal}>{doc.project}</Tag>}
-                        {hasExp&&<Tag color={s.color}>{s.label}</Tag>}
-                      </div>
-                      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                        {doc.refNo&&<Chip>Ref: {doc.refNo}</Chip>}
-                        {doc.supplier&&<Chip>Client: {doc.supplier}</Chip>}
-                        {doc.amount&&<Chip color={T.green}>SAR {Number(doc.amount).toLocaleString()}</Chip>}
-                        {doc.date&&<Chip>Signed: {fmtDate(doc.date)}</Chip>}
-                        {hasExp&&<Chip color={s.color}>Expires: {fmtDate(doc.expiryDate)}</Chip>}
-                        {hasExp&&daysUntil(doc.expiryDate)!==null&&daysUntil(doc.expiryDate)<=90&&<Chip color={s.color}>{daysUntil(doc.expiryDate)>=0?`${daysUntil(doc.expiryDate)}d left`:`${Math.abs(daysUntil(doc.expiryDate))}d overdue`}</Chip>}
-                        {doc.fileLink&&<FileLink href={doc.fileLink}/>}
-                      </div>
-                      {doc.notes&&<div style={{marginTop:6,fontSize:12,color:T.textMuted,fontStyle:"italic"}}>{doc.notes}</div>}
-                    </div>
-                    <div style={{display:"flex",gap:6,flexShrink:0}}>
-                      <ABtn color={T.blue} onClick={()=>setModal({mode:"edit",doc})}>✎</ABtn>
-                      <ABtn color={T.red}  onClick={()=>delDoc(doc.id)}>✕</ABtn>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          }
-        </div>
-      )}
-
-      {/* ══ MODALS ═══════════════════════════════════════════════════════ */}
-      {modal && subTab==="invoices"     && <InvoiceModal     mode={modal.mode} doc={modal.doc} projects={projects} defaultProject={selProj} onClose={()=>setModal(null)} onSave={saveDoc}/>}
-      {modal && subTab==="certificates" && <CertificateModal mode={modal.mode} doc={modal.doc} projects={projects}                          onClose={()=>setModal(null)} onSave={saveDoc}/>}
-      {modal && subTab==="workorders"   && <WorkOrderModal   mode={modal.mode} doc={modal.doc} projects={projects}                          onClose={()=>setModal(null)} onSave={saveDoc}/>}
-    </div>
-  );
-}
-
-function SubTabBar({tabs,active,counts,onChange}) {
-  return (
-    <div style={{display:"flex",gap:8,marginBottom:20,overflowX:"auto",paddingBottom:4}}>
-      {tabs.map(t=>{
-        const isActive=active===t.id;
-        return (
-          <button key={t.id} onClick={()=>onChange(t.id)} style={{flexShrink:0,padding:"9px 18px",borderRadius:999,border:`1px solid ${isActive?t.color:T.border}`,background:isActive?t.dim:"transparent",color:isActive?t.color:T.textSub,fontSize:13,fontWeight:isActive?700:500,display:"flex",alignItems:"center",gap:8,transition:"all .2s"}}>
-            <span>{t.icon}</span>{t.label}
-            <span style={{background:isActive?t.color:T.border,color:isActive?"#000":T.textMuted,borderRadius:999,padding:"1px 8px",fontSize:11,fontWeight:700}}>{counts[t.id]}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ── Invoice card ────────────────────────────────────────────────────────── */
-function InvoiceCard({doc,delay,onEdit,onDel}) {
-  const due = daysUntil(doc.dueDate);
-  const ds  = getStatus(due);
-  return (
-    <div className="fade-up" style={{background:T.card,border:`1px solid ${due!==null&&due<=30?ds.color+"44":T.border}`,borderLeft:"4px solid "+T.green,borderRadius:12,padding:"16px 18px",animationDelay:`${delay}s`,display:"flex",alignItems:"flex-start",gap:14}}>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6,flexWrap:"wrap"}}>
-          <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:T.text}}>{doc.name}</span>
-          {doc.refNo&&<Tag color={T.green}>#{doc.refNo}</Tag>}
-          {doc.dueDate&&due!==null&&due<=30&&<Tag color={ds.color}>{due<0?`${Math.abs(due)}d overdue`:`Due in ${due}d`}</Tag>}
-        </div>
-        <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-          {doc.client&&<Chip>Client: {doc.client}</Chip>}
-          {doc.dueDate&&<Chip color={ds.color}>Due: {fmtDate(doc.dueDate)}</Chip>}
-          {doc.amount&&<Chip color={T.green}>SAR {Number(doc.amount).toLocaleString()}</Chip>}
-          {doc.fileLink&&<FileLink href={doc.fileLink}/>}
-        </div>
-        {doc.notes&&<div style={{marginTop:6,fontSize:12,color:T.textMuted,fontStyle:"italic"}}>{doc.notes}</div>}
-      </div>
-      <div style={{display:"flex",gap:6,flexShrink:0}}>
-        <ABtn color={T.blue} onClick={onEdit}>✎</ABtn>
-        <ABtn color={T.red}  onClick={onDel}>✕</ABtn>
+        )}
       </div>
     </div>
   );
 }
 
-/* ── Invoice modal ───────────────────────────────────────────────────────── */
-function InvoiceModal({mode,doc,projects,defaultProject,onClose,onSave}) {
-  const [f,setF]=useState(doc||{project:defaultProject||""});
-  const set=k=>v=>setF(p=>({...p,[k]:v}));
-  return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} INVOICE`} color={T.green} onClose={onClose}
-      onSave={()=>{if(!f.name){alert("Invoice title required");return;}onSave(f,mode);}}>
-      <FieldRow label="Invoice Title *"><FInput value={f.name||""} onChange={set("name")} color={T.green}/></FieldRow>
-      <FieldRow label="Project *">
-        <FSelect value={f.project||""} onChange={set("project")} color={T.green}>
-          <option value="">Select project…</option>
-          {projects.map(p=><option key={p} value={p}>{p}</option>)}
-        </FSelect>
-      </FieldRow>
-      <FieldRow label="Invoice No."><FInput value={f.refNo||""} onChange={set("refNo")} color={T.green}/></FieldRow>
-      <FieldRow label="Client"><FInput value={f.client||""} onChange={set("client")} color={T.green}/></FieldRow>
-      <FieldRow label="Due Date"><FInput type="date" value={f.dueDate||""} onChange={set("dueDate")} color={T.green}/></FieldRow>
-      <FieldRow label="Invoice Value (SAR)"><FInput type="number" value={f.amount||""} onChange={set("amount")} color={T.green}/></FieldRow>
-      <FieldRow label="File Link (Google Drive / SharePoint)"><FLink value={f.fileLink||""} onChange={set("fileLink")}/></FieldRow>
-      <FieldRow label="Notes"><FTextarea value={f.notes||""} onChange={set("notes")} color={T.green}/></FieldRow>
-    </FormModal>
-  );
-}
-
-/* ── Job Completion Certificate modal ────────────────────────────────────── */
-function CertificateModal({mode,doc,projects,onClose,onSave}) {
-  const [f,setF]=useState(doc||{});
-  const set=k=>v=>setF(p=>({...p,[k]:v}));
-  return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} JOB COMPLETION CERTIFICATE`} color={T.blue} onClose={onClose}
-      onSave={()=>{if(!f.name){alert("Certificate title required");return;}onSave(f,mode);}}>
-      <FieldRow label="Certificate Title *"><FInput value={f.name||""} onChange={set("name")} color={T.blue}/></FieldRow>
-      <FieldRow label="Project *">
-        <FSelect value={f.project||""} onChange={set("project")} color={T.blue}>
-          <option value="">Select project…</option>
-          {projects.map(p=><option key={p} value={p}>{p}</option>)}
-        </FSelect>
-      </FieldRow>
-      <FieldRow label="Job Number"><FInput value={f.jobNo||""} onChange={set("jobNo")} color={T.blue}/></FieldRow>
-      <FieldRow label="Client"><FInput value={f.client||""} onChange={set("client")} color={T.blue}/></FieldRow>
-      <FieldRow label="Certificate No."><FInput value={f.refNo||""} onChange={set("refNo")} color={T.blue}/></FieldRow>
-      <FieldRow label="Start Date"><FInput type="date" value={f.startDate||""} onChange={set("startDate")} color={T.blue}/></FieldRow>
-      <FieldRow label="Completion Date"><FInput type="date" value={f.completionDate||""} onChange={set("completionDate")} color={T.blue}/></FieldRow>
-      <FieldRow label="Invoice Value (SAR)"><FInput type="number" value={f.amount||""} onChange={set("amount")} color={T.blue}/></FieldRow>
-      <FieldRow label="File Link (Google Drive / SharePoint)"><FLink value={f.fileLink||""} onChange={set("fileLink")}/></FieldRow>
-      <FieldRow label="Notes"><FTextarea value={f.notes||""} onChange={set("notes")} color={T.blue}/></FieldRow>
-    </FormModal>
-  );
-}
-
-/* ── Work Order modal ────────────────────────────────────────────────────── */
-function WorkOrderModal({mode,doc,projects,onClose,onSave}) {
-  const [f,setF]=useState(doc||{});
-  const set=k=>v=>setF(p=>({...p,[k]:v}));
-  return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} WORK ORDER / AGREEMENT`} color={T.purple} onClose={onClose}
-      onSave={()=>{if(!f.name){alert("Title required");return;}onSave(f,mode);}}>
-      <FieldRow label="Title *"><FInput value={f.name||""} onChange={set("name")} color={T.purple}/></FieldRow>
-      <FieldRow label="Project *">
-        <FSelect value={f.project||""} onChange={set("project")} color={T.purple}>
-          <option value="">Select project…</option>
-          {projects.map(p=><option key={p} value={p}>{p}</option>)}
-        </FSelect>
-      </FieldRow>
-      <FieldRow label="Reference No."><FInput value={f.refNo||""} onChange={set("refNo")} color={T.purple}/></FieldRow>
-      <FieldRow label="Client / Counterparty"><FInput value={f.supplier||""} onChange={set("supplier")} color={T.purple}/></FieldRow>
-      <FieldRow label="Contract Value (SAR)"><FInput type="number" value={f.amount||""} onChange={set("amount")} color={T.purple}/></FieldRow>
-      <FieldRow label="Date Signed"><FInput type="date" value={f.date||""} onChange={set("date")} color={T.purple}/></FieldRow>
-      <FieldRow label="Expiry / End Date"><FInput type="date" value={f.expiryDate||""} onChange={set("expiryDate")} color={T.purple}/></FieldRow>
-      <FieldRow label="File Link (Google Drive / SharePoint)"><FLink value={f.fileLink||""} onChange={set("fileLink")}/></FieldRow>
-      <FieldRow label="Notes"><FTextarea value={f.notes||""} onChange={set("notes")} color={T.purple}/></FieldRow>
-    </FormModal>
-  );
-}
-
-/* ════════════════════════════════════════════════════════════════════════════
-   SCORPION DOCUMENTS
-════════════════════════════════════════════════════════════════════════════ */
-function ScorpionDocs({data,setData,showToast}) {
-  const [modal,    setModal]    = useState(null);
+/* ──────────────────────────────────────────────────────────────────────────
+   SCORPION DOCS
+────────────────────────────────────────────────────────────────────────── */
+function ScorpionDocs({ data, setData, showToast }) {
+  const [modal, setModal] = useState(null);
   const [catModal, setCatModal] = useState(false);
-  const [selCat,   setSelCat]   = useState("All");
+  const [selCat, setSelCat] = useState("All");
 
-  const docs    = data.scorpionDocs || [];
-  const cats    = data.scorpionDocCats || DEFAULT_SCORPION_CATS;
-  const visible = selCat==="All" ? docs : docs.filter(d=>d.category===selCat);
+  const docs = data.scorpionDocs || [];
+  const cats = data.scorpionDocCats || DEFAULT_SCORPION_CATS;
+  const visible = selCat === "All" ? docs : docs.filter((d) => d.category === selCat);
 
   const saveDoc = (doc, mode) => {
     setModal(null);
-    setTimeout(() => {
-      setData(prev => {
-        const list = [...prev.scorpionDocs];
-        if (mode==="add") list.push({...doc, id:uid()});
-        else { const i=list.findIndex(d=>d.id===doc.id); if(i>=0) list[i]=doc; }
-        return {...prev, scorpionDocs:list};
-      });
-      showToast(mode==="add"?"Document added":"Document updated");
-    }, 0);
+    setData((prev) => {
+      const list = [...prev.scorpionDocs];
+      if (mode === "add") {
+        list.push({ ...doc, id: uid() });
+      } else {
+        const idx = list.findIndex((x) => x.id === doc.id);
+        if (idx >= 0) list[idx] = doc;
+      }
+      return { ...prev, scorpionDocs: list };
+    });
+    showToast(mode === "add" ? "Document added" : "Document updated");
   };
 
-  const delDoc = id => {
-    setData(prev=>({...prev, scorpionDocs:prev.scorpionDocs.filter(d=>d.id!==id)}));
-    showToast("Document deleted","del");
+  const delDoc = (id) => {
+    setData((prev) => ({
+      ...prev,
+      scorpionDocs: prev.scorpionDocs.filter((d) => d.id !== id),
+    }));
+    showToast("Document deleted", "del");
   };
 
-  const saveCats = cats => setData(prev=>({...prev, scorpionDocCats:cats}));
+  const saveCats = (catsNew) => {
+    setData((prev) => ({ ...prev, scorpionDocCats: catsNew }));
+    setCatModal(false);
+    showToast("Categories updated");
+  };
 
   return (
-    <div style={{maxWidth:"min(1200px,95vw)",margin:"0 auto",width:"100%"}}>
-      <PageHeader title="SCORPION DOCUMENTS" sub="Company licenses, insurance, contracts & registrations" color={T.blue}>
-        <Btn color={T.blue} onClick={()=>setCatModal(true)}>⊕ Categories</Btn>
-        <Btn color={T.blue} solid onClick={()=>setModal({mode:"add"})}>+ Add Document</Btn>
+    <PageWrap>
+      <PageHeader
+        title="SCORPION DOCUMENTS"
+        sub="Company licenses, insurance, contracts & registrations"
+        color={T.blue}
+      >
+        <Btn color={T.blue} onClick={() => setCatModal(true)}>
+          ⊕ Categories
+        </Btn>
+        <Btn color={T.blue} onClick={() => exportToExcel(docs, "Scorpion_Documents")}>
+          ⬇ Export Excel
+        </Btn>
+        <Btn color={T.blue} solid onClick={() => setModal({ mode: "add" })}>
+          + Add Document
+        </Btn>
       </PageHeader>
 
-      {/* Category filter pills */}
-      <div style={{display:"flex",gap:8,marginBottom:18,flexWrap:"wrap"}}>
-        {["All",...cats].map(c=>(
-          <button key={c} onClick={()=>setSelCat(c)} style={{padding:"6px 14px",borderRadius:999,border:`1px solid ${selCat===c?T.blue:T.border}`,background:selCat===c?T.blueDim:"transparent",color:selCat===c?T.blue:T.textSub,fontSize:12,fontWeight:selCat===c?700:500,transition:"all .15s"}}>
-            {c} {c!=="All"&&<span style={{opacity:.6}}>({docs.filter(d=>d.category===c).length})</span>}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+        {["All", ...cats].map((c) => (
+          <button
+            key={c}
+            onClick={() => setSelCat(c)}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              border: `1px solid ${selCat === c ? T.blue : T.border}`,
+              background: selCat === c ? T.blueDim : "transparent",
+              color: selCat === c ? T.blue : T.textSub,
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {c}
           </button>
         ))}
       </div>
 
-      {visible.length===0
-        ?<Empty icon="◉" label="No documents yet" sub="Add your first company document" color={T.blue} onAdd={()=>setModal({mode:"add"})}/>
-        :<div style={{display:"grid",gap:10}}>
-          {visible.map((doc,i)=>{
-            const s=getStatus(daysUntil(doc.expiryDate));
+      {visible.length === 0 ? (
+        <Empty
+          icon="◉"
+          label="No company documents yet"
+          sub="Add your first document"
+          color={T.blue}
+          onAdd={() => setModal({ mode: "add" })}
+        />
+      ) : (
+        <div style={{ display: "grid", gap: 10 }}>
+          {visible.map((doc, i) => {
+            const s = getStatus(daysUntil(doc.expiryDate));
             return (
-              <div key={doc.id} className="fade-up" style={{background:T.card,border:`1px solid ${T.border}`,borderLeft:`4px solid ${doc.expiryDate?s.color:T.blue}`,borderRadius:12,padding:"16px 18px",animationDelay:`${i*.03}s`,display:"flex",alignItems:"center",gap:14}}>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:5}}>
-                    <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:16,color:T.text}}>{doc.name}</span>
-                    <Tag color={T.blue}>{doc.category}</Tag>
-                    {doc.expiryDate&&<Tag color={s.color}>{s.label}</Tag>}
+              <CardRow key={doc.id} delay={i * 0.03} borderLeft={doc.expiryDate ? s.color : T.blue}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
+                    <Title>{doc.name}</Title>
+                    {doc.category && <Tag color={T.blue}>{doc.category}</Tag>}
+                    {doc.expiryDate && <Tag color={s.color}>{s.label}</Tag>}
                   </div>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                    {doc.docNo&&<Chip>Ref: {doc.docNo}</Chip>}
-                    {doc.issueDate&&<Chip>Issued: {fmtDate(doc.issueDate)}</Chip>}
-                    {doc.expiryDate&&<Chip color={s.color}>Expires: {fmtDate(doc.expiryDate)}</Chip>}
-                    {doc.fileLink&&<FileLink href={doc.fileLink}/>}
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {doc.docNo && <Chip>Ref: {doc.docNo}</Chip>}
+                    {doc.issueDate && <Chip>Issue: {fmtDate(doc.issueDate)}</Chip>}
+                    {doc.expiryDate && <Chip color={s.color}>Expiry: {fmtDate(doc.expiryDate)}</Chip>}
+                    {doc.fileLink && <FileLink href={doc.fileLink} />}
                   </div>
-                  {doc.notes&&<div style={{marginTop:6,fontSize:12,color:T.textMuted,fontStyle:"italic"}}>{doc.notes}</div>}
+                  {doc.notes && (
+                    <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>
+                      {doc.notes}
+                    </div>
+                  )}
                 </div>
-                <div style={{display:"flex",gap:6,flexShrink:0}}>
-                  <ABtn color={T.blue} onClick={()=>setModal({mode:"edit",doc})}>✎</ABtn>
-                  <ABtn color={T.red}  onClick={()=>delDoc(doc.id)}>✕</ABtn>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", doc })}>
+                    ✎
+                  </ABtn>
+                  <ABtn color={T.red} onClick={() => delDoc(doc.id)}>
+                    ✕
+                  </ABtn>
                 </div>
-              </div>
+              </CardRow>
             );
           })}
         </div>
-      }
+      )}
 
-      {modal    && <DocModal mode={modal.mode} doc={modal.doc} cats={cats} onClose={()=>setModal(null)} onSave={saveDoc}/>}
-      {catModal && <CatManagerModal title="Document Categories" cats={cats} onSave={saveCats} onClose={()=>setCatModal(false)}/>}
-    </div>
+      {modal && (
+        <DocModal
+          mode={modal.mode}
+          doc={modal.doc}
+          cats={cats}
+          onClose={() => setModal(null)}
+          onSave={saveDoc}
+        />
+      )}
+
+      {catModal && (
+        <CatManagerModal
+          title="Document Categories"
+          cats={cats}
+          onClose={() => setCatModal(false)}
+          onSave={saveCats}
+        />
+      )}
+    </PageWrap>
   );
 }
 
 function DocModal({ mode, doc, cats, onClose, onSave }) {
   const [f, setF] = useState(doc || {});
   const [uploading, setUploading] = useState(false);
-
-  const F = (k, label, type) => ({ key: k, label, type: type || "text" });
-
-  const fields = [
-    F("name", "Document Name"),
-    F("category", "Category", "select"),
-    F("docNo", "Reference / Doc No."),
-    F("issueDate", "Issue Date", "date"),
-    F("expiryDate", "Expiry Date", "date"),
-    F("fileLink", "File Link (optional manual URL)", "link"),
-    F("fileUpload", "Upload PDF", "file"),
-    F("notes", "Notes", "textarea"),
-  ];
 
   const handleSave = async () => {
     if (!f.name) {
@@ -1471,7 +903,7 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
     try {
       setUploading(true);
 
-      let finalData = { ...f };
+      const finalData = { ...f };
 
       if (f.fileUpload) {
         const uploadedUrl = await uploadPdfToSupabase(f.fileUpload, "scorpion-docs");
@@ -1479,10 +911,9 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
       }
 
       delete finalData.fileUpload;
-
       onSave(finalData, mode);
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error(err);
       alert("PDF upload failed. Check Supabase bucket settings.");
     } finally {
       setUploading(false);
@@ -1494,1013 +925,1246 @@ function DocModal({ mode, doc, cats, onClose, onSave }) {
       title={`${mode === "add" ? "ADD" : "EDIT"} DOCUMENT`}
       color={T.blue}
       onClose={onClose}
+      onSave={handleSave}
+    >
+      <FieldRow label="Document Name">
+        <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Category">
+        <FSelect value={f.category || ""} onChange={(v) => setF((p) => ({ ...p, category: v }))}>
+          <option value="">Select…</option>
+          {cats.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </FSelect>
+      </FieldRow>
+
+      <FieldRow label="Reference / Doc No.">
+        <FInput value={f.docNo || ""} onChange={(v) => setF((p) => ({ ...p, docNo: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Issue Date">
+        <FInput type="date" value={f.issueDate || ""} onChange={(v) => setF((p) => ({ ...p, issueDate: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Expiry Date">
+        <FInput type="date" value={f.expiryDate || ""} onChange={(v) => setF((p) => ({ ...p, expiryDate: v }))} />
+      </FieldRow>
+
+      <FieldRow label="File Link (optional manual URL)">
+        <FInput value={f.fileLink || ""} onChange={(v) => setF((p) => ({ ...p, fileLink: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Upload PDF">
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) =>
+            setF((p) => ({
+              ...p,
+              fileUpload: e.target.files?.[0] || null,
+            }))
+          }
+          style={fieldStyle()}
+        />
+      </FieldRow>
+
+      <FieldRow label="Notes">
+        <FTextarea value={f.notes || ""} onChange={(v) => setF((p) => ({ ...p, notes: v }))} />
+      </FieldRow>
+
+      {uploading && (
+        <div style={{ color: T.blue, fontSize: 12, fontWeight: 700, marginTop: 6 }}>
+          Uploading PDF...
+        </div>
+      )}
+    </FormModal>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   PROJECT DOCS
+────────────────────────────────────────────────────────────────────────── */
+const PROJECT_TABS = [
+  { id: "invoices", label: "Invoices", icon: "🧾", color: T.green },
+  { id: "certificates", label: "Job Completion Certificates", icon: "📜", color: T.blue },
+  { id: "workorders", label: "Work Orders / Agreements", icon: "📋", color: T.purple },
+];
+
+function ProjectDocs({ data, setData, showToast }) {
+  const [subTab, setSubTab] = useState("invoices");
+  const [modal, setModal] = useState(null);
+  const [filterProject, setFilterProject] = useState("");
+
+  const docs = data.projectDocs || [];
+  const projects = data.projects || [];
+
+  const visible = docs.filter(
+    (d) => d.subTab === subTab && (!filterProject || d.project === filterProject)
+  );
+
+  const curTab = PROJECT_TABS.find((t) => t.id === subTab);
+
+  const saveDoc = (doc, mode) => {
+    setModal(null);
+    setData((prev) => {
+      const list = [...prev.projectDocs];
+      if (mode === "add") {
+        list.push({ ...doc, id: uid(), subTab });
+      } else {
+        const idx = list.findIndex((x) => x.id === doc.id);
+        if (idx >= 0) list[idx] = { ...doc, subTab };
+      }
+      return { ...prev, projectDocs: list };
+    });
+    showToast(mode === "add" ? "Document added" : "Document updated");
+  };
+
+  const delDoc = (id) => {
+    setData((prev) => ({
+      ...prev,
+      projectDocs: prev.projectDocs.filter((d) => d.id !== id),
+    }));
+    showToast("Document deleted", "del");
+  };
+
+  return (
+    <PageWrap>
+      <PageHeader
+        title="PROJECT DOCUMENTS"
+        sub="Invoices, completion certificates and work orders"
+        color={T.teal}
+      >
+        <Btn color={curTab.color} onClick={() => exportToExcel(visible, "Project_Documents")}>
+          ⬇ Export Excel
+        </Btn>
+        <Btn color={curTab.color} solid onClick={() => setModal({ mode: "add" })}>
+          + Add {curTab.label.replace(/s$/, "")}
+        </Btn>
+      </PageHeader>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+        {PROJECT_TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setSubTab(t.id)}
+            style={{
+              padding: "9px 14px",
+              borderRadius: 10,
+              border: `1px solid ${subTab === t.id ? t.color : T.border}`,
+              background: subTab === t.id ? `${t.color}22` : "transparent",
+              color: subTab === t.id ? t.color : T.textSub,
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {t.icon} {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
+        <select
+          value={filterProject}
+          onChange={(e) => setFilterProject(e.target.value)}
+          style={fieldStyle()}
+        >
+          <option value="">All Projects</option>
+          {projects.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {visible.length === 0 ? (
+        <Empty
+          icon={curTab.icon}
+          label={`No ${curTab.label.toLowerCase()} yet`}
+          sub={`Add your first ${curTab.label.replace(/s$/, "").toLowerCase()}`}
+          color={curTab.color}
+          onAdd={() => setModal({ mode: "add" })}
+        />
+      ) : (
+        <div style={{ display: "grid", gap: 10 }}>
+          {visible.map((doc, i) => {
+            const s = getStatus(daysUntil(doc.expiryDate));
+            return (
+              <CardRow key={doc.id} delay={i * 0.03} borderLeft={curTab.color}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
+                    <Title>{doc.name}</Title>
+                    {doc.project && <Tag color={T.teal}>{doc.project}</Tag>}
+                    {doc.expiryDate && <Tag color={s.color}>{s.label}</Tag>}
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {doc.refNo && <Chip>Ref: {doc.refNo}</Chip>}
+                    {doc.date && <Chip>Date: {fmtDate(doc.date)}</Chip>}
+                    {doc.expiryDate && <Chip color={s.color}>Expiry: {fmtDate(doc.expiryDate)}</Chip>}
+                    {doc.amount && <Chip color={T.green}>SAR {Number(doc.amount).toLocaleString()}</Chip>}
+                    {doc.fileLink && <FileLink href={doc.fileLink} />}
+                  </div>
+                  {doc.notes && (
+                    <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>
+                      {doc.notes}
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", doc })}>
+                    ✎
+                  </ABtn>
+                  <ABtn color={T.red} onClick={() => delDoc(doc.id)}>
+                    ✕
+                  </ABtn>
+                </div>
+              </CardRow>
+            );
+          })}
+        </div>
+      )}
+
+      {modal && (
+        <ProjectDocModal
+          mode={modal.mode}
+          doc={modal.doc}
+          projects={projects}
+          subTab={subTab}
+          onClose={() => setModal(null)}
+          onSave={saveDoc}
+        />
+      )}
+    </PageWrap>
+  );
+}
+
+function ProjectDocModal({ mode, doc, projects, subTab, onClose, onSave }) {
+  const [f, setF] = useState(doc || {});
+  const color =
+    subTab === "invoices" ? T.green : subTab === "certificates" ? T.blue : T.purple;
+
+  return (
+    <FormModal
+      title={`${mode === "add" ? "ADD" : "EDIT"} ${subTab === "invoices" ? "INVOICE" : subTab === "certificates" ? "CERTIFICATE" : "WORK ORDER"}`}
+      color={color}
+      onClose={onClose}
       onSave={() => {
         if (!f.name) {
-          alert("Document name is required");
+          alert("Name is required");
           return;
         }
         onSave(f, mode);
       }}
     >
-      {fields.map((fl) => (
-        <FieldRow key={fl.key} label={fl.label}>
-          {fl.type === "select" ? (
-            <FSelect
-              value={f[fl.key] || ""}
-              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
-              color={T.blue}
-            >
-              <option value="">Select…</option>
-              {cats.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </FSelect>
-          ) : fl.type === "textarea" ? (
-            <FTextArea
-              value={f[fl.key] || ""}
-              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
-              color={T.blue}
-            />
-          ) : fl.type === "link" ? (
-            <FLink
-              value={f[fl.key] || ""}
-              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
-            />
-          ) : (
-            <FInput
-              type={fl.type}
-              value={f[fl.key] || ""}
-              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
-              color={T.blue}
-            />
-          )}
-        </FieldRow>
-      ))}
-    </FormModal>
-  );
-}
+      <FieldRow label="Title / Name">
+        <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
+      </FieldRow>
 
-/* ════════════════════════════════════════════════════════════════════════════
-   MANPOWER PAGE
-════════════════════════════════════════════════════════════════════════════ */
-function ManpowerPage({data,setData,showToast}) {
-  const [selCat,      setSelCat]      = useState("All");
-  const [catModal,    setCatModal]    = useState(false);
-  const [addModal,    setAddModal]    = useState(false);
-  const [person,      setPerson]      = useState(null);
-  const [editingFrom, setEditingFrom] = useState(null); // person being edited from detail view
-  const [impModal,    setImpModal]    = useState(false);
-  const mpFileRef = useRef();
-
-  const people  = data.manpower || [];
-  const cats    = data.manpowerCats || DEFAULT_MANPOWER_CATS;
-  const visible = selCat==="All" ? people : people.filter(p=>p.category===selCat);
-
-  const savePerson = (p,mode) => {
-    const ef = editingFrom;
-    setAddModal(false);
-    setTimeout(()=>{
-      setData(prev=>{
-        const list=[...prev.manpower];
-        if(mode==="add"){
-          list.push({...p,id:uid(),certs:[],docs:[]});
-        } else {
-          const i=list.findIndex(x=>x.id===p.id);
-          if(i>=0) list[i]={...list[i],...p,certs:list[i].certs||[],docs:list[i].docs||[]};
-        }
-        return{...prev,manpower:list};
-      });
-      showToast(mode==="add"?"Person added":"Updated");
-      if(ef){
-        setPerson(prev=>{ const base=prev||ef; return{...base,...p,certs:base.certs||[],docs:base.docs||[]}; });
-        setEditingFrom(null);
-      }
-    },0);
-  };
-
-  const delPerson = id => {
-    setData(prev=>({...prev,manpower:prev.manpower.filter(p=>p.id!==id)}));
-    showToast("Deleted","del"); setPerson(null);
-  };
-
-  const saveCats = cats => setData(prev=>({...prev,manpowerCats:cats}));
-
-  const updatePerson = updated => {
-    setData(prev=>{
-      const list=[...prev.manpower];
-      const i=list.findIndex(p=>p.id===updated.id);
-      if(i>=0)list[i]=updated;
-      return{...prev,manpower:list};
-    });
-    setPerson(updated);
-  };
-
-  // Import manpower certifications from Excel
-  // Each row: NAME, EMPLOYEE ID, CERTIFICATE, CERT NO, ISSUE DATE, EXPIRY DATE
-  // Finds matching person by name and appends certs; creates person if not found
-  const importMpCerts = (file, defaultCat) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        // Headers are on row 4 in TUV_Manpower_Tracker.xlsx
-        const parsed=parseExcelWithHeaderRow(e.target.result, MP_CERT_MAP, MP_HEADER_ROW);
-        if(!parsed.length){showToast("No valid rows found","del");return;}
-
-        setData(prev=>{
-          const manpower=[...prev.manpower];
-          let added=0, updated=0;
-          parsed.forEach(row=>{
-            const personName=(row.name||"").trim();
-            if(!personName) return;
-            const certName=row.certName||"Certification";
-            const cert={id:uid(),name:certName,certNo:row.certNo||"",issueDate:row.issueDate||"",expiryDate:row.expiryDate||"",issuedBy:row.issuedBy||"",fileLink:""};
-            const idx=manpower.findIndex(p=>p.name.toLowerCase()===personName.toLowerCase());
-            if(idx>=0){
-              if(row.idNo&&!manpower[idx].idNo) manpower[idx]={...manpower[idx],idNo:row.idNo};
-              // Skip duplicate: same cert name + same expiry date already exists
-              const alreadyExists=(manpower[idx].certs||[]).some(c=>
-                c.name.toLowerCase()===certName.toLowerCase()&&c.expiryDate===cert.expiryDate
-              );
-              if(!alreadyExists){
-                manpower[idx]={...manpower[idx],certs:[...(manpower[idx].certs||[]),cert]};
-                updated++;
-              }
-            } else {
-              manpower.push({id:uid(),name:personName,idNo:row.idNo||"",category:defaultCat||"",certs:[cert],docs:[]});
-              added++;
-            }
-          });
-          showToast(`✓ ${parsed.length} certs imported (${added} new people, ${updated} updated)`);
-          return{...prev,manpower};
-        });
-        setImpModal(false);
-      } catch(err){ showToast("Failed to read Excel file","del"); }
-    };
-    reader.readAsArrayBuffer(file);
-  };
-
-  const personFresh = person ? (data.manpower.find(p=>p.id===person.id)||person) : null;
-
-  return (
-    <div style={{maxWidth:"min(1200px,95vw)",margin:"0 auto",width:"100%"}}>
-      {/* Show PersonDetail when a person is selected */}
-      {personFresh && (
-        <PersonDetail person={personFresh} cats={cats}
-          onBack={()=>setPerson(null)}
-          onUpdate={updatePerson}
-          onDelete={()=>delPerson(personFresh.id)}
-          onEdit={()=>{setEditingFrom(personFresh);setPerson(null);setAddModal({mode:"edit",person:personFresh});}}
-          showToast={showToast}/>
-      )}
-      {/* Show list when no person selected */}
-      {!personFresh && <>
-      <PageHeader title="MANPOWER" sub="Staff profiles, documents & certifications" color={T.green}>
-        <Btn color={T.green} onClick={()=>setCatModal(true)}>⊕ Categories</Btn>
-        <Btn color={T.gold}  onClick={()=>setImpModal(true)}>⬆ Import Excel</Btn>
-        <Btn color={T.green} solid onClick={()=>setAddModal({mode:"add"})}>+ Add Person</Btn>
-      </PageHeader>
-
-      {/* Excel import banner */}
-      <div style={{background:T.goldDim,border:`1px solid ${T.gold}33`,borderRadius:12,padding:"12px 16px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:13,fontWeight:600,color:T.gold}}>📂 Import Manpower Certifications from Excel</div>
-          <div style={{fontSize:11,color:T.textMuted,marginTop:2}}>Columns: <strong style={{color:T.textSub}}>NAME, ID, CERTIFICATE, ISSUED BY, ISSUE DATE, EXPIRY DATE</strong> (headers auto-detected from row 4) — matches people by name, creates new if not found</div>
-        </div>
-        <input ref={mpFileRef} type="file" accept=".xlsx,.xls" style={{display:"none"}} onChange={e=>{if(e.target.files[0]){setImpModal({file:e.target.files[0]});e.target.value="";}}}/>
-        <button onClick={()=>mpFileRef.current.click()} style={{background:T.gold,color:"#000",border:"none",borderRadius:8,padding:"8px 18px",fontSize:13,fontWeight:700,flexShrink:0}}>⬆ Upload Excel</button>
-      </div>
-
-      {/* Category filter */}
-      <div style={{display:"flex",gap:8,marginBottom:18,flexWrap:"wrap"}}>
-        {["All",...cats].map(c=>(
-          <button key={c} onClick={()=>setSelCat(c)} style={{padding:"6px 14px",borderRadius:999,border:`1px solid ${selCat===c?T.green:T.border}`,background:selCat===c?T.greenDim:"transparent",color:selCat===c?T.green:T.textSub,fontSize:12,fontWeight:selCat===c?700:500,transition:"all .15s"}}>
-            {c} {c!=="All"&&<span style={{opacity:.6}}>({people.filter(p=>p.category===c).length})</span>}
-          </button>
-        ))}
-      </div>
-
-      {visible.length===0
-        ?<Empty icon="◈" label="No people in this category" sub="Add your first team member" color={T.green} onAdd={()=>setAddModal({mode:"add"})}/>
-        :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:12}}>
-          {visible.map((p,i)=>{
-            const exps=[p.passportExpiry,p.visaExpiry,p.iqamaExpiry,p.muqeemExpiry,...(p.certs||[]).map(c=>c.expiryDate)].filter(Boolean);
-            const critical=exps.filter(d=>{ const x=daysUntil(d); return x!==null&&x<=90; }).length;
-            return (
-              <div key={p.id} className="fade-up" onClick={()=>setPerson(p)}
-                style={{background:T.card,border:`1px solid ${critical>0?T.gold:T.border}`,borderRadius:14,padding:"18px",cursor:"pointer",animationDelay:`${i*.04}s`,transition:"border-color .2s,transform .2s"}}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor=T.green;e.currentTarget.style.transform="translateY(-2px)";}}
-                onMouseLeave={e=>{e.currentTarget.style.borderColor=critical>0?T.gold:T.border;e.currentTarget.style.transform="none";}}>
-                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
-                  <div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:18,color:T.text}}>{p.name}</div>
-                    <div style={{fontSize:12,color:T.textMuted,marginTop:2}}>{p.designation||"—"} · {p.nationality||""}</div>
-                  </div>
-                  {critical>0&&<span style={{background:T.goldDim,color:T.gold,borderRadius:999,padding:"2px 10px",fontSize:11,fontWeight:700,flexShrink:0}}>{critical} alerts</span>}
-                </div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:10}}>
-                  {p.category&&<Tag color={T.green}>{p.category}</Tag>}
-                  {p.idNo&&<Chip>ID: {p.idNo}</Chip>}
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                  {[["Passport",p.passportExpiry],["Visa",p.visaExpiry],["Iqama",p.iqamaExpiry],["Muqeem",p.muqeemExpiry]].map(([lbl,exp])=>{
-                    const s=getStatus(daysUntil(exp));
-                    return (
-                      <div key={lbl} style={{background:T.bg,borderRadius:8,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <span style={{fontSize:11,color:T.textMuted}}>{lbl}</span>
-                        {exp
-                          ?<span style={{fontSize:11,color:s.color,fontWeight:600}}>{s.label==="Valid"?fmtDate(exp):s.label}</span>
-                          :<span style={{fontSize:11,color:T.textMuted}}>—</span>
-                        }
-                      </div>
-                    );
-                  })}
-                </div>
-                <div style={{marginTop:8,fontSize:12,color:T.textMuted,display:"flex",gap:8}}>
-                  <span>{(p.certs||[]).length} cert{(p.certs||[]).length!==1?"s":""}</span>
-                  <span style={{color:T.border}}>·</span>
-                  <span>click to view details →</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      }
-
-      {addModal  && <PersonModal mode={addModal.mode} person={addModal.person} cats={cats}
-        onClose={()=>{
-          setAddModal(false);
-          if(editingFrom){setPerson(editingFrom);setEditingFrom(null);}
-        }}
-        onSave={savePerson}/>}
-      {catModal  && <CatManagerModal title="Manpower Categories" cats={cats} onSave={saveCats} onClose={()=>setCatModal(false)}/>}
-      {impModal  && impModal.file && <MpImportModal file={impModal.file} cats={cats} onClose={()=>setImpModal(false)} onImport={importMpCerts}/>}
-      </>}
-    </div>
-  );
-}
-
-/* ─── Manpower Import Options Modal ─────────────────────────────────────── */
-function MpImportModal({file,cats,onClose,onImport}) {
-  const [selCat,setSelCat]=useState("");
-  return (
-    <Overlay onClose={onClose}>
-      <div className="slide-up" style={{background:T.sidebar,border:`1px solid ${T.border}`,borderRadius:18,width:"100%",maxWidth:420,padding:"24px"}}>
-        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:18,color:T.text,marginBottom:6}}>IMPORT MANPOWER CERTS</div>
-        <div style={{fontSize:12,color:T.textMuted,marginBottom:20}}>File: <span style={{color:T.textSub}}>{file.name}</span></div>
-        <div style={{marginBottom:18}}>
-          <label style={{display:"block",fontSize:11,fontWeight:700,color:T.textMuted,marginBottom:6,letterSpacing:".5px"}}>ASSIGN TO CATEGORY (for new people)</label>
-          <select value={selCat} onChange={e=>setSelCat(e.target.value)}
-            style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,color:selCat?T.text:T.textMuted,outline:"none",colorScheme:"light"}}>
-            <option value="">No category / assign manually later</option>
-            {cats.map(c=><option key={c} value={c}>{c}</option>)}
-          </select>
-        </div>
-        <div style={{background:T.blueDim,border:`1px solid ${T.blue}33`,borderRadius:10,padding:"12px 14px",marginBottom:18,fontSize:12,color:T.blue}}>
-          ℹ Existing people are matched by name. New certs are <strong>added</strong> to their profile — existing certs are not deleted.
-        </div>
-        <div style={{display:"flex",gap:10}}>
-          <button onClick={onClose} style={{flex:1,background:T.bg,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:10,padding:"11px",fontSize:13,fontWeight:600}}>Cancel</button>
-          <button onClick={()=>onImport(file,selCat)} style={{flex:2,background:T.gold,border:"none",color:"#000",borderRadius:10,padding:"11px",fontSize:14,fontWeight:700}}>Import Certifications</button>
-        </div>
-      </div>
-    </Overlay>
-  );
-}
-
-/* ─── Person Detail view ─────────────────────────────────────────────────── */
-function PersonDetail({person,cats,onBack,onUpdate,onDelete,onEdit,showToast}) {
-  const [certModal, setCertModal] = useState(null);
-  const [activeTab, setActiveTab] = useState("profile");
-
-  const PTABS=[{id:"profile",label:"Profile"},{id:"certs",label:`Certifications (${(person.certs||[]).length})`}];
-
-  const saveCert=(cert,mode)=>{
-    setCertModal(null);
-    setTimeout(()=>{
-      const certs=[...(person.certs||[])];
-      if(mode==="add")certs.push({...cert,id:uid()});
-      else{const i=certs.findIndex(c=>c.id===cert.id);if(i>=0)certs[i]=cert;}
-      onUpdate({...person,certs});
-      showToast(mode==="add"?"Cert added":"Cert updated");
-    },0);
-  };
-
-  const delCert=id=>{
-    const certs=(person.certs||[]).filter(c=>c.id!==id);
-    onUpdate({...person,certs});
-    showToast("Cert deleted","del");
-  };
-
-  const PROFILE_ROWS=[
-    ["Full Name",person.name],["ID No.",person.idNo],["Nationality",person.nationality],
-    ["Designation",person.designation],["Category",person.category],
-    ["Passport No.",person.passportNo],["Passport Expiry",fmtDate(person.passportExpiry)],
-    ["Visa No.",person.visaNo],["Visa Expiry",fmtDate(person.visaExpiry)],
-    ["Iqama No.",person.iqamaNo],["Iqama Expiry",fmtDate(person.iqamaExpiry)],
-    ["Muqeem No.",person.muqeemNo],["Muqeem Expiry",fmtDate(person.muqeemExpiry)],
-  ].filter(([,v])=>v&&v!=="—");
-
-  return (
-    <div style={{maxWidth:"min(1100px,95vw)",margin:"0 auto",width:"100%"}}>
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:22}}>
-        <button onClick={onBack} style={{background:T.card,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:8,padding:"8px 14px",fontSize:13,fontWeight:600,display:"flex",alignItems:"center",gap:6}}>← Back</button>
-        <div style={{flex:1}}>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:24,color:T.text}}>{person.name}</div>
-          <div style={{fontSize:12,color:T.textMuted}}>{person.designation} · {person.category}</div>
-        </div>
-        <Btn color={T.blue}  onClick={onEdit}>✎ Edit</Btn>
-        <Btn color={T.red}   onClick={()=>{ if(window.confirm("Delete this person?")) onDelete(); }}>✕ Delete</Btn>
-      </div>
-
-      {/* Status cards row */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:10,marginBottom:22}}>
-        {[["Passport",person.passportExpiry],["Visa",person.visaExpiry],["Iqama",person.iqamaExpiry],["Muqeem",person.muqeemExpiry]].map(([lbl,exp])=>{
-          const s=getStatus(daysUntil(exp));
-          return (
-            <div key={lbl} style={{background:T.card,border:`1px solid ${exp?s.color+"44":T.border}`,borderRadius:12,padding:"14px 16px"}}>
-              <div style={{fontSize:11,color:T.textMuted,fontWeight:600,marginBottom:6}}>{lbl.toUpperCase()}</div>
-              {exp
-                ?<><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:800,color:s.color}}>{s.label}</div>
-                   <div style={{fontSize:12,color:T.textSub,marginTop:2}}>{fmtDate(exp)}</div>
-                   {daysUntil(exp)!==null&&<div style={{fontSize:11,color:s.color,marginTop:2,fontWeight:600}}>{Math.abs(daysUntil(exp))} days {daysUntil(exp)<0?"overdue":"left"}</div>}
-                </>
-                :<div style={{fontSize:13,color:T.textMuted}}>Not recorded</div>
-              }
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Tabs */}
-      <div style={{display:"flex",gap:8,marginBottom:18}}>
-        {PTABS.map(t=>(
-          <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{padding:"8px 18px",borderRadius:999,border:`1px solid ${activeTab===t.id?T.green:T.border}`,background:activeTab===t.id?T.greenDim:"transparent",color:activeTab===t.id?T.green:T.textSub,fontSize:13,fontWeight:activeTab===t.id?700:500,transition:"all .15s"}}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab==="profile"&&(
-        <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,boxShadow:"0 2px 10px rgba(26,10,0,0.07),0 0 0 1px rgba(232,213,183,0.5)",padding:"18px 22px"}}>
-          {PROFILE_ROWS.map(([k,v])=>(
-            <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:`1px solid ${T.border}`}}>
-              <span style={{fontSize:13,color:T.textMuted,fontWeight:500}}>{k}</span>
-              <span style={{fontSize:13,color:T.textSub,fontWeight:500}}>{v}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {activeTab==="certs"&&(
-        <div>
-          <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
-            <Btn color={T.green} solid onClick={()=>setCertModal({mode:"add"})}>+ Add Certification</Btn>
-          </div>
-          {(person.certs||[]).length===0
-            ?<Empty icon="◈" label="No certifications" sub="Add this person's certifications" color={T.green} onAdd={()=>setCertModal({mode:"add"})}/>
-            :<div style={{display:"grid",gap:10}}>
-              {(person.certs||[]).map((c,i)=>{
-                const s=getStatus(daysUntil(c.expiryDate));
-                return (
-                  <div key={c.id} className="fade-up" style={{background:T.card,border:`1px solid ${T.border}`,borderLeft:`4px solid ${s.color}`,borderRadius:12,padding:"14px 16px",display:"flex",alignItems:"center",gap:12,animationDelay:`${i*.04}s`}}>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
-                        <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:15,color:T.text}}>{c.name}</span>
-                        <Tag color={s.color}>{s.label}</Tag>
-                      </div>
-                      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                        {c.certNo&&<Chip>No: {c.certNo}</Chip>}
-                        {c.issuedBy&&<Chip>{c.issuedBy}</Chip>}
-                        {c.issueDate&&<Chip>Issued: {fmtDate(c.issueDate)}</Chip>}
-                        {c.expiryDate&&<Chip color={s.color}>Exp: {fmtDate(c.expiryDate)}</Chip>}
-                        {c.fileLink&&<FileLink href={c.fileLink}/>}
-                      </div>
-                    </div>
-                    <div style={{display:"flex",gap:6,flexShrink:0}}>
-                      <ABtn color={T.blue} onClick={()=>setCertModal({mode:"edit",cert:c})}>✎</ABtn>
-                      <ABtn color={T.red}  onClick={()=>delCert(c.id)}>✕</ABtn>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          }
-        </div>
-      )}
-
-      {certModal&&<CertModal mode={certModal.mode} cert={certModal.cert} onClose={()=>setCertModal(null)} onSave={saveCert}/>}
-    </div>
-  );
-}
-
-function PersonModal({mode,person,cats,onClose,onSave}) {
-  const [f,setF]=useState(person||{});
-  const set=k=>v=>setF(p=>({...p,[k]:v}));
-  return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} PERSON`} color={T.green} onClose={onClose}
-      onSave={()=>{if(!f.name){alert("Name required");return;}onSave(f,mode);}}>
-      <FieldRow label="Full Name *"><FInput value={f.name||""} onChange={set("name")} color={T.green}/></FieldRow>
-      <FieldRow label="Category">
-        <FSelect value={f.category||""} onChange={set("category")} color={T.green}>
+      <FieldRow label="Project">
+        <FSelect value={f.project || ""} onChange={(v) => setF((p) => ({ ...p, project: v }))}>
           <option value="">Select…</option>
-          {cats.map(c=><option key={c} value={c}>{c}</option>)}
+          {projects.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
         </FSelect>
       </FieldRow>
-      <FieldRow label="ID No."><FInput value={f.idNo||""} onChange={set("idNo")} color={T.green}/></FieldRow>
-      <FieldRow label="Nationality"><FInput value={f.nationality||""} onChange={set("nationality")} color={T.green}/></FieldRow>
-      <FieldRow label="Designation"><FInput value={f.designation||""} onChange={set("designation")} color={T.green}/></FieldRow>
-      <SectionDivider label="PASSPORT"/>
-      <FieldRow label="Passport No."><FInput value={f.passportNo||""} onChange={set("passportNo")} color={T.green}/></FieldRow>
-      <FieldRow label="Passport Expiry"><FInput type="date" value={f.passportExpiry||""} onChange={set("passportExpiry")} color={T.green}/></FieldRow>
-      <SectionDivider label="VISA"/>
-      <FieldRow label="Visa No."><FInput value={f.visaNo||""} onChange={set("visaNo")} color={T.green}/></FieldRow>
-      <FieldRow label="Visa Expiry"><FInput type="date" value={f.visaExpiry||""} onChange={set("visaExpiry")} color={T.green}/></FieldRow>
-      <SectionDivider label="IQAMA"/>
-      <FieldRow label="Iqama No."><FInput value={f.iqamaNo||""} onChange={set("iqamaNo")} color={T.green}/></FieldRow>
-      <FieldRow label="Iqama Expiry"><FInput type="date" value={f.iqamaExpiry||""} onChange={set("iqamaExpiry")} color={T.green}/></FieldRow>
-      <SectionDivider label="MUQEEM"/>
-      <FieldRow label="Muqeem No."><FInput value={f.muqeemNo||""} onChange={set("muqeemNo")} color={T.green}/></FieldRow>
-      <FieldRow label="Muqeem Expiry"><FInput type="date" value={f.muqeemExpiry||""} onChange={set("muqeemExpiry")} color={T.green}/></FieldRow>
+
+      <FieldRow label={subTab === "invoices" ? "Invoice / Ref No." : "Reference No."}>
+        <FInput value={f.refNo || ""} onChange={(v) => setF((p) => ({ ...p, refNo: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Date">
+        <FInput type="date" value={f.date || ""} onChange={(v) => setF((p) => ({ ...p, date: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Expiry Date">
+        <FInput type="date" value={f.expiryDate || ""} onChange={(v) => setF((p) => ({ ...p, expiryDate: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Amount">
+        <FInput type="number" value={f.amount || ""} onChange={(v) => setF((p) => ({ ...p, amount: v }))} />
+      </FieldRow>
+
+      <FieldRow label="File Link">
+        <FInput value={f.fileLink || ""} onChange={(v) => setF((p) => ({ ...p, fileLink: v }))} />
+      </FieldRow>
+
+      <FieldRow label="Notes">
+        <FTextarea value={f.notes || ""} onChange={(v) => setF((p) => ({ ...p, notes: v }))} />
+      </FieldRow>
     </FormModal>
   );
 }
 
-function CertModal({mode,cert,onClose,onSave}) {
-  const [f,setF]=useState(cert||{});
-  const set=k=>v=>setF(p=>({...p,[k]:v}));
-  return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} CERTIFICATION`} color={T.green} onClose={onClose}
-      onSave={()=>{if(!f.name){alert("Cert name required");return;}onSave(f,mode);}}>
-      <FieldRow label="Certification Name *"><FInput value={f.name||""} onChange={set("name")} color={T.green}/></FieldRow>
-      <FieldRow label="Certificate No."><FInput value={f.certNo||""} onChange={set("certNo")} color={T.green}/></FieldRow>
-      <FieldRow label="Issued By"><FInput value={f.issuedBy||""} onChange={set("issuedBy")} color={T.green}/></FieldRow>
-      <FieldRow label="Issue Date"><FInput type="date" value={f.issueDate||""} onChange={set("issueDate")} color={T.green}/></FieldRow>
-      <FieldRow label="Expiry Date"><FInput type="date" value={f.expiryDate||""} onChange={set("expiryDate")} color={T.green}/></FieldRow>
-      <FieldRow label="File Link"><FLink value={f.fileLink||""} onChange={set("fileLink")}/></FieldRow>
-    </FormModal>
-  );
-}
+/* ──────────────────────────────────────────────────────────────────────────
+   MANPOWER
+────────────────────────────────────────────────────────────────────────── */
+function ManpowerPage({ data, setData, showToast }) {
+  const [modal, setModal] = useState(null);
+  const [selCat, setSelCat] = useState("All");
 
-/* ════════════════════════════════════════════════════════════════════════════
-   EQUIPMENT PAGE
-════════════════════════════════════════════════════════════════════════════ */
-function EquipmentPage({data,setData,showToast}) {
-  const [modal,   setModal]   = useState(null);
-  const [selEq,   setSelEq]   = useState(null); // selected equipment
-  const [fProj,   setFProj]   = useState("");
-  const [fStatus, setFStatus] = useState("");
-  const eqBulkRef = useRef(); // must be here — hooks cannot be after early return
+  const cats = data.manpowerCats || DEFAULT_MANPOWER_CATS;
+  const people = data.manpower || [];
+  const visible = selCat === "All" ? people : people.filter((p) => p.category === selCat);
 
-  const equipment = data.equipment || [];
-  const projects  = data.projects  || [];
-
-  const visible = equipment.filter(e=>{
-    return (!fProj||e.project===fProj)&&(!fStatus||e.status===fStatus);
-  });
-
-  const saveEq=(eq,mode)=>{
+  const savePerson = (person, mode) => {
     setModal(null);
-    setTimeout(()=>{
-      setData(prev=>{
-        const list=[...prev.equipment];
-        if(mode==="add")list.push({...eq,id:uid(),certifications:[],invoices:[],insurance:[],permits:[]});
-        else{const i=list.findIndex(e=>e.id===eq.id);if(i>=0)list[i]=eq;}
-        return{...prev,equipment:list};
-      });
-      showToast(mode==="add"?"Equipment added":"Updated");
-      if(selEq)setSelEq(eq);
-    },0);
-  };
-
-  const delEq=id=>{
-    setData(prev=>({...prev,equipment:prev.equipment.filter(e=>e.id!==id)}));
-    showToast("Deleted","del");setSelEq(null);
-  };
-
-  const updateEq=updated=>{
-    setData(prev=>{
-      const list=[...prev.equipment];
-      const i=list.findIndex(e=>e.id===updated.id);
-      if(i>=0)list[i]=updated;
-      return{...prev,equipment:list};
+    setData((prev) => {
+      const list = [...prev.manpower];
+      if (mode === "add") {
+        list.push({ ...person, id: uid(), certs: person.certs || [], docs: person.docs || [] });
+      } else {
+        const idx = list.findIndex((x) => x.id === person.id);
+        if (idx >= 0) list[idx] = person;
+      }
+      return { ...prev, manpower: list };
     });
-    setSelEq(updated);
+    showToast(mode === "add" ? "Person added" : "Person updated");
   };
 
-  const eqFresh = selEq ? (data.equipment.find(e=>e.id===selEq.id)||selEq) : null;
-  const STATUS_COLORS={"Active":T.green,"Under Maintenance":T.gold,"Inactive":T.red};
-
-  const importBulkEqCerts = file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const wb=XLSX.read(e.target.result,{type:"array",cellDates:true});
-        const sheetName=wb.SheetNames.includes("TUV MASTERSHEET")?"TUV MASTERSHEET":wb.SheetNames.includes("Sheet3")?"Sheet3":wb.SheetNames[0];
-        const ws=wb.Sheets[sheetName];
-        const rawRows=XLSX.utils.sheet_to_json(ws,{defval:""});
-        // Normalize keys to uppercase for case-insensitive matching
-        const rows=rawRows.map(row=>{const n={};Object.entries(row).forEach(([k,v])=>{n[k.toUpperCase().trim()]=v;});return n;});
-        const parsed=parseExcelRows(rows,EQ_CERT_MAP);
-        if(!parsed.length){showToast("No valid rows found","del");return;}
-
-        setData(prev=>{
-          const equipment=[...prev.equipment];
-          let matched=0, unmatched=0;
-          parsed.forEach(r=>{
-            const cert={id:uid(),equipmentName:r.eqName||"",itemType:r.itemType||"",certNo:r.certNo||"",issuedBy:r.issuedBy||"",issueDate:r.issueDate||"",expiryDate:r.expiryDate||"",serialNo:r.serialNo||"",fileLink:""};
-            // match by name or serial number
-            const idx=equipment.findIndex(eq=>{
-              const nameMatch=eq.name&&r.eqName&&(eq.name.toLowerCase().includes(r.eqName.toLowerCase())||r.eqName.toLowerCase().includes(eq.name.toLowerCase()));
-              const serialMatch=eq.serialNo&&r.serialNo&&eq.serialNo.toLowerCase()===r.serialNo.toLowerCase();
-              return nameMatch||serialMatch;
-            });
-            if(idx>=0){
-              equipment[idx]={...equipment[idx],certifications:[...(equipment[idx].certifications||[]),cert]};
-              matched++;
-            } else {
-              // Create new equipment entry for unmatched
-              equipment.push({id:uid(),name:r.eqName||"Unknown Equipment",model:"",serialNo:r.serialNo||"",project:"",status:"Active",operator:"",certifications:[cert],invoices:[],insurance:[],permits:[]});
-              unmatched++;
-            }
-          });
-          showToast(`✓ Imported ${parsed.length} certs — ${matched} matched, ${unmatched} new equipment created`);
-          return{...prev,equipment};
-        });
-      } catch(err){ showToast("Failed to read file","del"); console.error(err); }
-    };
-    reader.readAsArrayBuffer(file);
+  const delPerson = (id) => {
+    setData((prev) => ({
+      ...prev,
+      manpower: prev.manpower.filter((p) => p.id !== id),
+    }));
+    showToast("Person deleted", "del");
   };
 
   return (
-    <div style={{maxWidth:"min(1400px,95vw)",margin:"0 auto",width:"100%"}}>
-      {/* Show EquipmentDetail when equipment selected */}
-      {eqFresh && <EquipmentDetail eq={eqFresh} projects={projects} onBack={()=>setSelEq(null)} onUpdate={updateEq} onDelete={()=>delEq(eqFresh.id)} onEdit={()=>setModal({mode:"edit",eq:eqFresh})} showToast={showToast}/>}
-      {/* Show list when nothing selected */}
-      {!eqFresh && <>
-      <PageHeader title="EQUIPMENT" sub="Assets with certifications, invoices, insurance & permits" color={T.gold}>
-        <select value={fProj} onChange={e=>setFProj(e.target.value)} style={{background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:T.textSub,outline:"none",colorScheme:"light"}}>
-          <option value="">All Projects</option>
-          {projects.map(p=><option key={p} value={p}>{p}</option>)}
-        </select>
-        <select value={fStatus} onChange={e=>setFStatus(e.target.value)} style={{background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:T.textSub,outline:"none",colorScheme:"light"}}>
-          <option value="">All Statuses</option>
-          <option>Active</option><option>Under Maintenance</option><option>Inactive</option>
-        </select>
-        <input ref={eqBulkRef} type="file" accept=".xlsx,.xls" style={{display:"none"}} onChange={e=>{if(e.target.files[0]){importBulkEqCerts(e.target.files[0]);e.target.value="";}}}/>
-        <Btn color={T.gold} onClick={()=>eqBulkRef.current.click()}>⬆ Import Excel</Btn>
-        <Btn color={T.gold} solid onClick={()=>setModal({mode:"add"})}>+ Add Equipment</Btn>
+    <PageWrap>
+      <PageHeader
+        title="MANPOWER"
+        sub="Staff records, IDs and certifications"
+        color={T.green}
+      >
+        <Btn color={T.green} onClick={() => exportToExcel(people, "Manpower")}>
+          ⬇ Export Excel
+        </Btn>
+        <Btn color={T.green} solid onClick={() => setModal({ mode: "add" })}>
+          + Add Person
+        </Btn>
       </PageHeader>
 
-      {/* Excel import banner */}
-      <div style={{background:T.goldDim,border:`1px solid ${T.gold}33`,borderRadius:12,padding:"12px 16px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:13,fontWeight:600,color:T.gold}}>📂 Import Equipment Certifications from Excel</div>
-          <div style={{fontSize:11,color:T.textMuted,marginTop:2}}>Columns: <strong style={{color:T.textSub}}>ITEM TYPE, ITEM NAME/ID, REG/SERIAL NO, TUV PROVIDER, START DATE, EXPIRY DATE</strong> — auto-detects Sheet3, matches equipment by name or serial no.</div>
-        </div>
-        <button onClick={()=>eqBulkRef.current.click()} style={{background:T.gold,color:"#000",border:"none",borderRadius:8,padding:"8px 18px",fontSize:13,fontWeight:700,flexShrink:0}}>⬆ Upload Excel</button>
-      </div>
-
-      {visible.length===0
-        ?<Empty icon="◎" label="No equipment found" sub="Add your first asset" color={T.gold} onAdd={()=>setModal({mode:"add"})}/>
-        :<div style={{display:"grid",gap:10}}>
-          {visible.map((eq,i)=>{
-            const allExp=[...(eq.certifications||[]).map(c=>c.expiryDate),...(eq.insurance||[]).map(c=>c.expiryDate),...(eq.permits||[]).map(c=>c.expiryDate)];
-            const alerts=allExp.filter(d=>{const x=daysUntil(d);return x!==null&&x<=90;}).length;
-            const sCol=STATUS_COLORS[eq.status]||T.textMuted;
-            return (
-              <div key={eq.id} className="fade-up" onClick={()=>setSelEq(eq)}
-                style={{background:T.card,border:`1px solid ${alerts>0?T.gold:T.border}`,borderLeft:`4px solid ${sCol}`,borderRadius:12,padding:"16px 18px",cursor:"pointer",animationDelay:`${i*.03}s`,transition:"background .15s"}}
-                onMouseEnter={e=>e.currentTarget.style.background=T.cardHover}
-                onMouseLeave={e=>e.currentTarget.style.background=T.card}>
-                <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
-                      <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:17,color:T.text}}>{eq.name}</span>
-                      {eq.status&&<Tag color={sCol}>{eq.status}</Tag>}
-                      {alerts>0&&<Tag color={T.gold}>{alerts} expiring</Tag>}
-                    </div>
-                    <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                      {eq.model&&<Chip>{eq.model}</Chip>}
-                      {eq.serialNo&&<Chip>S/N: {eq.serialNo}</Chip>}
-                      {eq.project&&<Chip>{eq.project}</Chip>}
-                      {eq.operator&&<Chip>Op: {eq.operator}</Chip>}
-                    </div>
-                    <div style={{marginTop:8,fontSize:12,color:T.textMuted,display:"flex",gap:12}}>
-                      <span>📜 {(eq.certifications||[]).length} certs</span>
-                      <span>🧾 {(eq.invoices||[]).length} invoices</span>
-                      <span>🛡 {(eq.insurance||[]).length} insurance</span>
-                      <span>⬡ {(eq.permits||[]).length} permits</span>
-                      <span style={{color:T.blue}}>click to view →</span>
-                    </div>
-                  </div>
-                  <div style={{display:"flex",gap:6,flexShrink:0}} onClick={e=>e.stopPropagation()}>
-                    <ABtn color={T.blue} onClick={()=>setModal({mode:"edit",eq})}>✎</ABtn>
-                    <ABtn color={T.red}  onClick={()=>{if(window.confirm("Delete this equipment?"))delEq(eq.id);}}>✕</ABtn>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      }
-
-      {modal&&<EqModal mode={modal.mode} eq={modal.eq} projects={projects} onClose={()=>setModal(null)} onSave={saveEq}/>}
-      </>}
-    </div>
-  );
-}
-
-/* ─── Equipment Detail ───────────────────────────────────────────────────── */
-function EquipmentDetail({eq,projects,onBack,onUpdate,onDelete,onEdit,showToast}) {
-  const [activeTab,setActiveTab]=useState("certifications");
-  const [subModal, setSubModal] =useState(null);
-
-  const EQ_SUBTABS=[
-    {id:"certifications",label:"Certifications",icon:"📜",color:T.blue},
-    {id:"invoices",      label:"Invoices",      icon:"🧾",color:T.green},
-    {id:"insurance",     label:"Insurance",     icon:"🛡",color:T.purple},
-    {id:"permits",       label:"Permits",       icon:"⬡",color:T.gold},
-  ];
-
-  const eqFileRef=useRef();
-  const saveSubRecord=(type,rec,mode)=>{
-    setSubModal(null);
-    setTimeout(()=>{
-      const list=[...(eq[type]||[])];
-      if(mode==="add")list.push({...rec,id:uid()});
-      else{const i=list.findIndex(r=>r.id===rec.id);if(i>=0)list[i]=rec;}
-      onUpdate({...eq,[type]:list});
-      showToast(mode==="add"?"Record added":"Record updated");
-    },0);
-  };
-
-  const delSubRecord=(type,id)=>{
-    const list=(eq[type]||[]).filter(r=>r.id!==id);
-    onUpdate({...eq,[type]:list});
-    showToast("Deleted","del");
-  };
-
-  // Import equipment certifications from Excel for THIS equipment
-  // Columns: EQUIPMENT, SERIAL NO, CERT NO, ISSUED BY, INSPECTION DATE, EXPIRY DATE
-  const importEqCerts = file => {
-    const reader=new FileReader();
-    reader.onload=e=>{
-      try{
-        // Headers on row 1 in Equipment_TUV_Tracker.xlsx (Sheet3)
-        const wb=XLSX.read(e.target.result,{type:"array",cellDates:true});
-        const sheetName=wb.SheetNames.includes("TUV MASTERSHEET")?"TUV MASTERSHEET":wb.SheetNames.includes("Sheet3")?"Sheet3":wb.SheetNames[0];
-        const ws=wb.Sheets[sheetName];
-        const rawRows=XLSX.utils.sheet_to_json(ws,{defval:""});
-        const rows=rawRows.map(row=>{const n={};Object.entries(row).forEach(([k,v])=>{n[k.toUpperCase().trim()]=v;});return n;});
-        const parsed=parseExcelRows(rows,EQ_CERT_MAP);
-        if(!parsed.length){showToast(`No valid rows found in sheet: ${sheetName}`,"del");return;}
-        const certs=parsed.map(r=>({
-          id:uid(),
-          equipmentName:r.eqName||eq.name||"",
-          itemType:r.itemType||"",
-          certNo:r.certNo||"",
-          issuedBy:r.issuedBy||"",
-          issueDate:r.issueDate||"",
-          expiryDate:r.expiryDate||"",
-          serialNo:r.serialNo||eq.serialNo||"",
-          fileLink:"",
-        }));
-        onUpdate({...eq,certifications:[...(eq.certifications||[]),...certs]});
-        showToast(`✓ Imported ${certs.length} certifications from ${sheetName}`);
-      }catch(err){showToast("Failed to read file","del");console.error(err);}
-    };
-    reader.readAsArrayBuffer(file);
-  };
-
-  const curTab=EQ_SUBTABS.find(t=>t.id===activeTab);
-  const records=eq[activeTab]||[];
-
-  return (
-    <div style={{maxWidth:"min(1200px,95vw)",margin:"0 auto",width:"100%"}}>
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
-        <button onClick={onBack} style={{background:T.card,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:8,padding:"8px 14px",fontSize:13,fontWeight:600}}>← Back</button>
-        <div style={{flex:1}}>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:24,color:T.text}}>{eq.name}</div>
-          <div style={{fontSize:12,color:T.textMuted}}>{eq.model} · {eq.serialNo} · {eq.project}</div>
-        </div>
-        <Btn color={T.blue} onClick={onEdit}>✎ Edit</Btn>
-        <Btn color={T.red}  onClick={()=>{if(window.confirm("Delete?"))onDelete();}}>✕ Delete</Btn>
-      </div>
-
-      {/* Info strip */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:10,marginBottom:22}}>
-        {[["Status",eq.status,"—"],["Operator",eq.operator,"—"],["Project",eq.project,"—"],["Purchase Date",fmtDate(eq.purchaseDate),"—"]].map(([k,v])=>(
-          <div key={k} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px"}}>
-            <div style={{fontSize:10,color:T.textMuted,fontWeight:700,marginBottom:4,letterSpacing:".5px"}}>{k.toUpperCase()}</div>
-            <div style={{fontSize:14,color:T.text,fontWeight:600}}>{v||"—"}</div>
-          </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+        {["All", ...cats].map((c) => (
+          <button
+            key={c}
+            onClick={() => setSelCat(c)}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              border: `1px solid ${selCat === c ? T.green : T.border}`,
+              background: selCat === c ? T.greenDim : "transparent",
+              color: selCat === c ? T.green : T.textSub,
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {c}
+          </button>
         ))}
       </div>
 
-      {/* 90-day expiry alert banner */}
-      {(()=>{
-        const expiring=[...(eq.certifications||[]),...(eq.insurance||[]),...(eq.permits||[])].filter(r=>{const d=daysUntil(r.expiryDate);return d!==null&&d<=90;}).sort((a,b)=>daysUntil(a.expiryDate)-daysUntil(b.expiryDate));
-        if(!expiring.length) return null;
-        return (
-          <div style={{background:T.redDim,border:`1px solid ${T.red}44`,borderRadius:12,padding:"12px 16px",marginBottom:16}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-              <span style={{fontSize:14,fontWeight:700,color:T.red}}>⚠ EXPIRY ALERTS</span>
-              <span style={{background:T.red,color:"#fff",borderRadius:999,padding:"1px 8px",fontSize:11,fontWeight:700}}>{expiring.length}</span>
-            </div>
-            <div style={{display:"grid",gap:6}}>
-              {expiring.map((r,i)=>{
-                const d=daysUntil(r.expiryDate);const s=getStatus(d);
-                const lbl=r.equipmentName||r.itemType||r.certNo||r.policyNo||r.permitNo||"Item";
-                return (
-                  <div key={r.id||i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:T.bg,borderRadius:8,padding:"8px 12px",border:`1px solid ${s.color}33`}}>
-                    <div style={{minWidth:0}}>
-                      <div style={{fontSize:13,fontWeight:600,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{lbl}</div>
-                      <div style={{fontSize:11,color:dark?"#8a6a45":"#94a3b8",marginTop:1}}>Expires: {fmtDate(r.expiryDate)}</div>
-                    </div>
-                    <div style={{textAlign:"right",flexShrink:0,marginLeft:12}}>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:20,color:s.color,lineHeight:1}}>{Math.abs(d)}</div>
-                      <div style={{fontSize:9,color:T.textMuted,fontWeight:600}}>{d<0?"OVERDUE":"DAYS LEFT"}</div>
-                    </div>
+      {visible.length === 0 ? (
+        <Empty
+          icon="◈"
+          label="No manpower records yet"
+          sub="Add your first employee"
+          color={T.green}
+          onAdd={() => setModal({ mode: "add" })}
+        />
+      ) : (
+        <div style={{ display: "grid", gap: 10 }}>
+          {visible.map((p, i) => {
+            const expiryList = [p.passportExpiry, p.visaExpiry, p.iqamaExpiry, p.muqeemExpiry].filter(Boolean);
+            const alerts = expiryList.filter((d) => {
+              const x = daysUntil(d);
+              return x !== null && x <= 90;
+            }).length;
+
+            return (
+              <CardRow key={p.id} delay={i * 0.03} borderLeft={alerts ? T.gold : T.green}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
+                    <Title>{p.name}</Title>
+                    {p.category && <Tag color={T.green}>{p.category}</Tag>}
+                    {p.designation && <Tag color={T.teal}>{p.designation}</Tag>}
+                    {alerts ? <Tag color={T.gold}>{alerts} expiring</Tag> : null}
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Sub-tabs */}
-      <div style={{display:"flex",gap:8,marginBottom:18,overflowX:"auto",paddingBottom:4}}>
-        {EQ_SUBTABS.map(t=>{
-          const cnt=(eq[t.id]||[]).length;
-          const active=activeTab===t.id;
-          return (
-            <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{flexShrink:0,padding:"8px 16px",borderRadius:999,border:`1px solid ${active?t.color:T.border}`,background:active?`${t.color}18`:"transparent",color:active?t.color:T.textSub,fontSize:13,fontWeight:active?700:500,display:"flex",alignItems:"center",gap:6,transition:"all .15s"}}>
-              {t.icon} {t.label} <span style={{background:active?t.color:T.border,color:active?"#000":T.textMuted,borderRadius:999,padding:"1px 7px",fontSize:11,fontWeight:700}}>{cnt}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Excel import banner — only for certifications tab */}
-      {activeTab==="certifications"&&(
-        <div style={{background:T.blueDim,border:`1px solid ${T.blue}33`,borderRadius:12,padding:"12px 16px",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
-          <div>
-            <div style={{fontSize:13,fontWeight:600,color:T.blue}}>📂 Import Certifications from Excel</div>
-            <div style={{fontSize:11,color:T.textMuted,marginTop:2}}>Columns: <strong style={{color:T.textSub}}>ITEM TYPE, ITEM NAME/ID, REG/SERIAL NO, TUV PROVIDER, START DATE, EXPIRY DATE</strong> (Sheet3 auto-detected)</div>
-          </div>
-          <input ref={eqFileRef} type="file" accept=".xlsx,.xls" style={{display:"none"}} onChange={e=>{if(e.target.files[0]){importEqCerts(e.target.files[0]);e.target.value="";}}}/>
-          <button onClick={()=>eqFileRef.current.click()} style={{background:T.blue,color:"#000",border:"none",borderRadius:8,padding:"7px 16px",fontSize:12,fontWeight:700,flexShrink:0}}>⬆ Upload Excel</button>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {p.idNo && <Chip>ID: {p.idNo}</Chip>}
+                    {p.nationality && <Chip>{p.nationality}</Chip>}
+                    {p.passportExpiry && <Chip>Passport: {fmtDate(p.passportExpiry)}</Chip>}
+                    {p.iqamaExpiry && <Chip>Iqama: {fmtDate(p.iqamaExpiry)}</Chip>}
+                    {p.visaExpiry && <Chip>Visa: {fmtDate(p.visaExpiry)}</Chip>}
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", person: p })}>
+                    ✎
+                  </ABtn>
+                  <ABtn color={T.red} onClick={() => delPerson(p.id)}>
+                    ✕
+                  </ABtn>
+                </div>
+              </CardRow>
+            );
+          })}
         </div>
       )}
-      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
-        <Btn color={curTab.color} solid onClick={()=>setSubModal({mode:"add",type:activeTab})}>+ Add {curTab.label.replace(/s$/,"")}</Btn>
-      </div>
 
-      {records.length===0
-        ?<Empty icon={curTab.icon} label={`No ${curTab.label.toLowerCase()}`} sub={`Add the first record`} color={curTab.color} onAdd={()=>setSubModal({mode:"add",type:activeTab})}/>
-        :<div style={{display:"grid",gap:10}}>
-          {records.map((r,i)=><SubRecordCard key={r.id} r={r} type={activeTab} color={curTab.color} delay={i*.03} onEdit={()=>setSubModal({mode:"edit",type:activeTab,rec:r})} onDel={()=>delSubRecord(activeTab,r.id)}/>)}
-        </div>
-      }
-
-      {subModal&&<SubRecordModal mode={subModal.mode} type={subModal.type} rec={subModal.rec} onClose={()=>setSubModal(null)} onSave={(rec,mode)=>saveSubRecord(subModal.type,rec,mode)}/>}
-    </div>
+      {modal && (
+        <ManpowerModal
+          mode={modal.mode}
+          person={modal.person}
+          cats={cats}
+          onClose={() => setModal(null)}
+          onSave={savePerson}
+        />
+      )}
+    </PageWrap>
   );
 }
 
-function SubRecordCard({r,type,color,delay,onEdit,onDel}) {
-  const expDate=r.expiryDate;
-  const days=daysUntil(expDate);
-  const s=getStatus(days);
-  // Build a meaningful title from whatever fields exist
-  const title=r.equipmentName||r.itemType||r.certNo||r.invoiceNo||r.policyNo||r.permitNo||"Record";
-  return (
-    <div className="fade-up" style={{background:T.card,border:`1px solid ${expDate&&days!==null&&days<=90?s.color+"44":T.border}`,borderLeft:`4px solid ${expDate?s.color:color}`,borderRadius:12,padding:"14px 16px",display:"flex",alignItems:"center",gap:12,animationDelay:`${delay}s`}}>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,flexWrap:"wrap"}}>
-          <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:15,color:T.text}}>{title}</span>
-          {expDate&&<Tag color={s.color}>{s.label}</Tag>}
-          {expDate&&days!==null&&days<=90&&<Tag color={s.color}>{days<0?`${Math.abs(days)}d overdue`:`${days}d left`}</Tag>}
-        </div>
-        <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-          {r.itemType&&r.itemType!==title&&<Chip>{r.itemType}</Chip>}
-          {r.serialNo&&<Chip>S/N: {r.serialNo}</Chip>}
-          {r.certNo&&r.certNo!==title&&<Chip>Cert: {r.certNo}</Chip>}
-          {r.issuedBy&&<Chip>{r.issuedBy}</Chip>}
-          {r.supplier&&<Chip>{r.supplier}</Chip>}
-          {r.insurer&&<Chip>{r.insurer}</Chip>}
-          {r.type&&<Chip>{r.type}</Chip>}
-          {r.amount&&<Chip color={T.green}>SAR {Number(r.amount).toLocaleString()}</Chip>}
-          {r.issueDate&&<Chip>Start: {fmtDate(r.issueDate)}</Chip>}
-          {r.date&&<Chip>Date: {fmtDate(r.date)}</Chip>}
-          {expDate&&<Chip color={s.color}>Exp: {fmtDate(expDate)}</Chip>}
-          {r.fileLink&&<FileLink href={r.fileLink}/>}
-        </div>
-        {r.description&&<div style={{marginTop:6,fontSize:12,color:T.textMuted,fontStyle:"italic"}}>{r.description}</div>}
-      </div>
-      <div style={{display:"flex",gap:6,flexShrink:0}}>
-        <ABtn color={T.blue} onClick={onEdit}>✎</ABtn>
-        <ABtn color={T.red}  onClick={onDel}>✕</ABtn>
-      </div>
-    </div>
-  );
-}
+function ManpowerModal({ mode, person, cats, onClose, onSave }) {
+  const [f, setF] = useState(person || {});
 
-function SubRecordModal({mode,type,rec,onClose,onSave}) {
-  const [f,setF]=useState(rec||{});
-  const set=k=>v=>setF(p=>({...p,[k]:v}));
-  const CONFIGS={
-    certifications:{color:T.blue,  title:"CERTIFICATION",  fields:[["certNo","Certificate No."],["issuedBy","Issued By"],["issueDate","Issue Date","date"],["expiryDate","Expiry Date","date"],["fileLink","File Link","link"]]},
-    invoices:      {color:T.green, title:"INVOICE",        fields:[["invoiceNo","Invoice No.","","req"],["supplier","Supplier","","req"],["amount","Amount (SAR)"],["date","Invoice Date","date"],["description","Description","textarea"],["fileLink","File Link","link"]]},
-    insurance:     {color:T.purple,title:"INSURANCE",      fields:[["policyNo","Policy No.","","req"],["insurer","Insurer","","req"],["type","Policy Type"],["issueDate","Issue Date","date"],["expiryDate","Expiry Date","date"],["fileLink","File Link","link"]]},
-    permits:       {color:T.gold,  title:"PERMIT",         fields:[["permitNo","Permit No.","","req"],["type","Permit Type"],["issuedBy","Issued By"],["issueDate","Issue Date","date"],["expiryDate","Expiry Date","date"],["fileLink","File Link","link"]]},
-  };
-  const cfg=CONFIGS[type]||CONFIGS.certifications;
   return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} ${cfg.title}`} color={cfg.color} onClose={onClose}
-      onSave={()=>{onSave(f,mode);}}>
-      {cfg.fields.map(([k,label,ftype,req])=>(
-        <FieldRow key={k} label={`${label}${req?" *":""}`}>
-          {ftype==="textarea"
-            ?<FTextarea value={f[k]||""} onChange={set(k)} color={cfg.color}/>
-            :ftype==="link"
-              ?<FLink value={f[k]||""} onChange={set(k)}/>
-              :<FInput type={ftype||"text"} value={f[k]||""} onChange={set(k)} color={cfg.color}/>
-          }
-        </FieldRow>
-      ))}
+    <FormModal
+      title={`${mode === "add" ? "ADD" : "EDIT"} PERSON`}
+      color={T.green}
+      onClose={onClose}
+      onSave={() => {
+        if (!f.name) {
+          alert("Name is required");
+          return;
+        }
+        onSave(f, mode);
+      }}
+    >
+      <FieldRow label="Name">
+        <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
+      </FieldRow>
+      <FieldRow label="Category">
+        <FSelect value={f.category || ""} onChange={(v) => setF((p) => ({ ...p, category: v }))}>
+          <option value="">Select…</option>
+          {cats.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </FSelect>
+      </FieldRow>
+      <FieldRow label="Employee ID">
+        <FInput value={f.idNo || ""} onChange={(v) => setF((p) => ({ ...p, idNo: v }))} />
+      </FieldRow>
+      <FieldRow label="Designation">
+        <FInput value={f.designation || ""} onChange={(v) => setF((p) => ({ ...p, designation: v }))} />
+      </FieldRow>
+      <FieldRow label="Nationality">
+        <FInput value={f.nationality || ""} onChange={(v) => setF((p) => ({ ...p, nationality: v }))} />
+      </FieldRow>
+      <FieldRow label="Passport Expiry">
+        <FInput type="date" value={f.passportExpiry || ""} onChange={(v) => setF((p) => ({ ...p, passportExpiry: v }))} />
+      </FieldRow>
+      <FieldRow label="Visa Expiry">
+        <FInput type="date" value={f.visaExpiry || ""} onChange={(v) => setF((p) => ({ ...p, visaExpiry: v }))} />
+      </FieldRow>
+      <FieldRow label="Iqama Expiry">
+        <FInput type="date" value={f.iqamaExpiry || ""} onChange={(v) => setF((p) => ({ ...p, iqamaExpiry: v }))} />
+      </FieldRow>
+      <FieldRow label="Muqeem Expiry">
+        <FInput type="date" value={f.muqeemExpiry || ""} onChange={(v) => setF((p) => ({ ...p, muqeemExpiry: v }))} />
+      </FieldRow>
     </FormModal>
   );
 }
 
-function EqModal({mode,eq,projects,onClose,onSave}) {
-  const [f,setF]=useState(eq||{});
-  const set=k=>v=>setF(p=>({...p,[k]:v}));
+/* ──────────────────────────────────────────────────────────────────────────
+   EQUIPMENT
+────────────────────────────────────────────────────────────────────────── */
+function EquipmentPage({ data, setData, showToast }) {
+  const [modal, setModal] = useState(null);
+  const [filter, setFilter] = useState("");
+
+  const visible = (data.equipment || []).filter((e) =>
+    !filter ? true : `${e.name} ${e.model} ${e.serialNo} ${e.project}`.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const saveEq = (eq, mode) => {
+    setModal(null);
+    setData((prev) => {
+      const list = [...prev.equipment];
+      if (mode === "add") {
+        list.push({
+          ...eq,
+          id: uid(),
+          certifications: eq.certifications || [],
+          invoices: eq.invoices || [],
+          insurance: eq.insurance || [],
+          permits: eq.permits || [],
+        });
+      } else {
+        const idx = list.findIndex((x) => x.id === eq.id);
+        if (idx >= 0) list[idx] = eq;
+      }
+      return { ...prev, equipment: list };
+    });
+    showToast(mode === "add" ? "Equipment added" : "Equipment updated");
+  };
+
+  const delEq = (id) => {
+    setData((prev) => ({
+      ...prev,
+      equipment: prev.equipment.filter((e) => e.id !== id),
+    }));
+    showToast("Equipment deleted", "del");
+  };
+
   return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} EQUIPMENT`} color={T.gold} onClose={onClose}
-      onSave={()=>{if(!f.name){alert("Equipment name required");return;}onSave(f,mode);}}>
-      <FieldRow label="Equipment Name *"><FInput value={f.name||""} onChange={set("name")} color={T.gold}/></FieldRow>
-      <FieldRow label="Model / Make"><FInput value={f.model||""} onChange={set("model")} color={T.gold}/></FieldRow>
-      <FieldRow label="Serial Number"><FInput value={f.serialNo||""} onChange={set("serialNo")} color={T.gold}/></FieldRow>
-      <FieldRow label="Project">
-        <FSelect value={f.project||""} onChange={set("project")} color={T.gold}>
-          <option value="">Select…</option>
-          {projects.map(p=><option key={p} value={p}>{p}</option>)}
-        </FSelect>
+    <PageWrap>
+      <PageHeader
+        title="EQUIPMENT"
+        sub="Assets, certifications, insurance and permits"
+        color={T.gold}
+      >
+        <input
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Search equipment…"
+          style={{ ...fieldStyle(), width: 220 }}
+        />
+        <Btn color={T.gold} onClick={() => exportToExcel(data.equipment, "Equipment")}>
+          ⬇ Export Excel
+        </Btn>
+        <Btn color={T.gold} solid onClick={() => setModal({ mode: "add" })}>
+          + Add Equipment
+        </Btn>
+      </PageHeader>
+
+      {visible.length === 0 ? (
+        <Empty
+          icon="◎"
+          label="No equipment found"
+          sub="Add your first asset"
+          color={T.gold}
+          onAdd={() => setModal({ mode: "add" })}
+        />
+      ) : (
+        <div style={{ display: "grid", gap: 10 }}>
+          {visible.map((eq, i) => {
+            const alertDates = [
+              ...(eq.certifications || []).map((x) => x.expiryDate),
+              ...(eq.insurance || []).map((x) => x.expiryDate),
+              ...(eq.permits || []).map((x) => x.expiryDate),
+            ].filter(Boolean);
+
+            const alerts = alertDates.filter((d) => {
+              const x = daysUntil(d);
+              return x !== null && x <= 90;
+            }).length;
+
+            const statusColor =
+              eq.status === "Active"
+                ? T.green
+                : eq.status === "Under Maintenance"
+                ? T.gold
+                : eq.status === "Inactive"
+                ? T.red
+                : T.textMuted;
+
+            return (
+              <CardRow key={eq.id} delay={i * 0.03} borderLeft={statusColor}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
+                    <Title>{eq.name}</Title>
+                    {eq.status && <Tag color={statusColor}>{eq.status}</Tag>}
+                    {alerts ? <Tag color={T.gold}>{alerts} expiring</Tag> : null}
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {eq.model && <Chip>{eq.model}</Chip>}
+                    {eq.serialNo && <Chip>S/N: {eq.serialNo}</Chip>}
+                    {eq.project && <Chip>{eq.project}</Chip>}
+                    {eq.operator && <Chip>Op: {eq.operator}</Chip>}
+                  </div>
+                  {eq.notes && (
+                    <div style={{ marginTop: 6, color: T.textMuted, fontSize: 12, fontStyle: "italic" }}>
+                      {eq.notes}
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <ABtn color={T.blue} onClick={() => setModal({ mode: "edit", eq })}>
+                    ✎
+                  </ABtn>
+                  <ABtn color={T.red} onClick={() => delEq(eq.id)}>
+                    ✕
+                  </ABtn>
+                </div>
+              </CardRow>
+            );
+          })}
+        </div>
+      )}
+
+      {modal && (
+        <EquipmentModal
+          mode={modal.mode}
+          eq={modal.eq}
+          projects={data.projects}
+          onClose={() => setModal(null)}
+          onSave={saveEq}
+        />
+      )}
+    </PageWrap>
+  );
+}
+
+function EquipmentModal({ mode, eq, projects, onClose, onSave }) {
+  const [f, setF] = useState(eq || {});
+
+  return (
+    <FormModal
+      title={`${mode === "add" ? "ADD" : "EDIT"} EQUIPMENT`}
+      color={T.gold}
+      onClose={onClose}
+      onSave={() => {
+        if (!f.name) {
+          alert("Equipment name is required");
+          return;
+        }
+        onSave(f, mode);
+      }}
+    >
+      <FieldRow label="Equipment Name">
+        <FInput value={f.name || ""} onChange={(v) => setF((p) => ({ ...p, name: v }))} />
+      </FieldRow>
+      <FieldRow label="Model">
+        <FInput value={f.model || ""} onChange={(v) => setF((p) => ({ ...p, model: v }))} />
+      </FieldRow>
+      <FieldRow label="Serial No.">
+        <FInput value={f.serialNo || ""} onChange={(v) => setF((p) => ({ ...p, serialNo: v }))} />
       </FieldRow>
       <FieldRow label="Status">
-        <FSelect value={f.status||""} onChange={set("status")} color={T.gold}>
+        <FSelect value={f.status || ""} onChange={(v) => setF((p) => ({ ...p, status: v }))}>
           <option value="">Select…</option>
-          <option>Active</option><option>Under Maintenance</option><option>Inactive</option>
+          <option value="Active">Active</option>
+          <option value="Under Maintenance">Under Maintenance</option>
+          <option value="Inactive">Inactive</option>
         </FSelect>
       </FieldRow>
-      <FieldRow label="Operator / Responsible Person"><FInput value={f.operator||""} onChange={set("operator")} color={T.gold}/></FieldRow>
-      <FieldRow label="Purchase Date"><FInput type="date" value={f.purchaseDate||""} onChange={set("purchaseDate")} color={T.gold}/></FieldRow>
-      <FieldRow label="Notes"><FTextarea value={f.notes||""} onChange={set("notes")} color={T.gold}/></FieldRow>
+      <FieldRow label="Operator">
+        <FInput value={f.operator || ""} onChange={(v) => setF((p) => ({ ...p, operator: v }))} />
+      </FieldRow>
+      <FieldRow label="Project">
+        <FSelect value={f.project || ""} onChange={(v) => setF((p) => ({ ...p, project: v }))}>
+          <option value="">Select…</option>
+          {projects.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </FSelect>
+      </FieldRow>
+      <FieldRow label="Purchase Date">
+        <FInput type="date" value={f.purchaseDate || ""} onChange={(v) => setF((p) => ({ ...p, purchaseDate: v }))} />
+      </FieldRow>
+      <FieldRow label="Notes">
+        <FTextarea value={f.notes || ""} onChange={(v) => setF((p) => ({ ...p, notes: v }))} />
+      </FieldRow>
     </FormModal>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════════════
-   SHARED COMPONENTS
-════════════════════════════════════════════════════════════════════════════ */
-function PageHeader({title,sub,color,children}) {
-  return (
-    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:22}}>
-      <div>
-        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:26,color:T.text}}>{title}</div>
-        <div style={{fontSize:13,color:T.textMuted,marginTop:2}}>{sub}</div>
-      </div>
-      <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>{children}</div>
-    </div>
-  );
-}
+/* ──────────────────────────────────────────────────────────────────────────
+   PROJECT MANAGER MODAL
+────────────────────────────────────────────────────────────────────────── */
+function ProjectsModal({ projects, onSave, onClose }) {
+  const [list, setList] = useState([...projects]);
+  const [newName, setNewName] = useState("");
 
-function Empty({icon,label,sub,color,onAdd}) {
-  return (
-    <div style={{textAlign:"center",padding:"60px 20px",background:T.card,borderRadius:14,border:`1px dashed ${T.border}`}}>
-      <div style={{fontSize:44,color,opacity:.2,marginBottom:14}}>{icon}</div>
-      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:18,color:T.textSub,marginBottom:6}}>{label}</div>
-      <div style={{fontSize:13,color:T.textMuted,marginBottom:22}}>{sub}</div>
-      <button onClick={onAdd} style={{background:color,color:"#000",border:"none",borderRadius:8,padding:"9px 22px",fontSize:13,fontWeight:700}}>+ Add Now</button>
-    </div>
-  );
-}
+  const add = () => {
+    const n = newName.trim();
+    if (!n || list.includes(n)) return;
+    setList((p) => [...p, n]);
+    setNewName("");
+  };
 
-function Overlay({children,onClose}) {
-  return (
-    <div className="fade-in" onClick={e=>e.target===e.currentTarget&&onClose()}
-      style={{position:"fixed",inset:0,background:"rgba(13,31,53,0.55)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:16,overflowY:"auto"}}>
-      {children}
-    </div>
-  );
-}
+  const del = (idx) => setList((p) => p.filter((_, i) => i !== idx));
 
-function FormModal({title,color,children,onClose,onSave}) {
   return (
     <Overlay onClose={onClose}>
-      <div className="slide-up" style={{background:T.sidebar,border:`1px solid ${T.border}`,borderRadius:18,width:"100%",maxWidth:500,maxHeight:"90vh",overflow:"auto"}}>
-        <div style={{padding:"20px 22px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,background:T.sidebar,zIndex:1}}>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:18,color:T.text}}>{title}</div>
-          <button onClick={onClose} style={{background:T.bg,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>×</button>
-        </div>
-        <div style={{padding:"18px 22px"}}>{children}</div>
-        <div style={{padding:"0 22px 22px",display:"flex",gap:10,position:"sticky",bottom:0,background:T.sidebar,paddingTop:12,borderTop:`1px solid ${T.border}`}}>
-          <button onClick={onClose} style={{flex:1,background:T.bg,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:10,padding:"11px",fontSize:13,fontWeight:600}}>Cancel</button>
-          <button onClick={onSave}  style={{flex:2,background:color,border:"none",color:"#000",borderRadius:10,padding:"11px",fontSize:14,fontWeight:700}}>Save</button>
+      <div style={modalShellStyle(460)}>
+        <ModalHeader title="MANAGE PROJECTS" sub="Add or delete projects" onClose={onClose} />
+        <div style={{ padding: 18, display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && add()}
+              placeholder="New project name…"
+              style={{ ...fieldStyle(), flex: 1 }}
+            />
+            <Btn color={T.green} solid onClick={add}>
+              + Add
+            </Btn>
+          </div>
+
+          <div style={{ display: "grid", gap: 8 }}>
+            {list.map((p, i) => (
+              <div
+                key={`${p}-${i}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: T.card2,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 10,
+                  padding: "10px 12px",
+                }}
+              >
+                <div style={{ flex: 1, color: T.text, fontSize: 14 }}>{p}</div>
+                <ABtn color={T.red} onClick={() => del(i)}>
+                  ✕
+                </ABtn>
+              </div>
+            ))}
+          </div>
+
+          <Btn color={T.blue} solid onClick={() => onSave(list)}>
+            Save Projects
+          </Btn>
         </div>
       </div>
     </Overlay>
   );
 }
 
-function CatManagerModal({title,cats,onSave,onClose}) {
-  const [list,setList]=useState([...cats]);
-  const [newCat,setNewCat]=useState("");
-  const add=()=>{const n=newCat.trim();if(!n||list.includes(n))return;setList(l=>[...l,n]);setNewCat("");};
+/* ──────────────────────────────────────────────────────────────────────────
+   CATEGORY MODAL
+────────────────────────────────────────────────────────────────────────── */
+function CatManagerModal({ title, cats, onSave, onClose }) {
+  const [list, setList] = useState([...cats]);
+  const [newName, setNewName] = useState("");
+
+  const add = () => {
+    const n = newName.trim();
+    if (!n || list.includes(n)) return;
+    setList((p) => [...p, n]);
+    setNewName("");
+  };
+
+  const del = (idx) => setList((p) => p.filter((_, i) => i !== idx));
+
   return (
     <Overlay onClose={onClose}>
-      <div className="slide-up" style={{background:T.sidebar,border:`1px solid ${T.border}`,borderRadius:18,width:"100%",maxWidth:440,maxHeight:"80vh",display:"flex",flexDirection:"column"}}>
-        <div style={{padding:"20px 22px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:18,color:T.text}}>{title.toUpperCase()}</div>
-          <button onClick={onClose} style={{background:T.bg,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>×</button>
+      <div style={modalShellStyle(460)}>
+        <ModalHeader title={title} sub="Manage your categories" onClose={onClose} />
+        <div style={{ padding: 18, display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && add()}
+              placeholder="New category…"
+              style={{ ...fieldStyle(), flex: 1 }}
+            />
+            <Btn color={T.blue} solid onClick={add}>
+              + Add
+            </Btn>
+          </div>
+
+          <div style={{ display: "grid", gap: 8 }}>
+            {list.map((c, i) => (
+              <div
+                key={`${c}-${i}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: T.card2,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 10,
+                  padding: "10px 12px",
+                }}
+              >
+                <div style={{ flex: 1, color: T.text, fontSize: 14 }}>{c}</div>
+                <ABtn color={T.red} onClick={() => del(i)}>
+                  ✕
+                </ABtn>
+              </div>
+            ))}
+          </div>
+
+          <Btn color={T.blue} solid onClick={() => onSave(list)}>
+            Save Categories
+          </Btn>
         </div>
-        <div style={{padding:"14px 22px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}>
-          <div style={{display:"flex",gap:8}}>
-            <input value={newCat} onChange={e=>setNewCat(e.target.value)} onKeyDown={e=>e.key==="Enter"&&add()} placeholder="New category name…"
-              style={{flex:1,background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,color:T.text,outline:"none",colorScheme:"light"}}
-              onFocus={e=>e.target.style.borderColor=T.blue} onBlur={e=>e.target.style.borderColor=T.border}/>
-            <button onClick={add} style={{background:T.green,color:"#000",border:"none",borderRadius:8,padding:"9px 16px",fontSize:13,fontWeight:700,flexShrink:0}}>+ Add</button>
+      </div>
+    </Overlay>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   SHARED UI
+────────────────────────────────────────────────────────────────────────── */
+function PageWrap({ children }) {
+  return <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>{children}</div>;
+}
+
+function PageHeader({ title, sub, color, children }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        gap: 12,
+        alignItems: "flex-start",
+        marginBottom: 18,
+        flexWrap: "wrap",
+      }}
+    >
+      <div>
+        <div
+          style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 28,
+            color: T.text,
+            letterSpacing: ".5px",
+          }}
+        >
+          {title}
+        </div>
+        <div style={{ fontSize: 13, color: T.textMuted, marginTop: 2 }}>{sub}</div>
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{children}</div>
+    </div>
+  );
+}
+
+function KpiCard({ label, value, color }) {
+  return (
+    <div
+      className="fade-up"
+      style={{
+        background: T.card,
+        border: `1px solid ${T.border}`,
+        borderRadius: 12,
+        boxShadow: T.shadow,
+        padding: "16px 18px",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800,
+          fontSize: 34,
+          lineHeight: 1,
+          color,
+        }}
+      >
+        {value}
+      </div>
+      <div style={{ marginTop: 5, fontSize: 12, color: T.textMuted }}>{label}</div>
+    </div>
+  );
+}
+
+function QuickCard({ title, sub, stat, color, onClick }) {
+  return (
+    <div
+      className="fade-up"
+      onClick={onClick}
+      style={{
+        background: T.card,
+        border: `1px solid ${T.border}`,
+        borderRadius: 14,
+        boxShadow: T.shadow,
+        padding: 18,
+        cursor: "pointer",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800,
+          fontSize: 18,
+          color: T.text,
+        }}
+      >
+        {title}
+      </div>
+      <div style={{ fontSize: 12, color: T.textMuted, marginTop: 3 }}>{sub}</div>
+      <div style={{ marginTop: 10, color, fontWeight: 700, fontSize: 13 }}>{stat}</div>
+    </div>
+  );
+}
+
+function AlertRow({ a }) {
+  const s = getStatus(a.days);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        background: T.card2,
+        border: `1px solid ${T.border}`,
+        borderRadius: 10,
+        padding: "10px 12px",
+      }}
+    >
+      <div style={{ width: 3, alignSelf: "stretch", background: s.color, borderRadius: 999 }} />
+      <div style={{ flex: 1 }}>
+        <div style={{ color: T.text, fontSize: 13, fontWeight: 700 }}>{a.label}</div>
+        <div style={{ color: T.textMuted, fontSize: 11 }}>{a.src}</div>
+      </div>
+      <div style={{ color: s.color, fontWeight: 800, fontSize: 13 }}>
+        {a.days < 0 ? `${Math.abs(a.days)}d overdue` : `${a.days}d left`}
+      </div>
+    </div>
+  );
+}
+
+function Empty({ icon, label, sub, color, onAdd }) {
+  return (
+    <div
+      style={{
+        background: T.card,
+        border: `1px dashed ${T.borderLight}`,
+        borderRadius: 14,
+        padding: "40px 18px",
+        textAlign: "center",
+      }}
+    >
+      <div style={{ fontSize: 40, marginBottom: 10 }}>{icon}</div>
+      <div
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800,
+          fontSize: 22,
+          color: T.text,
+          marginBottom: 5,
+        }}
+      >
+        {label}
+      </div>
+      <div style={{ color: T.textMuted, fontSize: 13, marginBottom: 14 }}>{sub}</div>
+      <Btn color={color} solid onClick={onAdd}>
+        + Add
+      </Btn>
+    </div>
+  );
+}
+
+function Btn({ color, solid, children, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: solid ? color : `${color}18`,
+        color: solid ? "#000" : color,
+        border: solid ? "none" : `1px solid ${color}55`,
+        borderRadius: 9,
+        padding: "9px 14px",
+        fontSize: 12,
+        fontWeight: 800,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ABtn({ color, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        border: `1px solid ${color}55`,
+        background: `${color}18`,
+        color,
+        fontSize: 12,
+        fontWeight: 800,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Tag({ color, children }) {
+  return (
+    <span
+      style={{
+        background: `${color}18`,
+        color,
+        border: `1px solid ${color}33`,
+        borderRadius: 999,
+        padding: "2px 8px",
+        fontSize: 10,
+        fontWeight: 800,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function Chip({ color = T.textSub, children }) {
+  return (
+    <span
+      style={{
+        background: T.card2,
+        border: `1px solid ${T.border}`,
+        color,
+        borderRadius: 999,
+        padding: "4px 9px",
+        fontSize: 11,
+        fontWeight: 600,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function Title({ children }) {
+  return (
+    <span
+      style={{
+        fontFamily: "'Barlow Condensed', sans-serif",
+        fontWeight: 800,
+        fontSize: 17,
+        color: T.text,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function FileLink({ href }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        background: T.blueDim,
+        border: `1px solid ${T.blue}33`,
+        borderRadius: 999,
+        padding: "4px 9px",
+        fontSize: 11,
+        color: T.blue,
+        fontWeight: 700,
+        textDecoration: "none",
+      }}
+    >
+      📎 Open File
+    </a>
+  );
+}
+
+function CardRow({ children, delay = 0, borderLeft }) {
+  return (
+    <div
+      className="fade-up"
+      style={{
+        background: T.card,
+        border: `1px solid ${T.border}`,
+        borderLeft: `4px solid ${borderLeft}`,
+        borderRadius: 12,
+        padding: "15px 16px",
+        display: "flex",
+        gap: 14,
+        alignItems: "flex-start",
+        animationDelay: `${delay}s`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Overlay({ children, onClose }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 14,
+      }}
+    >
+      <div onClick={(e) => e.stopPropagation()}>{children}</div>
+    </div>
+  );
+}
+
+function FormModal({ title, color, onClose, onSave, children }) {
+  return (
+    <Overlay onClose={onClose}>
+      <div style={modalShellStyle(620)}>
+        <ModalHeader title={title} sub="Complete the form below" onClose={onClose} />
+        <div style={{ padding: 18, display: "grid", gap: 12 }}>
+          {children}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
+            <Btn color={T.textMuted} onClick={onClose}>
+              Cancel
+            </Btn>
+            <Btn color={color} solid onClick={onSave}>
+              Save
+            </Btn>
           </div>
         </div>
-        <div style={{flex:1,overflowY:"auto",padding:"12px 22px"}}>
-          {list.map((c,i)=>(
-            <div key={c} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px",background:T.bg,borderRadius:9,marginBottom:7,border:`1px solid ${T.border}`}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div style={{width:7,height:7,borderRadius:"50%",background:T.blue}}/>
-                <span style={{fontSize:14,color:T.text}}>{c}</span>
-              </div>
-              <button onClick={()=>setList(l=>l.filter(x=>x!==c))} style={{background:T.redDim,border:`1px solid ${T.red}33`,color:T.red,borderRadius:7,width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700}}>✕</button>
-            </div>
-          ))}
-        </div>
-        <div style={{padding:"12px 22px 22px",flexShrink:0}}>
-          <button onClick={()=>{onSave(list);onClose();}} style={{width:"100%",background:T.blue,border:"none",color:"#000",borderRadius:10,padding:"12px",fontSize:14,fontWeight:700}}>Save Categories</button>
-        </div>
       </div>
     </Overlay>
   );
 }
 
-function FieldRow({label,children}) {
+function ModalHeader({ title, sub, onClose }) {
   return (
-    <div style={{marginBottom:13}}>
-      <label style={{display:"block",fontSize:11,fontWeight:700,color:T.textMuted,marginBottom:5,letterSpacing:".5px"}}>{label.toUpperCase()}</label>
+    <div
+      style={{
+        padding: "18px 18px 14px",
+        borderBottom: `1px solid ${T.border}`,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: 10,
+      }}
+    >
+      <div>
+        <div
+          style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 22,
+            color: T.text,
+          }}
+        >
+          {title}
+        </div>
+        <div style={{ fontSize: 12, color: T.textMuted }}>{sub}</div>
+      </div>
+      <button onClick={onClose} style={iconBtnStyle(T.card2, T.text)}>
+        ×
+      </button>
+    </div>
+  );
+}
+
+function FieldRow({ label, children }) {
+  return (
+    <div>
+      <div style={{ marginBottom: 6, fontSize: 12, color: T.textSub, fontWeight: 700 }}>{label}</div>
       {children}
     </div>
   );
 }
 
-function SectionDivider({label}) {
-  return <div style={{fontSize:9,fontWeight:700,color:T.textMuted,letterSpacing:"1.5px",marginTop:16,marginBottom:10,paddingBottom:6,borderBottom:`1px solid ${T.border}`}}>{label}</div>;
-}
-
-function FInput({type,value,onChange,color,placeholder}) {
-  return <input type={type||"text"} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
-    style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,color:T.text,outline:"none",colorScheme:"light"}}
-    onFocus={e=>e.target.style.borderColor=color||T.blue} onBlur={e=>e.target.style.borderColor=T.border}/>;
-}
-
-function FTextarea({value,onChange,color}) {
-  return <textarea value={value} onChange={e=>onChange(e.target.value)} rows={2}
-    style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,color:T.text,outline:"none",resize:"vertical",colorScheme:"light"}}
-    onFocus={e=>e.target.style.borderColor=color||T.blue} onBlur={e=>e.target.style.borderColor=T.border}/>;
-}
-
-function FSelect({value,onChange,color,children}) {
-  return <select value={value} onChange={e=>onChange(e.target.value)}
-    style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,color:value?T.text:T.textMuted,outline:"none",colorScheme:"light"}}
-    onFocus={e=>e.target.style.borderColor=color||T.blue} onBlur={e=>e.target.style.borderColor=T.border}>
-    {children}
-  </select>;
-}
-
-function FLink({value,onChange}) {
+function FInput({ value, onChange, type = "text" }) {
   return (
-    <div>
-      <input type="url" value={value} onChange={e=>onChange(e.target.value)} placeholder="https://drive.google.com/… or sharepoint.com/…"
-        style={{width:"100%",background:T.inputBg,border:`1px solid ${T.border}`,borderRadius:8,padding:"9px 12px",fontSize:13,color:T.blue,outline:"none",colorScheme:"light"}}
-        onFocus={e=>e.target.style.borderColor=T.blue} onBlur={e=>e.target.style.borderColor=T.border}/>
-      {value&&<a href={value} target="_blank" rel="noreferrer" style={{fontSize:11,color:T.blue,marginTop:4,display:"inline-block"}}>📎 Test link →</a>}
-    </div>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={fieldStyle()}
+    />
   );
 }
 
-const Chip     = ({children,color}) => <span style={{background:T.bg,border:`1px solid ${T.borderLight}`,borderRadius:6,padding:"2px 9px",fontSize:12,color:color||T.textSub,fontWeight:500}}>{children}</span>;
-const Tag      = ({children,color}) => <span style={{background:`${color}18`,border:`1px solid ${color}33`,borderRadius:5,padding:"2px 8px",fontSize:11,color,fontWeight:700}}>{children}</span>;
-const ABtn     = ({onClick,color,children}) => <button onClick={onClick} style={{width:30,height:30,borderRadius:7,border:`1px solid ${color}33`,background:`${color}18`,color,fontSize:13,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{children}</button>;
-const FileLink = ({href}) => <a href={href} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} style={{background:T.blueDim,border:`1px solid ${T.blue}33`,borderRadius:6,padding:"2px 9px",fontSize:12,color:T.blue,fontWeight:600,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4}}>📎 Open File</a>;
-const Btn      = ({children,onClick,color,solid}) => <button onClick={onClick} style={{background:solid?color:T.bg,border:`1px solid ${solid?color:T.border}`,color:solid?"#000":color||T.textSub,borderRadius:8,padding:"8px 16px",fontSize:13,fontWeight:600,transition:"all .15s"}}>{children}</button>;
+function FSelect({ value, onChange, children }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} style={fieldStyle()}>
+      {children}
+    </select>
+  );
+}
+
+function FTextarea({ value, onChange }) {
+  return (
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      rows={4}
+      style={{ ...fieldStyle(), resize: "vertical", minHeight: 100 }}
+    />
+  );
+}
+
+function fieldStyle() {
+  return {
+    width: "100%",
+    background: T.inputBg,
+    border: `1px solid ${T.border}`,
+    borderRadius: 9,
+    padding: "10px 12px",
+    fontSize: 13,
+    color: T.text,
+    outline: "none",
+  };
+}
+
+function modalShellStyle(maxWidth) {
+  return {
+    width: "100%",
+    maxWidth,
+    background: T.card,
+    border: `1px solid ${T.border}`,
+    borderRadius: 16,
+    boxShadow: T.shadow,
+    overflow: "hidden",
+  };
+}
+
+function iconBtnStyle(bg, color) {
+  return {
+    width: 38,
+    height: 38,
+    borderRadius: 9,
+    border: "1px solid rgba(255,255,255,0.12)",
+    background: bg,
+    color,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 18,
+  };
+}
+
+function sidebarAuxBtnStyle() {
+  return {
+    width: "100%",
+    textAlign: "left",
+    padding: "10px 12px",
+    borderRadius: 8,
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "transparent",
+    color: "#e2e8f0",
+    fontSize: 12,
+    fontWeight: 700,
+  };
+}
