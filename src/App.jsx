@@ -544,7 +544,7 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
 >
   SCORPION ARABIA
 </div>
-            <div
+            <div>
   style={{
     color: "#93c5fd",
     fontSize: 10,
