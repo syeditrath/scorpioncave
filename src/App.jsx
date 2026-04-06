@@ -1,6 +1,31 @@
 import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
+import { createClient } from "@supabase/supabase-js";
+const supabaseUrl = "YOUR_SUPABASE_URL";
+const supabaseAnonKey = "YOUR_SUPABASE_ANON_KEY";
 
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+async function uploadPdfToSupabase(file, folder = "scorpion-docs") {
+  if (!file) return "";
+
+  const fileExt = file.name.split(".").pop()?.toLowerCase() || "pdf";
+  const cleanName = file.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "");
+  const filePath = `${folder}/${Date.now()}-${cleanName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("documents")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage.from("documents").getPublicUrl(filePath);
+
+  return data.publicUrl;
+}
 /* ─── Global CSS ─────────────────────────────────────────────────────────── */
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap');
@@ -1420,26 +1445,170 @@ function ScorpionDocs({data,setData,showToast}) {
   );
 }
 
-function DocModal({mode,doc,cats,onClose,onSave}) {
-  const [f,setF]=useState(doc||{});
-  const F=(k,label,type)=>({key:k,label,type:type||"text"});
-  const fields=[F("name","Document Name"),F("category","Category","select"),F("docNo","Reference / Doc No."),F("issueDate","Issue Date","date"),F("expiryDate","Expiry Date","date"),F("fileLink","File Link (Google Drive / SharePoint)","link"),F("notes","Notes","textarea"),F("fileUpload","Upload File","file")];
+function DocModal({ mode, doc, cats, onClose, onSave }) {
+  const [f, setF] = useState(doc || {});
+  const [uploading, setUploading] = useState(false);
+
+  const F = (k, label, type) => ({ key: k, label, type: type || "text" });
+
+  const fields = [
+    F("name", "Document Name"),
+    F("category", "Category", "select"),
+    F("docNo", "Reference / Doc No."),
+    F("issueDate", "Issue Date", "date"),
+    F("expiryDate", "Expiry Date", "date"),
+    F("fileLink", "File Link (optional manual URL)", "link"),
+    F("fileUpload", "Upload PDF", "file"),
+    F("notes", "Notes", "textarea"),
+  ];
+
+  const handleSave = async () => {
+    if (!f.name) {
+      alert("Document name is required");
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      let finalData = { ...f };
+
+      if (f.fileUpload) {
+        const uploadedUrl = await uploadPdfToSupabase(f.fileUpload, "scorpion-docs");
+        finalData.fileLink = uploadedUrl;
+      }
+
+      delete finalData.fileUpload;
+
+      onSave(finalData, mode);
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("PDF upload failed. Check Supabase bucket settings.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <FormModal title={`${mode==="add"?"ADD":"EDIT"} DOCUMENT`} color={T.blue} onClose={onClose}
-      onSave={()=>{if(!f.name){alert("Document name is required");return;}onSave(f,mode);}}>
-      {fields.map(fl=>(
+    <FormModal
+      title={`${mode === "add" ? "ADD" : "EDIT"} DOCUMENT`}
+      color={T.blue}
+      onClose={onClose}
+      onSave={handleSave}
+    >
+      {fields.map((fl) => (
         <FieldRow key={fl.key} label={fl.label}>
-          {fl.type==="select"
-            ?<FSelect value={f[fl.key]||""} onChange={v=>setF(p=>({...p,[fl.key]:v}))} color={T.blue}>
-                <option value="">Select…</option>
-                {cats.map(c=><option key={c} value={c}>{c}</option>)}
-              </FSelect>
-            :fl.type==="textarea"
-              ?<FTextarea value={f[fl.key]||""} onChange={v=>setF(p=>({...p,[fl.key]:v}))} color={T.blue}/>
-              :fl.type==="link"
-                ?<FLink value={f[fl.key]||""} onChange={v=>setF(p=>({...p,[fl.key]:v}))}/>
-                :<FInput type={fl.type} value={f[fl.key]||""} onChange={v=>setF(p=>({...p,[fl.key]:v}))} color={T.blue}/>
-          }
+          {fl.type === "select" ? (
+            <FSelect
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+              color={T.blue}
+            >
+              <option value="">Select…</option>
+              {cats.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </FSelect>
+          ) : fl.type === "textarea" ? (
+            <FTextarea
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+              color={T.blue}
+            />
+          ) : fl.type === "link" ? (
+            <FLink
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+            />
+          ) : fl.type === "file" ? (
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) =>
+                setF((p) => ({
+                  ...p,
+                  fileUpload: e.target.files?.[0] || null,
+                }))
+              }
+              style={{
+                width: "100%",
+                background: T.inputBg,
+                border: `1px solid ${T.border}`,
+                borderRadius: 8,
+                padding: "10px 12px",
+                color: T.text,
+                fontSize: 13,
+              }}
+            />
+          ) : (
+            <FInput
+              type={fl.type}
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+              color={T.blue}
+            />
+          )}
+        </FieldRow>
+      ))}
+
+      {uploading && (
+        <div style={{ marginTop: 10, fontSize: 12, color: T.blue, fontWeight: 600 }}>
+          Uploading PDF...
+        </div>
+      )}
+    </FormModal>
+  );
+}
+
+  return (
+    <FormModal
+      title={`${mode === "add" ? "ADD" : "EDIT"} DOCUMENT`}
+      color={T.blue}
+      onClose={onClose}
+      onSave={() => {
+        if (!f.name) {
+          alert("Document name is required");
+          return;
+        }
+        onSave(f, mode);
+      }}
+    >
+      {fields.map((fl) => (
+        <FieldRow key={fl.key} label={fl.label}>
+          {fl.type === "select" ? (
+            <FSelect
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+              color={T.blue}
+            >
+              <option value="">Select…</option>
+              {cats.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </FSelect>
+          ) : fl.type === "textarea" ? (
+            <FTextArea
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+              color={T.blue}
+            />
+          ) : fl.type === "link" ? (
+            <FLink
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+            />
+          ) : (
+            <FInput
+              type={fl.type}
+              value={f[fl.key] || ""}
+              onChange={(v) => setF((p) => ({ ...p, [fl.key]: v }))}
+              color={T.blue}
+            />
+          )}
         </FieldRow>
       ))}
     </FormModal>
