@@ -754,71 +754,73 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
           <div
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: "50%",
-              overflow: "hidden",
-              background: "#000",
-              flexShrink: 0,
-              border: "1px solid rgba(245,158,11,0.35)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <img
-              src="logo.png"
-              alt="Scorpion Arabia"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                display: "block",
-                transform: "scale(0.9)",
-              }}
-            />
-          </div>
+  style={{
+    width: 46,
+    height: 46,
+    borderRadius: "50%",
+    overflow: "hidden",
+    background: "#000",
+    flexShrink: 0,
+    border: "1px solid rgba(245,158,11,0.28)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <img
+    src="logo.png"
+    alt="Scorpion Arabia"
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "contain",
+      display: "block",
+      transform: "scale(0.96)",
+    }}
+  />
+</div>
+          <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
+  <div
+    className="brand-text"
+    style={{
+      fontSize: "15px",
+      lineHeight: 1.05,
+      whiteSpace: "normal",
+      wordBreak: "break-word",
+      overflowWrap: "anywhere",
+      maxWidth: "100%",
+    }}
+  >
+    SCORPION ARABIA
+  </div>
 
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div
-              className="brand-text"
-              style={{
-                fontSize: "18px",
-                lineHeight: 1.05,
-                whiteSpace: "nowrap",
-              }}
-            >
-              SCORPION ARABIA
-            </div>
+  <div
+    style={{
+      color: "#93c5fd",
+      fontSize: 9,
+      letterSpacing: "1.2px",
+      marginTop: 4,
+      fontWeight: 700,
+      textTransform: "uppercase",
+      whiteSpace: "normal",
+      overflowWrap: "anywhere",
+      maxWidth: "100%",
+    }}
+  >
+    Document Portal
+  </div>
 
-            <div
-              style={{
-                color: "#93c5fd",
-                fontSize: 9,
-                letterSpacing: "1.4px",
-                marginTop: 4,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Document Portal
-            </div>
-
-            <div
-              style={{
-                marginTop: 7,
-                width: 78,
-                height: 1,
-                background: "linear-gradient(90deg, rgba(245,158,11,0.95), rgba(245,158,11,0.35), transparent)",
-              }}
-            />
-          </div>
-        </div>
-      </div>
+  <div
+    style={{
+      marginTop: 7,
+      width: 70,
+      height: 1,
+      background: "linear-gradient(90deg, rgba(245,158,11,0.95), rgba(245,158,11,0.35), transparent)",
+    }}
+  />
+</div>
 
       {/* Nav */}
       <nav style={{ padding: "12px 8px", flex: 1, overflowY: "auto" }}>
