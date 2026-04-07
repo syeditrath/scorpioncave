@@ -1952,28 +1952,23 @@ function KpiCard({ label, value, color }) {
 
   return (
     <div
-      className="fade-up"
-      style={{
-        background: T.card,
-        border: `1px solid ${T.border}`,
-        borderRadius: 12,
-        boxShadow: T.shadow,
-        padding: "16px 18px",
-        position: "relative",
-        overflow: "hidden",
-        transition: "transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow = "0 16px 30px rgba(0,0,0,0.12)";
-        e.currentTarget.style.borderColor = color;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = T.shadow;
-        e.currentTarget.style.borderColor = T.border;
-      }}
-    >
+  className="fade-up card-glow"
+  style={{
+    background: T.card,
+    border: `1px solid ${T.border}`,
+    borderRadius: 12,
+    boxShadow: T.shadow,
+    padding: "16px 18px",
+    position: "relative",
+    transition: "transform 0.2s ease",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-4px)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+  }}
+>
        
       <div
         className="card-symbol"
