@@ -254,13 +254,10 @@ const GLOBAL_CSS = `
   .brand-text {
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: #3559c7;
-  text-shadow:
-    0 1px 0 rgba(0,0,0,0.30),
-    0 2px 6px rgba(0,0,0,0.18);
-  animation: brandFloat 3.2s ease-in-out infinite;
+  color: #f59e0b;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.18);
 }
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -733,13 +730,11 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
 
   return (
     <aside
-      className="sidebar-glass"
       style={{
-        width: "clamp(230px,18vw,290px)",
+        width: "260px",
         flexShrink: 0,
-        background:
-          "linear-gradient(180deg, rgba(8,11,16,0.98) 0%, rgba(11,15,22,0.98) 42%, rgba(8,11,16,0.99) 100%)",
-        borderRight: "1px solid rgba(255,255,255,0.07)",
+        background: "#060b16",
+        borderRight: "1px solid rgba(255,255,255,0.06)",
         display: "flex",
         flexDirection: "column",
         zIndex: 50,
@@ -749,40 +744,26 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         height: "100%",
         transform: isMobile ? (sideOpen ? "translateX(0)" : "translateX(-100%)") : "none",
         transition: "transform .28s ease",
-        boxShadow: isMobile
-          ? "0 24px 60px rgba(0,0,0,0.45)"
-          : "8px 0 30px rgba(0,0,0,0.22)",
-        overflow: "hidden",
+        boxShadow: isMobile ? "0 20px 50px rgba(0,0,0,0.35)" : "none",
       }}
     >
-      {/* Decorative top bar */}
+      {/* Header */}
       <div
         style={{
-          height: 3,
-          background: "linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.95) 22%, rgba(56,189,248,0.9) 52%, rgba(251,191,36,0.95) 78%, transparent 100%)",
-          flexShrink: 0,
-        }}
-      />
-
-      {/* HEADER */}
-      <div
-        style={{
-          padding: "24px 18px 18px",
+          padding: "18px 16px 14px",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <div
-            className="sidebar-logo-shell"
             style={{
-              width: 66,
-              height: 66,
+              width: 50,
+              height: 50,
               borderRadius: "50%",
               overflow: "hidden",
-              background: "radial-gradient(circle at 30% 30%, #111 0%, #000 75%)",
+              background: "#000",
               flexShrink: 0,
-              border: "1px solid rgba(251,191,36,0.26)",
+              border: "1px solid rgba(245,158,11,0.35)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -797,70 +778,50 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
                 objectFit: "contain",
                 display: "block",
                 transform: "scale(0.9)",
-                filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.22))",
               }}
             />
           </div>
 
           <div style={{ minWidth: 0, flex: 1 }}>
-  <div
-    className="brand-text"
-    style={{
-      fontSize: "clamp(11px,0.95vw,16px)",
-      lineHeight: 1.05,
-      letterSpacing: "0.6px",
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      maxWidth: "100%",
-    }}
-  >
-    SCORPION ARABIA
-  </div>
+            <div
+              className="brand-text"
+              style={{
+                fontSize: "18px",
+                lineHeight: 1.05,
+                whiteSpace: "nowrap",
+              }}
+            >
+              SCORPION ARABIA
+            </div>
 
-  <div
-    style={{
-      color: "#93c5fd",
-      fontSize: 9,
-      letterSpacing: "1.5px",
-      marginTop: 4,
-      fontWeight: 700,
-      textTransform: "uppercase",
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      maxWidth: "100%",
-    }}
-  >
-    Document Portal
-  </div>
-
-  <div
-    style={{
-      marginTop: 8,
-      width: "72%",
-      maxWidth: 88,
-      height: 1,
-      background: "linear-gradient(90deg, rgba(53,89,199,0.95), rgba(53,89,199,0.35), transparent)",
-    }}
-  />
-</div>
-
-  
             <div
               style={{
-                marginTop: 8,
-                width: 88,
+                color: "#93c5fd",
+                fontSize: 9,
+                letterSpacing: "1.4px",
+                marginTop: 4,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Document Portal
+            </div>
+
+            <div
+              style={{
+                marginTop: 7,
+                width: 78,
                 height: 1,
-                background: "linear-gradient(90deg, rgba(251,191,36,0.85), rgba(56,189,248,0.45), transparent)",
+                background: "linear-gradient(90deg, rgba(245,158,11,0.95), rgba(245,158,11,0.35), transparent)",
               }}
             />
           </div>
         </div>
-      
+      </div>
 
-      {/* NAVIGATION */}
-      <nav style={{ padding: "14px 10px", flex: 1, overflowY: "auto" }}>
+      {/* Nav */}
+      <nav style={{ padding: "12px 8px", flex: 1, overflowY: "auto" }}>
         {nav.map((n) => {
           const active = page === n.id;
           const badge = n.id === "dashboard" ? alerts : null;
@@ -872,45 +833,30 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
                 setPage(n.id);
                 setSideOpen(false);
               }}
-              className={active ? "sidebar-nav-active" : ""}
               style={{
                 width: "100%",
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                padding: "12px 13px",
+                gap: 10,
+                padding: "12px 12px",
                 borderRadius: 12,
-                border: active
-                  ? "1px solid rgba(147,197,253,0.22)"
-                  : "1px solid transparent",
-                marginBottom: 7,
+                border: active ? "1px solid rgba(96,165,250,0.22)" : "1px solid transparent",
+                marginBottom: 6,
                 textAlign: "left",
-                background: active
-                  ? "linear-gradient(135deg, rgba(59,130,246,0.16), rgba(255,255,255,0.03))"
-                  : "transparent",
-                borderLeft: `3px solid ${active ? "#93c5fd" : "transparent"}`,
-                transition: "all 0.22s ease",
-                boxShadow: active ? "0 10px 24px rgba(0,0,0,0.16)" : "none",
+                background: active ? "rgba(59,130,246,0.12)" : "transparent",
+                transition: "all 0.2s ease",
               }}
               onMouseEnter={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
-                  e.currentTarget.style.transform = "translateX(2px)";
-                }
+                if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.03)";
               }}
               onMouseLeave={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.borderColor = "transparent";
-                  e.currentTarget.style.transform = "translateX(0)";
-                }
+                if (!active) e.currentTarget.style.background = "transparent";
               }}
             >
               <span
                 style={{
-                  fontSize: 20,
-                  width: 22,
+                  fontSize: 18,
+                  width: 20,
                   textAlign: "center",
                   color: active ? "#93c5fd" : "#94a3b8",
                   flexShrink: 0,
@@ -924,8 +870,7 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
                   style={{
                     fontSize: 13,
                     fontWeight: 700,
-                    color: active ? "#eaf4ff" : "#e2e8f0",
-                    letterSpacing: ".2px",
+                    color: active ? "#f8fbff" : "#e2e8f0",
                   }}
                 >
                   {n.label}
@@ -944,18 +889,17 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
               {badge ? (
                 <span
                   style={{
-                    background: "linear-gradient(135deg, #dc2626, #ef4444)",
+                    background: "#dc2626",
                     color: "#fff",
                     borderRadius: 999,
-                    minWidth: 22,
-                    height: 22,
-                    padding: "0 7px",
+                    minWidth: 20,
+                    height: 20,
+                    padding: "0 6px",
                     fontSize: 10,
                     fontWeight: 800,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 6px 14px rgba(220,38,38,0.28)",
                   }}
                 >
                   {badge}
@@ -966,24 +910,22 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
         })}
       </nav>
 
-      {/* ACTIONS */}
+      {/* Actions */}
       <div
         style={{
-          padding: "10px",
+          padding: "10px 8px",
           display: "grid",
           gap: 8,
           borderTop: "1px solid rgba(255,255,255,0.06)",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)",
         }}
       >
         <button
           onClick={onManageProjects}
           style={{
             ...sidebarAuxBtnStyle(),
-            background: "linear-gradient(135deg, rgba(251,191,36,0.10), rgba(255,255,255,0.02))",
-            border: "1px solid rgba(251,191,36,0.18)",
+            background: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.20)",
             color: "#f6d77a",
-            boxShadow: "0 8px 18px rgba(0,0,0,0.15)",
           }}
         >
           ⊕ Manage Projects
@@ -993,25 +935,22 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
           onClick={() => setDarkMode((d) => !d)}
           style={{
             ...sidebarAuxBtnStyle(),
-            background: "linear-gradient(135deg, rgba(56,189,248,0.10), rgba(255,255,255,0.02))",
-            border: "1px solid rgba(56,189,248,0.16)",
-            color: "#bde8ff",
-            boxShadow: "0 8px 18px rgba(0,0,0,0.15)",
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: "#dbe7f5",
           }}
         >
           {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
         </button>
       </div>
 
-      {/* FOOTER */}
+      {/* Footer */}
       <div
         style={{
-          padding: "14px 18px 18px",
+          padding: "12px 16px 16px",
           fontSize: 10,
-          color: "rgba(255,255,255,0.28)",
+          color: "rgba(255,255,255,0.22)",
           textAlign: "center",
-          letterSpacing: "1.2px",
-          textTransform: "uppercase",
         }}
       >
         Scorpion Arabia © 2025
@@ -2316,19 +2255,244 @@ function iconBtnStyle(bg, color) {
   };
 }
 
-function sidebarAuxBtnStyle() {
-  return {
-    width: "100%",
-    textAlign: "left",
-    padding: "11px 12px",
-    borderRadius: 10,
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.03)",
-    color: "#e2e8f0",
-    fontSize: 12,
-    fontWeight: 700,
-    transition: "all 0.2s ease",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-  };
+function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDarkMode, onManageProjects }) {
+  const isMobile = window.innerWidth < 900;
+
+  const nav = [
+    { id: "dashboard", icon: "▦", label: "Dashboard", desc: "Overview" },
+    { id: "scorpion", icon: "◉", label: "Scorpion Documents", desc: "Company docs" },
+    { id: "projects", icon: "◆", label: "Project Docs", desc: "Invoices & certs" },
+    { id: "manpower", icon: "◈", label: "Manpower", desc: "Staff & records" },
+    { id: "equipment", icon: "◎", label: "Equipment", desc: "Assets & permits" },
+  ];
+
+  return (
+    <aside
+      style={{
+        width: "260px",
+        flexShrink: 0,
+        background: "#060b16",
+        borderRight: "1px solid rgba(255,255,255,0.06)",
+        display: "flex",
+        flexDirection: "column",
+        zIndex: 50,
+        position: isMobile ? "fixed" : "relative",
+        top: 0,
+        left: 0,
+        height: "100%",
+        transform: isMobile ? (sideOpen ? "translateX(0)" : "translateX(-100%)") : "none",
+        transition: "transform .28s ease",
+        boxShadow: isMobile ? "0 20px 50px rgba(0,0,0,0.35)" : "none",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          padding: "18px 16px 14px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+          <div
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: "50%",
+              overflow: "hidden",
+              background: "#000",
+              flexShrink: 0,
+              border: "1px solid rgba(245,158,11,0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              src="logo.png"
+              alt="Scorpion Arabia"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                display: "block",
+                transform: "scale(0.9)",
+              }}
+            />
+          </div>
+
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div
+              className="brand-text"
+              style={{
+                fontSize: "18px",
+                lineHeight: 1.05,
+                whiteSpace: "nowrap",
+              }}
+            >
+              SCORPION ARABIA
+            </div>
+
+            <div
+              style={{
+                color: "#93c5fd",
+                fontSize: 9,
+                letterSpacing: "1.4px",
+                marginTop: 4,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Document Portal
+            </div>
+
+            <div
+              style={{
+                marginTop: 7,
+                width: 78,
+                height: 1,
+                background: "linear-gradient(90deg, rgba(245,158,11,0.95), rgba(245,158,11,0.35), transparent)",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ padding: "12px 8px", flex: 1, overflowY: "auto" }}>
+        {nav.map((n) => {
+          const active = page === n.id;
+          const badge = n.id === "dashboard" ? alerts : null;
+
+          return (
+            <button
+              key={n.id}
+              onClick={() => {
+                setPage(n.id);
+                setSideOpen(false);
+              }}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: active ? "1px solid rgba(96,165,250,0.22)" : "1px solid transparent",
+                marginBottom: 6,
+                textAlign: "left",
+                background: active ? "rgba(59,130,246,0.12)" : "transparent",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+              }}
+              onMouseLeave={(e) => {
+                if (!active) e.currentTarget.style.background = "transparent";
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 18,
+                  width: 20,
+                  textAlign: "center",
+                  color: active ? "#93c5fd" : "#94a3b8",
+                  flexShrink: 0,
+                }}
+              >
+                {n.icon}
+              </span>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: active ? "#f8fbff" : "#e2e8f0",
+                  }}
+                >
+                  {n.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: active ? "#8fb9df" : "#64748b",
+                    marginTop: 2,
+                  }}
+                >
+                  {n.desc}
+                </div>
+              </div>
+
+              {badge ? (
+                <span
+                  style={{
+                    background: "#dc2626",
+                    color: "#fff",
+                    borderRadius: 999,
+                    minWidth: 20,
+                    height: 20,
+                    padding: "0 6px",
+                    fontSize: 10,
+                    fontWeight: 800,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {badge}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Actions */}
+      <div
+        style={{
+          padding: "10px 8px",
+          display: "grid",
+          gap: 8,
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <button
+          onClick={onManageProjects}
+          style={{
+            ...sidebarAuxBtnStyle(),
+            background: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.20)",
+            color: "#f6d77a",
+          }}
+        >
+          ⊕ Manage Projects
+        </button>
+
+        <button
+          onClick={() => setDarkMode((d) => !d)}
+          style={{
+            ...sidebarAuxBtnStyle(),
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: "#dbe7f5",
+          }}
+        >
+          {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+        </button>
+      </div>
+
+      {/* Footer */}
+      <div
+        style={{
+          padding: "12px 16px 16px",
+          fontSize: 10,
+          color: "rgba(255,255,255,0.22)",
+          textAlign: "center",
+        }}
+      >
+        Scorpion Arabia © 2025
+      </div>
+    </aside>
+  );
 }
