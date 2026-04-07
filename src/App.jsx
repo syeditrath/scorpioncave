@@ -256,14 +256,12 @@ const GLOBAL_CSS = `
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  background: linear-gradient(
-    90deg,
-    #f7d94c 0%,
-    #f59e0b 20%,
-    #e11d48 45%,
-    #2563eb 72%,
-    #60a5fa 100%
-  );
+  color: #3559c7;
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.30),
+    0 2px 6px rgba(0,0,0,0.18);
+  animation: brandFloat 3.2s ease-in-out infinite;
+}
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow:
@@ -804,16 +802,16 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
             />
           </div>
 
-          <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
   <div
     className="brand-text"
     style={{
-      fontSize: "clamp(12px,1.05vw,18px)",
+      fontSize: "clamp(11px,0.95vw,16px)",
       lineHeight: 1.05,
-      letterSpacing: "0.8px",
-      whiteSpace: "normal",
-      overflowWrap: "break-word",
-      wordBreak: "break-word",
+      letterSpacing: "0.6px",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
       maxWidth: "100%",
     }}
   >
@@ -823,14 +821,14 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
   <div
     style={{
       color: "#93c5fd",
-      fontSize: 10,
-      letterSpacing: "1.8px",
+      fontSize: 9,
+      letterSpacing: "1.5px",
       marginTop: 4,
       fontWeight: 700,
       textTransform: "uppercase",
-      whiteSpace: "normal",
-      overflowWrap: "break-word",
-      wordBreak: "break-word",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
       maxWidth: "100%",
     }}
   >
@@ -840,14 +838,15 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
   <div
     style={{
       marginTop: 8,
-      width: "70%",
+      width: "72%",
       maxWidth: 88,
       height: 1,
-      background:
-        "linear-gradient(90deg, rgba(245,158,11,0.9), rgba(225,29,72,0.55), rgba(37,99,235,0.35), transparent)",
+      background: "linear-gradient(90deg, rgba(53,89,199,0.95), rgba(53,89,199,0.35), transparent)",
     }}
   />
 </div>
+
+  
             <div
               style={{
                 marginTop: 8,
