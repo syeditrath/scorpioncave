@@ -781,32 +781,38 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
     }}
   />
 </div>
-          <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+  <div
+    className="brand-text"
+    style={{
+      fontSize: "17px",
+      lineHeight: 1.05,
+      letterSpacing: "0.8px",
+    }}
+  >
+    SCORPION
+  </div>
+
   <div
     className="brand-text"
     style={{
       fontSize: "15px",
       lineHeight: 1.05,
-      whiteSpace: "normal",
-      wordBreak: "break-word",
-      overflowWrap: "anywhere",
-      maxWidth: "100%",
+      letterSpacing: "1px",
+      marginTop: 2,
     }}
   >
-    SCORPION ARABIA
+    ARABIA
   </div>
 
   <div
     style={{
       color: "#93c5fd",
       fontSize: 9,
-      letterSpacing: "1.2px",
-      marginTop: 4,
+      letterSpacing: "1.4px",
+      marginTop: 5,
       fontWeight: 700,
       textTransform: "uppercase",
-      whiteSpace: "normal",
-      overflowWrap: "anywhere",
-      maxWidth: "100%",
     }}
   >
     Document Portal
@@ -817,7 +823,8 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
       marginTop: 7,
       width: 70,
       height: 1,
-      background: "linear-gradient(90deg, rgba(245,158,11,0.95), rgba(245,158,11,0.35), transparent)",
+      background:
+        "linear-gradient(90deg, rgba(245,158,11,0.95), rgba(245,158,11,0.35), transparent)",
     }}
   />
 </div>
