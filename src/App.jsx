@@ -821,7 +821,8 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
     }}
   />
 </div>
-
+        </div>
+      </div>
       {/* Nav */}
       <nav style={{ padding: "12px 8px", flex: 1, overflowY: "auto" }}>
         {nav.map((n) => {
