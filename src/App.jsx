@@ -858,7 +858,7 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
             />
           </div>
         </div>
-      </div>
+      
 
       {/* NAVIGATION */}
       <nav style={{ padding: "14px 10px", flex: 1, overflowY: "auto" }}>
