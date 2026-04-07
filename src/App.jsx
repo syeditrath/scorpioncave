@@ -106,11 +106,27 @@ const GLOBAL_CSS = `
 
 .brand-text {
   font-family: 'Cinzel', serif;
-  font-weight: 800;
-  letter-spacing: 1.8px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-  color: #f4d06f;
-  animation: brandFloat 3.2s ease-in-out infinite;
+
+  /* GOLD GRADIENT (premium) */
+  background: linear-gradient(
+    90deg,
+    #f7e7b2 0%,
+    #fbbf24 25%,
+    #ffd700 50%,
+    #f59e0b 75%,
+    #f7e7b2 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* subtle depth */
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.4),
+    0 2px 6px rgba(0,0,0,0.25);
 }
 
 .sidebar-glass {
