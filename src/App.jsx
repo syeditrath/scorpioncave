@@ -134,6 +134,27 @@ const GLOBAL_CSS = `
     from { opacity: 0; }
     to   { opacity: 1; }
   }
+  
+  @keyframes floatSoft {
+  0%, 100% {
+    transform: translateY(0px);
+    opacity: 0.10;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.16;
+  }
+}
+
+.card-symbol {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 30px;
+  font-weight: 800;
+  pointer-events: none;
+  animation: floatSoft 3.2s ease-in-out infinite;
+}
 
   @keyframes slideIn {
     from { opacity: 0; transform: translateX(30px); }
@@ -1890,6 +1911,16 @@ function PageHeader({ title, sub, children }) {
 }
 
 function KpiCard({ label, value, color }) {
+  const symbols = {
+    "Total Alerts": "▲",
+    "Overdue": "⏳",
+    "Due in 30 Days": "◷",
+    "Company Docs": "◉",
+    "Project Docs": "◆",
+    "People": "◈",
+    "Equipment": "◎",
+  };
+
   return (
     <div
       className="fade-up"
@@ -1899,8 +1930,30 @@ function KpiCard({ label, value, color }) {
         borderRadius: 12,
         boxShadow: T.shadow,
         padding: "16px 18px",
+        position: "relative",
+        overflow: "hidden",
+        transition: "transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.boxShadow = "0 16px 30px rgba(0,0,0,0.12)";
+        e.currentTarget.style.borderColor = color;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = T.shadow;
+        e.currentTarget.style.borderColor = T.border;
       }}
     >
+      <div
+        className="card-symbol"
+        style={{
+          color,
+        }}
+      >
+        {symbols[label] || "•"}
+      </div>
+
       <div
         style={{
           fontFamily: "'Barlow Condensed', sans-serif",
@@ -1908,16 +1961,36 @@ function KpiCard({ label, value, color }) {
           fontSize: 34,
           lineHeight: 1,
           color,
+          position: "relative",
+          zIndex: 2,
         }}
       >
         {value}
       </div>
-      <div style={{ marginTop: 5, fontSize: 12, color: T.textMuted }}>{label}</div>
+
+      <div
+        style={{
+          marginTop: 5,
+          fontSize: 12,
+          color: T.textMuted,
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        {label}
+      </div>
     </div>
   );
 }
 
 function QuickCard({ title, sub, stat, color, onClick }) {
+  const symbols = {
+    "Scorpion Documents": "◉",
+    "Project Docs": "◆",
+    "Manpower": "◈",
+    "Equipment": "◎",
+  };
+
   return (
     <div
       className="fade-up"
@@ -1929,13 +2002,68 @@ function QuickCard({ title, sub, stat, color, onClick }) {
         boxShadow: T.shadow,
         padding: 18,
         cursor: "pointer",
+        position: "relative",
+        overflow: "hidden",
+        transition: "transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.boxShadow = "0 16px 30px rgba(0,0,0,0.12)";
+        e.currentTarget.style.borderColor = color;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = T.shadow;
+        e.currentTarget.style.borderColor = T.border;
       }}
     >
-      <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: T.text }}>
+      <div
+        className="card-symbol"
+        style={{
+          color,
+          fontSize: 34,
+        }}
+      >
+        {symbols[title] || "•"}
+      </div>
+
+      <div
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800,
+          fontSize: 18,
+          color: T.text,
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
         {title}
       </div>
-      <div style={{ fontSize: 12, color: T.textMuted, marginTop: 3 }}>{sub}</div>
-      <div style={{ marginTop: 10, color, fontWeight: 700, fontSize: 13 }}>{stat}</div>
+
+      <div
+        style={{
+          fontSize: 12,
+          color: T.textMuted,
+          marginTop: 3,
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        {sub}
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          color,
+          fontWeight: 700,
+          fontSize: 13,
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        {stat}
+      </div>
     </div>
   );
 }
