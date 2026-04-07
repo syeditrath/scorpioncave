@@ -796,7 +796,7 @@ function Sidebar({ page, setPage, sideOpen, setSideOpen, alerts, darkMode, setDa
   <div
     className="brand-text"
     style={{
-      fontSize: "15px",
+      fontSize: "17px",
       lineHeight: 1.05,
       letterSpacing: "1px",
       marginTop: 2,
