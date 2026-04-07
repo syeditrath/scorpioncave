@@ -170,7 +170,36 @@ const GLOBAL_CSS = `
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.06); }
   }
+.card-glow {
+  position: relative;
+  overflow: hidden;
+}
 
+.card-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+
+  background: radial-gradient(
+    circle at top right,
+    rgba(255,255,255,0.12),
+    transparent 40%
+  );
+}
+
+.card-glow:hover::after {
+  opacity: 1;
+}
+
+.card-glow:hover {
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.18),
+    0 0 0 1px rgba(255,255,255,0.06);
+}
   @keyframes glowRing {
     0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
     50% { box-shadow: 0 0 0 18px rgba(251,191,36,0.18); }
@@ -1945,6 +1974,7 @@ function KpiCard({ label, value, color }) {
         e.currentTarget.style.borderColor = T.border;
       }}
     >
+       
       <div
         className="card-symbol"
         style={{
@@ -1993,30 +2023,25 @@ function QuickCard({ title, sub, stat, color, onClick }) {
 
   return (
     <div
-      className="fade-up"
-      onClick={onClick}
-      style={{
-        background: T.card,
-        border: `1px solid ${T.border}`,
-        borderRadius: 14,
-        boxShadow: T.shadow,
-        padding: 18,
-        cursor: "pointer",
-        position: "relative",
-        overflow: "hidden",
-        transition: "transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow = "0 16px 30px rgba(0,0,0,0.12)";
-        e.currentTarget.style.borderColor = color;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = T.shadow;
-        e.currentTarget.style.borderColor = T.border;
-      }}
-    >
+  className="fade-up card-glow"
+  onClick={onClick}
+  style={{
+    background: T.card,
+    border: `1px solid ${T.border}`,
+    borderRadius: 14,
+    boxShadow: T.shadow,
+    padding: 18,
+    cursor: "pointer",
+    position: "relative",
+    transition: "transform 0.2s ease",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-4px)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+  }}
+>
       <div
         className="card-symbol"
         style={{
